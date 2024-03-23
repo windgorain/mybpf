@@ -183,7 +183,7 @@ cp ../../../example/ulc/test/*.o ./
 ../tool/runbpf con simple test_func_ptr_global.o -o test_func_ptr_global.spf -j
 ./bare_spf
 > load test test_func_ptr_global.spf
-> testcmd
+> testcmd args
 > quit
 
 ```
