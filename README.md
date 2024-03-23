@@ -1,15 +1,13 @@
 # 功能
-mybpf是一个可以在用户态、嵌入式、内核ko中都可以运行的一套ebpf框架。支持多种方式运行ebpf：  
-  1. 可以以字节码方式解释执行  
-  2. 可以JIT成本机指令运行  
-  3. 可以编译为BARE和SPF格式文件运行  
+mybpf是一款轻量的ebpf运行时，可以在用户态、嵌入式、内核等多种环境运行。支持多种方式运行ebpf：字节码解释执行、jit成本机指令执行、编译为SPF/BARE文件运行。  
 
 # 特点
 mybpf的特点  
-  1. BARE和SPF格式文件非常小，占用空间小  
-  2. mybpf runtime很轻量，最精简的bare runtime实现不到100行C代码  
-  3. 支持Verifier、MAP、子函数调用、回调函数、全局变量  
-  4. 内置部分系统helper，支持自定义helper  
+  1. 轻量：runtime极度轻量，能以极低的代价到处移植  
+  2. 兼容：兼容多种运行环境，包括嵌入式、内核、用户态、跨OS、跨硬件平台  
+  3. 灵活：APP开发难度低，部署灵活快速，可以快上快下，可以动态加载、卸载APP  
+  4. 高性能：可以编译为本地指令执行  
+  5. 节省空间：BARE和SPF格式文件非常小，占用空间小  
 
 # 架构
 mybpf主要分为两部分： 编译工具 + runtime。  
@@ -140,7 +138,7 @@ cd mybpf
   bare_spf是交互模式的runtime，依赖 spf_loader.bare 文件  
   用法:  
 将bare_spf 和 spf_loader.arm64.bare spf_loader.x64.bare放在一起  
-执行bare_spf: ./bare_spf
+执行bare_spf: ./bare_spf [-c config-file]
 加载spf文件:  load instance_name file.spf  
 卸载spf文件: unload instance instance_name  
 卸载所有spf文件: unload all  
