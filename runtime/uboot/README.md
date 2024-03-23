@@ -5,15 +5,9 @@ wget https://ftp.denx.de/pub/u-boot/u-boot-2022.10.tar.bz2
 tar xjf u-boot-2022.10.tar.bz2
 ```
 
-2. 将```u-boot-2022.10```中的几个文件夹拷贝到下载的代码对应位置  
-
-3. 修改Makefile, 增加一行：
+2. 将```u-boot-2022.10```中的几个文件拷贝到下载的代码对应位置
    ```
-   libs-y += myutl/
-   ```
-4. 修改cmd/Makefile，增加一行：
-   ```
-   obj-y += spftool.o
+   cp -r mybpf/runtime/uboot/u-boot-2022.10/* ./u-boot-2022.10/
    ```
 
 # 下载编译器  
@@ -32,7 +26,24 @@ make qemu_arm64_defconfig
 make -j CROSS_COMPILE=aarch64-none-linux-gnu-
 ```
 
-# 运行
+# tftp
+在本地开启tftp服务，准备下载bare文件和spf文件到uboot
+
+# 运行uboot
 ```
 qemu-system-aarch64 -m 512 -machine virt -cpu cortex-a53 -smp 1 -bios u-boot.bin -nographic
+```
+# 加载spf runtime和 SPF APP
+在uboot命令行下执行：  
+```
+setenv serverip 192.168.64.8  #192.168.64.8是tftp服务的IP地址，需要根据情况修改自己tftp服务的iP
+tftp 0x40200000 spf_loader.arm64.bare
+load_loader 0x40200000
+
+tftp 0x40200000 fibonacci.spf
+load_spf test1 0x40200000
+
+test_spf 100000
+
+unload_spf test1
 ```
