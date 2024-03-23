@@ -140,8 +140,8 @@ cd mybpf
   bare_spf是交互模式的runtime，依赖 spf_loader.bare 文件  
   用法:  
 将bare_spf 和 spf_loader.arm64.bare spf_loader.x64.bare放在一起  
-执行bare_spf，注意根据自己环境选择对应的spf_loader:  ./bare_spf spf_loader_x64.bare  
-加载spf文件:  load file instance_name file.spf  
+执行bare_spf: ./bare_spf
+加载spf文件:  load instance_name file.spf  
 卸载spf文件: unload instance instance_name  
 卸载所有spf文件: unload all  
 触发cmd执行: testcmd
