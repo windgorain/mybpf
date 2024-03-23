@@ -27,7 +27,7 @@ static inline void _mybpf_prog_free_prog(void *f)
     RcuEngine_Call(&node->rcu_node, _mybpf_prog_free_prog_rcu);
 }
 
-static inline int _mybpf_prog_run_bpf_code(MYBPF_PROG_NODE_S *prog, OUT UINT64 *bpf_ret, MYBPF_PARAM_S *p)
+static inline int _mybpf_prog_run_bpf_code(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p)
 {
     MYBPF_CTX_S ctx = {0};
     MYBPF_LOADER_NODE_S *n = prog->loader_node;
@@ -44,27 +44,27 @@ static inline int _mybpf_prog_run_bpf_code(MYBPF_PROG_NODE_S *prog, OUT UINT64 *
         return ret;
     }
 
-    *bpf_ret = ctx.bpf_ret;
+    p->bpf_ret = ctx.bpf_ret;
 
     return 0;
 }
 
-static inline int _mybpf_prog_run_jitted_code(MYBPF_PROG_NODE_S *prog, OUT UINT64 *bpf_ret, MYBPF_PARAM_S *p)
+static inline int _mybpf_prog_run_jitted_code(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p)
 {
     U64 (*func)(U64,U64,U64,U64,U64) = prog->insn;
-    *bpf_ret = func(p->p[0], p->p[1], p->p[2], p->p[3], p->p[4]);
+    p->bpf_ret = func(p->p[0], p->p[1], p->p[2], p->p[3], p->p[4]);
     return 0;
 }
 
-static inline int _mybpf_prog_run(MYBPF_PROG_NODE_S *prog, OUT UINT64 *bpf_ret, MYBPF_PARAM_S *p)
+static inline int _mybpf_prog_run(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p)
 {
     MYBPF_LOADER_NODE_S *n = prog->loader_node;
 
     if (n->jitted) {
-        return _mybpf_prog_run_jitted_code(prog, bpf_ret, p);
+        return _mybpf_prog_run_jitted_code(prog, p);
     }
 
-    return _mybpf_prog_run_bpf_code(prog, bpf_ret, p);
+    return _mybpf_prog_run_bpf_code(prog, p);
 }
 
 void MYBPF_PROG_Free(MYBPF_RUNTIME_S *runtime, MYBPF_PROG_NODE_S *prog)
@@ -133,9 +133,9 @@ MYBPF_PROG_NODE_S * MYBPF_PROG_GetBySecName(MYBPF_RUNTIME_S *runtime, char *inst
     return NULL;
 }
 
-int MYBPF_PROG_Run(MYBPF_PROG_NODE_S *prog, OUT UINT64 *bpf_ret, MYBPF_PARAM_S *p)
+int MYBPF_PROG_Run(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p)
 {
-    return _mybpf_prog_run(prog, bpf_ret, p);
+    return _mybpf_prog_run(prog, p);
 }
 
 

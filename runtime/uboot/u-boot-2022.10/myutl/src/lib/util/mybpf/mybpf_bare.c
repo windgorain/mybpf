@@ -1,6 +1,6 @@
 /******************************************************************************
 * Copyright (C), Xingang.Li
-* Author:      Xingang.Li  Version: 1.0
+* Author:      Xingang.Li  Version: 1.0  Date: 2022-7-16
 * Description:
 ******************************************************************************/
 #include "bs.h"
@@ -11,16 +11,12 @@
 
 static void ** _mybpf_bare_malloc_bss(int bss_size)
 {
-    void **bss = MEM_Malloc(sizeof(void*));
+    void **bss = MEM_ZMalloc(16 + bss_size);
     if (! bss) {
         return NULL;
     }
 
-    *bss = MEM_ZMalloc(bss_size);
-    if (! (*bss)) {
-        MEM_Free(bss);
-        return NULL;
-    }
+    bss[0] = (char*)bss + 16;
 
     return bss;
 }
@@ -28,21 +24,20 @@ static void ** _mybpf_bare_malloc_bss(int bss_size)
 static void _mybpf_bare_free_bss(void **bss)
 {
     if (bss) {
-        if (*bss) {
-            MEM_Free(*bss);
-        }
         MEM_Free(bss);
     }
 }
 
 static int _mybpf_bare_check_depends(MYBPF_BARE_HDR_S *hdr, const void **tmp_helpers)
 {
-    int depend_count = ntohs(hdr->depends_count);
+    MYBPF_BARE_SUB_HDR_S *shdr = (void*)(hdr + 1);
+
+    int depend_count = ntohs(shdr->depends_count);
     if (depend_count == 0) {
         return 0;
     }
 
-    int *helpers = (void*)(hdr + 1);
+    int *helpers = (void*)(shdr + 1);
 
     for (int i=0; i<depend_count; i++) {
         void *fn = BpfHelper_GetFuncExt(ntohl(helpers[i]), tmp_helpers);
@@ -54,9 +49,8 @@ static int _mybpf_bare_check_depends(MYBPF_BARE_HDR_S *hdr, const void **tmp_hel
     return 0;
 }
 
-static int _mybpf_bare_check(void *mem, const void **tmp_helpers)
+static int _mybpf_bare_check(MYBPF_BARE_HDR_S *hdr, const void **tmp_helpers)
 {
-    MYBPF_BARE_HDR_S *hdr = mem;
 
     if (hdr->magic != htonl(MYBPF_BARE_MAGIC)) {
         /* 魔数不对 */
@@ -73,14 +67,15 @@ static int _mybpf_bare_check(void *mem, const void **tmp_helpers)
 static int _mybpf_bare_load(void *data, const void **tmp_helpers, OUT MYBPF_BARE_S *bare)
 {
     MYBPF_BARE_HDR_S *hdr = data;
+    MYBPF_BARE_SUB_HDR_S *shdr = (void*)(hdr + 1);
     void **bss = NULL;
 
-    int ret = _mybpf_bare_check(data, tmp_helpers);
+    int ret = _mybpf_bare_check(hdr, tmp_helpers);
     if (ret < 0) {
         return ret;
     }
 
-    int bss_size = ntohs(hdr->bss_size);
+    int bss_size = ntohs(shdr->bss_size);
     if (bss_size) {
         bss = _mybpf_bare_malloc_bss(bss_size * MYBPF_BARE_BSS_BLOCK_SIZE);
         if (! bss) {
@@ -88,9 +83,9 @@ static int _mybpf_bare_load(void *data, const void **tmp_helpers, OUT MYBPF_BARE
         }
     }
 
-    int offset = sizeof(*hdr) + (sizeof(int) * ntohs(hdr->depends_count));
-    void *prog_begin = (char*)data + offset;
-    int prog_size = ntohl(hdr->size) - offset;
+    int hdr_len = sizeof(*shdr) + (sizeof(int) * ntohs(shdr->depends_count));
+    void *prog_begin = (char*)shdr + hdr_len;
+    int prog_size = ntohl(shdr->sub_size) - hdr_len;
 
     void *fn = memdup(prog_begin, prog_size);
     if (! fn) {
@@ -100,28 +95,23 @@ static int _mybpf_bare_load(void *data, const void **tmp_helpers, OUT MYBPF_BARE
 
     bare->prog = fn;
     bare->prog_len = prog_size;
-    bare->bss = bss;
+    bare->ctx.base_helpers = BpfHelper_BaseHelper();
+    bare->ctx.sys_helpers = BpfHelper_SysHelper();
+    bare->ctx.user_helpers = BpfHelper_UserHelper();
+    bare->ctx.global_map_data = bss;
+    bare->ctx.tmp_helpers = tmp_helpers;
 
     return 0;
 }
 
-static U64 _mybpf_bare_run(MYBPF_BARE_S *bare, const void **tmp_helpers, MYBPF_PARAM_S *p)
+static U64 _mybpf_bare_call(MYBPF_BARE_S *bare, void *func, MYBPF_PARAM_S *p)
 {
-    MYBPF_AOT_PROG_CTX_S ctx = {0};
-    int (*fn)(U64, U64, U64, U64, U64, void*) = bare->prog;
-
-    if (! bare->prog) {
-        RETURN(BS_ERR);
-    }
-
-    ctx.base_helpers = BpfHelper_BaseHelper();
-    ctx.sys_helpers = BpfHelper_SysHelper();
-    ctx.user_helpers = BpfHelper_UserHelper();
-    ctx.tmp_helpers = tmp_helpers;
-    ctx.global_map_data = bare->bss;
-
-    return fn(p->p[0], p->p[1], p->p[2], p->p[3], p->p[4], &ctx);
+    U64 (*fn)(U64, U64, U64, U64, U64, void*) = func;
+    assert(fn != NULL);
+    p->bpf_ret = fn(p->p[0], p->p[1], p->p[2], p->p[3], p->p[4], &bare->ctx);
+    return p->bpf_ret;
 }
+
 
 int MYBPF_LoadBare(void *data, const void **tmp_helpers, OUT MYBPF_BARE_S *bare)
 {
@@ -131,14 +121,16 @@ int MYBPF_LoadBare(void *data, const void **tmp_helpers, OUT MYBPF_BARE_S *bare)
 void MYBPF_UnloadBare(MYBPF_BARE_S *bare)
 {
     if (bare) {
-        _mybpf_bare_free_bss(bare->bss);
+        _mybpf_bare_free_bss(bare->ctx.global_map_data);
         free(bare->prog);
         memset(bare, 0, sizeof(*bare));
     }
 }
 
-U64 MYBPF_RunBare(MYBPF_BARE_S *bare, const void **tmp_helpers, MYBPF_PARAM_S *p)
+
+U64 MYBPF_RunBareMain(MYBPF_BARE_S *bare, MYBPF_PARAM_S *p)
 {
-    return _mybpf_bare_run(bare, tmp_helpers, p);
+    return _mybpf_bare_call(bare, bare->prog, p);
 }
+
 

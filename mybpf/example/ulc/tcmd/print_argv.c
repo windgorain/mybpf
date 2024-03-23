@@ -3,7 +3,6 @@
 *
 ********************************************************/
 #include "utl/ulc_user.h"
-#include "bpf/bpf_def.h"
 
 SEC("tcmd/main")
 int main(int argc, char **argv)

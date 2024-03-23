@@ -12,7 +12,6 @@ extern "C"
 
 void * MMAP_Map(void *buf, int buf_size, int head_size);
 void MMAP_Unmap(void *buf, int total_size);
-int MMAP_MakeExe(void *buf, int size);
 
 #ifdef __cplusplus
 }

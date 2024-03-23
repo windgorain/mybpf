@@ -19,7 +19,6 @@ typedef int 				INT; /* 32 bits */
 typedef unsigned char 		UCHAR;
 typedef char			    CHAR;
 typedef char                BOOL_T;
-typedef void*               HANDLE;
 typedef unsigned long       ULONG;  /* 变长的类型,32位系统上4个字节,64位系统8个字节 */
 typedef long                LONG;   /* 变长的类型,32位系统上4个字节,64位系统8个字节 */
 typedef UINT                VRF_INDEX;
@@ -32,6 +31,8 @@ typedef char S8;
 typedef short S16;
 typedef int S32;
 typedef long long S64;
+
+typedef void *              HANDLE;
 
 #ifdef __cplusplus
 }

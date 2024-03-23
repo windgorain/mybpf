@@ -7,7 +7,7 @@
 #include "bs.h"
 #include "utl/bpf_helper_utl.h"
 
-long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
+static long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
 {
     if ((! dst) || (! unsafe_ptr)) {
         return -1;
@@ -18,25 +18,26 @@ long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
     return 0;
 }
 
-U64 __bpfktime_get_ns(void)
+static U64 __bpfktime_get_ns(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     return ((U64)ts.tv_sec * 1000000000 + (U64)ts.tv_nsec);
 }
 
-long __bpftrace_printk(const char *fmt, U32 fmt_size, void *p1, void *p2, void *p3)
+static long __bpftrace_printk(const char *fmt, U32 fmt_size, void *p1, void *p2, void *p3)
 {
+    (void)fmt_size;
     printf(fmt, p1, p2, p3);
     return 0;
 }
 
-U32 __bpfget_prandom_u32(void)
+static U32 __bpfget_prandom_u32(void)
 {
     return rand();
 }
 
-long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
+static long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
 {
     char *end;
     *res = strtol(buf, &end, flags);
@@ -50,37 +51,9 @@ long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned long *res
     return end - buf;
 }
 
-void * ulc_sys_malloc(int size)
-{
-    return malloc(size);
-}
 
-void * ulc_sys_calloc(int nitems, int size)
-{
-    return calloc(nitems, size);
-}
 
-void ulc_sys_free(void *m)
-{
-    free(m);
-}
-
-int ulc_sys_strcmp(void *a, void *b)
-{
-    return strcmp(a, b);
-}
-
-int ulc_sys_strncmp(void *a, void *b, int len)
-{
-    return strncmp(a, b, len);
-}
-
-int ulc_sys_strlen(void *a)
-{
-    return strlen(a);
-}
-
-int ulc_sys_strlcpy(char *dst, char *src, int size)
+static int ulc_sys_strlcpy(char *dst, char *src, int size)
 {
     unsigned long n;
     char *p;
@@ -96,19 +69,10 @@ int ulc_sys_strlcpy(char *dst, char *src, int size)
     }
 }
 
-int ulc_sys_strnlen(void *a, int max_len)
+static int ulc_sys_strnlen(void *a, int max_len)
 {
-    return strnlen(a, max_len);
-}
-
-void ulc_sys_memcpy(void *d, void *s, int len)
-{
-    memcpy(d, s, len);
-}
-
-void ulc_sys_memset(void *d, int c, int len)
-{
-    memset(d, c, len);
+    const char *end = memchr(a, '\0', max_len);
+    return end ? end - (char*)a : max_len;
 }
 
 /* base helper. 和linux内置定义helper一一对应,请不要注册和linux不一致的helper */
@@ -122,14 +86,27 @@ static const void * g_bpf_base_helpers[BPF_BASE_HELPER_COUNT] = {
 };
 /* sys helper. linux系统定义之外的统一定义, 请不要随意定义 */
 static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
-    [0] = ulc_sys_malloc, /* 1000000 */
-    [1] = ulc_sys_calloc,
-    [2] = ulc_sys_free,
-    [8] = ulc_sys_strncmp,
-    [9] = ulc_sys_strlen,
+    [0] = NULL, /* 1000000 */
+    [1] = calloc,
+    [2] = free,
+    [5] = malloc,
+    [8] = strncmp,
+    [9] = strlen,
     [10] = ulc_sys_strnlen,
-    [11] = ulc_sys_strcmp,
+    [11] = strcmp,
     [12] = ulc_sys_strlcpy,
+    [13] = strdup,
+    [14] = strtok_r,
+    [40] = memcpy,
+    [41] = memset,
+    [42] = memmove,
+    [102] = ftell,
+    [103] = fseek,
+    [104] = fopen,
+    [105] = fread,
+    [106] = fclose,
+    [107] = fgets,
+    [130] = time,
 };
 /* user helper. 没有任何预规定，用户可以定义 */
 static const void * g_bpf_user_helpers[BPF_USER_HELPER_COUNT];
@@ -150,7 +127,7 @@ const void ** BpfHelper_UserHelper(void)
 }
 
 /* 根据id获取helper函数指针 */
-const void * BpfHelper_GetFunc(U32 id)
+void * BpfHelper_GetFunc(unsigned int id)
 {
     if (id < BPF_BASE_HELPER_END) {
         return (void*)g_bpf_base_helpers[id];

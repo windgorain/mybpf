@@ -237,7 +237,7 @@ static int _mybpf_jit_do(MYBPF_JIT_ARCH_S *arch, MYBPF_JIT_INSN_S *jit_insn,
     _mybpf_jit_fixup(arch, jit_insn, res, cfg, jitted_code);
 
     if (cfg->mmap_exe) {
-        MMAP_MakeExe(jitted_code, jitted_size);
+        MMAP_Mprotect(jitted_code, jitted_size, PROT_READ | PROT_EXEC);
     }
 
     jit_insn->insts = jitted_code;

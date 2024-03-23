@@ -34,7 +34,7 @@ static inline int _mybpf_run_file(MYBPF_RUNTIME_S *runtime, MYBPF_FILE_CTX_S *ct
 
     MYBPF_PROG_NODE_S *prog = NULL;
     while ((prog = MYBPF_PROG_GetNext(runtime, "runfile", ctx->sec_name, prog))) {
-        ret = MYBPF_PROG_Run(prog, &ctx->bpf_ret, p);
+        ret = MYBPF_PROG_Run(prog, p);
         if (ret == MYBPF_HP_RET_STOP) {
             break;
         }

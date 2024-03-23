@@ -31,7 +31,7 @@ MYBPF_PROG_NODE_S * MYBPF_PROG_GetByFuncName(MYBPF_RUNTIME_S *runtime, char *ins
 MYBPF_PROG_NODE_S * MYBPF_PROG_GetBySecName(MYBPF_RUNTIME_S *runtime, char *instance, char *sec_name);
 MYBPF_PROG_NODE_S * MYBPF_PROG_GetNext(MYBPF_RUNTIME_S *runtime, char *instance, char *sec_name,
         MYBPF_PROG_NODE_S *current);
-int MYBPF_PROG_Run(MYBPF_PROG_NODE_S *prog, OUT UINT64 *bpf_ret, MYBPF_PARAM_S *p);
+int MYBPF_PROG_Run(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p);
 
 int MYBPF_PROG_FixupExtCalls(void *insts, int len);
 

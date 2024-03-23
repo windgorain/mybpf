@@ -20,7 +20,6 @@ typedef struct {
 typedef struct {
     char *file; 
     char *sec_name; 
-    UINT64 bpf_ret;  
     int jit;  
 }MYBPF_FILE_CTX_S;
 

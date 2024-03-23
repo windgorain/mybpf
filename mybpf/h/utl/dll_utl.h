@@ -39,7 +39,7 @@ typedef struct tagDLL_HEAD_S
         _DLL_HEAD_S * pstHead; \
     }
 
-#define DLL_HEAD_INIT_VALUE(pstDllHead)  {(VOID*)(pstDllHead), (VOID*)(pstDllHead), 0}
+#define DLL_HEAD_INIT_VALUE(pstDllHead)  {(void*)(pstDllHead), (void*)(pstDllHead), 0}
 
 static inline void DLL_INIT(DLL_HEAD_S *pstDllHead) {
     pstDllHead->prev = pstDllHead->next = (void*)pstDllHead;
@@ -64,13 +64,13 @@ static inline void * DLL_FIRST(DLL_HEAD_S *pstDllHead)
     return pstDllHead->next;
 }
 
-#define DLL_LAST(pstDllHead)   ((VOID*)(DLL_COUNT(pstDllHead) == 0 ? NULL : ((DLL_HEAD_S*)(pstDllHead))->prev))
-#define DLL_NEXT(pstDllHead,pstNode) ((VOID*)((pstNode) == NULL ? DLL_FIRST(pstDllHead) : (((DLL_NODE_S*)(pstNode))->next == (DLL_NODE_S*)pstDllHead ? NULL : ((DLL_NODE_S*)(pstNode))->next)))
-#define DLL_PREV(pstDllHead,pstNode) ((VOID*)((pstNode) == NULL ? NULL : (((DLL_NODE_S*)(pstNode))->prev == (DLL_NODE_S*)pstDllHead ? NULL : ((DLL_NODE_S*)(pstNode))->prev)))
+#define DLL_LAST(pstDllHead)   ((void*)(DLL_COUNT(pstDllHead) == 0 ? NULL : ((DLL_HEAD_S*)(pstDllHead))->prev))
+#define DLL_NEXT(pstDllHead,pstNode) ((void*)((pstNode) == NULL ? DLL_FIRST(pstDllHead) : (((DLL_NODE_S*)(pstNode))->next == (DLL_NODE_S*)pstDllHead ? NULL : ((DLL_NODE_S*)(pstNode))->next)))
+#define DLL_PREV(pstDllHead,pstNode) ((void*)((pstNode) == NULL ? NULL : (((DLL_NODE_S*)(pstNode))->prev == (DLL_NODE_S*)pstDllHead ? NULL : ((DLL_NODE_S*)(pstNode))->prev)))
 
-#define DLL_LOOPNEXT(pstDllHead,pstNode) ((VOID*)((pstNode) == NULL ? DLL_FIRST(pstDllHead) : (((DLL_NODE_S*)(pstNode))->next == (DLL_NODE_S*)pstDllHead ? DLL_FIRST(pstDllHead) : ((DLL_NODE_S*)(pstNode))->next)))
+#define DLL_LOOPNEXT(pstDllHead,pstNode) ((void*)((pstNode) == NULL ? DLL_FIRST(pstDllHead) : (((DLL_NODE_S*)(pstNode))->next == (DLL_NODE_S*)pstDllHead ? DLL_FIRST(pstDllHead) : ((DLL_NODE_S*)(pstNode))->next)))
 
-#define DLL_LOOPPREV(pstDllHead,pstNode) ((VOID*)((pstNode) == NULL ? NULL : (((DLL_NODE_S*)(pstNode))->prev == (DLL_NODE_S*)pstDllHead ? DLL_LAST(pstDllHead) : ((DLL_NODE_S*)(pstNode))->prev)))
+#define DLL_LOOPPREV(pstDllHead,pstNode) ((void*)((pstNode) == NULL ? NULL : (((DLL_NODE_S*)(pstNode))->prev == (DLL_NODE_S*)pstDllHead ? DLL_LAST(pstDllHead) : ((DLL_NODE_S*)(pstNode))->prev)))
 
 
 
@@ -217,7 +217,7 @@ static inline void DLL_DEL(DLL_HEAD_S *pstDllHead, void *del_node) {
 
 typedef int (*PF_DLL_CMP_FUNC)(DLL_NODE_S *pstNode1, DLL_NODE_S *pstNode2, void *ud);
 
-static inline VOID * DLL_Get (IN DLL_HEAD_S *pstDllHead)
+static inline void * DLL_Get (IN DLL_HEAD_S *pstDllHead)
 {
     DLL_NODE_S *pstDllNode;
 
@@ -226,7 +226,7 @@ static inline VOID * DLL_Get (IN DLL_HEAD_S *pstDllHead)
         DLL_DEL(pstDllHead,pstDllNode);
     }
 
-    return (VOID*) pstDllNode;
+    return (void*) pstDllNode;
 }
 
 static inline void DLL_DelIfInList(IN DLL_NODE_S *pstNode)
@@ -236,11 +236,11 @@ static inline void DLL_DelIfInList(IN DLL_NODE_S *pstNode)
     }
 }
 
-extern VOID DLL_Sort(IN DLL_HEAD_S *pstDllHead, IN PF_DLL_CMP_FUNC pfFunc, IN HANDLE hUserHandle);
+extern void DLL_Sort(IN DLL_HEAD_S *pstDllHead, IN PF_DLL_CMP_FUNC pfFunc, IN HANDLE hUserHandle);
 
 extern int DLL_UniqueSortAdd(DLL_HEAD_S *head, DLL_NODE_S *node, PF_DLL_CMP_FUNC cmp_func, void *user_data);
 
-extern VOID DLL_SortAdd
+extern void DLL_SortAdd
 (
     IN DLL_HEAD_S *pstDllHead,
     IN DLL_NODE_S *pstNewNode,
@@ -248,9 +248,9 @@ extern VOID DLL_SortAdd
     IN HANDLE hUserHandle
 );
 
-extern VOID DLL_Cat (IN DLL_HEAD_S *pstDllHeadDst, IN DLL_HEAD_S *pstDllHeadSrc);
+extern void DLL_Cat (IN DLL_HEAD_S *pstDllHeadDst, IN DLL_HEAD_S *pstDllHeadSrc);
 
-extern VOID * DLL_Find(IN DLL_HEAD_S *pstDllHead, IN PF_DLL_CMP_FUNC pfCmpFunc, IN VOID *pstNodeToFind, IN HANDLE hUserHandle);
+extern void * DLL_Find(IN DLL_HEAD_S *pstDllHead, IN PF_DLL_CMP_FUNC pfCmpFunc, IN void *pstNodeToFind, IN HANDLE hUserHandle);
 
 #ifdef __cplusplus
 }

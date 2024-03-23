@@ -8,26 +8,11 @@
 #include "utl/arch_utl.h"
 #include "utl/bpf_helper_utl.h"
 #include "rand.h"
-const void ** ulc_get_base_helpers(void);
-const void ** ulc_get_sys_helpers(void);
-const void ** ulc_get_user_helpers(void);
+static const void ** ulc_get_base_helpers(void);
+static const void ** ulc_get_sys_helpers(void);
+static const void ** ulc_get_user_helpers(void);
 
-void * __bpfmap_lookup_elem(void *map, const void *key)
-{
-    return NULL;
-}
-
-long __bpfmap_update_elem(void *map, const void *key, const void *value, U64 flags)
-{
-    return -1;
-}
-
-long __bpfmap_delete_elem(void *map, const void *key)
-{
-    return -1;
-}
-
-long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
+static long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
 {
     if ((! dst) || (! unsafe_ptr)) {
         return -1;
@@ -38,12 +23,12 @@ long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
     return 0;
 }
 
-U64 __bpfktime_get_ns(void)
+static U64 __bpfktime_get_ns(void)
 {
     return get_timer_us(0) * 1000;
 }
 
-long __bpftrace_printk(const char *fmt, U32 fmt_size, ...)
+static long __bpftrace_printk(const char *fmt, U32 fmt_size, ...)
 {
     va_list args;
 	int len;
@@ -55,26 +40,26 @@ long __bpftrace_printk(const char *fmt, U32 fmt_size, ...)
 	return len;
 }
 
-U32 __bpfget_prandom_u32(void)
+static U32 __bpfget_prandom_u32(void)
 {
     return rand();
 }
 
-long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
+static long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
 {
     char *end;
     *res = simple_strtol(buf, &end, flags);
     return end - buf;
 }
 
-long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned long *res)
+static long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned long *res)
 {
     char *end;
     *res = strtoul(buf, &end, flags);
     return end - buf;
 }
 
-long __bpf_snprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32 d_len)
+static long __bpf_snprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32 d_len)
 {
     switch (d_len) {
         case 0: return snprintf(str,str_size,"%s",fmt);
@@ -92,133 +77,55 @@ long __bpf_snprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32 d_len)
     }
 }
 
-void * ulc_sys_malloc(int size)
+static void * ulc_sys_rcu_malloc(int size)
 {
     return malloc(size);
 }
 
-void * ulc_sys_calloc(int nitems, int size)
-{
-    return calloc(nitems, size);
-}
-
-void ulc_sys_free(void *m)
+static void ulc_sys_rcu_free(void *m)
 {
     free(m);
 }
 
-void * ulc_sys_rcu_malloc(int size)
-{
-    return malloc(size);
-}
-
-void ulc_sys_rcu_free(void *m)
-{
-    free(m);
-}
-
-int ulc_sys_strcmp(void *a, void *b)
-{
-    return strcmp(a, b);
-}
-
-int ulc_sys_strncmp(void *a, void *b, int len)
-{
-    return strncmp(a, b, len);
-}
-
-int ulc_sys_strlen(void *a)
-{
-    return strlen(a);
-}
-
-int ulc_sys_strlcpy(void *dst, void *src, int size)
+static int ulc_sys_strlcpy(void *dst, void *src, int size)
 {
     return strlcpy(dst, src, size);
 }
 
-int ulc_sys_strnlen(void *a, int max_len)
+static int ulc_sys_strnlen(void *a, int max_len)
 {
-    return strnlen(a, max_len);
+    const char *end = memchr(a, '\0', max_len);
+    return end ? end - (char*)a : max_len;
 }
 
-char * ulc_sys_strdup(void *s)
-{
-    return strdup(s);
-}
-
-void ulc_sys_memcpy(void *d, const void *s, int len)
-{
-    memcpy(d, s, len);
-}
-
-void ulc_sys_memset(void *d, int c, int len)
-{
-    memset(d, c, len);
-}
-
-int ulc_sys_fprintf(void *fp, char *fmt, U64 *d, int count)
+static int ulc_sys_fprintf(void *fp, char *fmt, U64 *d, int count)
 {
     return -1;
 }
 
-long ulc_sys_ftell(void *fp)
+static long ulc_sys_ftell(void *fp)
 {
     return -1;
 }
 
-int ulc_sys_fseek(void *fp, long int offset, int whence)
+static int ulc_sys_fseek(void *fp, long int offset, int whence)
 {
     return -1;
 }
 
-void * ulc_sys_fopen(const char *filename, const char *mode)
+static void * ulc_sys_fopen(const char *filename, const char *mode)
 {
     return NULL;
 }
 
-long ulc_sys_fread(void *ptr, long size, long nmemb, void *stream)
+static long ulc_sys_fread(void *ptr, long size, long nmemb, void *stream)
 {
     return -1;
 }
 
-int ulc_sys_fclose(void *stream)
+static int ulc_sys_fclose(void *stream)
 {
     return -1;
-}
-
-int ulc_sys_access(const char *pathname, int mode)
-{
-    return -1;
-}
-
-static void ulc_err_code_set(int err_code, char *info, const char *file_name, const char *func_name, int line)
-{
-    return;
-}
-
-static void ulc_err_info_set(const char *fmt, ...)
-{
-	return;
-}
-
-static void * ulc_mmap_map(void *buf, int buf_size, int head_size)
-{
-    char *m = MEM_Malloc(buf_size + head_size);
-    if (m) {
-        memcpy(m + head_size, buf, buf_size);
-    }
-    return m;
-}
-
-static void ulc_mmap_unmap(void *buf, int size)
-{
-    free(buf);
-}
-
-static int ulc_mmap_make_exe(void *buf, int size)
-{
-    return 0;
 }
 
 static void * g_bpf_helper_trusteeship[16];
@@ -240,21 +147,33 @@ static void * ulc_get_trusteeship(unsigned int id)
     return g_bpf_helper_trusteeship[id];
 }
 
-void * ulc_get_helper(unsigned int id)
+static void * ulc_get_helper(unsigned int id, const void **tmp_helpers)
 {
-    return BpfHelper_GetFunc(id);
+    return BpfHelper_GetFuncExt(id, tmp_helpers);
 }
 
-int ulc_get_local_arch(void)
+static int ulc_get_local_arch(void)
 {
     return ARCH_LocalArch();
 }
 
-static const void * g_bpf_base_helpers[BPF_BASE_HELPER_END] = {
+static void * ulc_mmap_map(void *addr, U64 len, U64 flag, int fd, U64 off)
+{
+    return MEM_Malloc(len);
+}
+
+static void ulc_mmap_unmap(void *buf, int size)
+{
+    free(buf);
+}
+
+static int ulc_sys_mprotect(void *buf, int size)
+{
+    return 0;
+}
+
+static const void * g_bpf_base_helpers[BPF_BASE_HELPER_COUNT] = {
     [0] = NULL,
-    [1] = __bpfmap_lookup_elem,
-    [2] = __bpfmap_update_elem,
-    [3] = __bpfmap_delete_elem,
     [4] = __bpfprobe_read,
     [5] = __bpfktime_get_ns,
     [6] = __bpftrace_printk,
@@ -265,20 +184,22 @@ static const void * g_bpf_base_helpers[BPF_BASE_HELPER_END] = {
 };
 
 static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
-    [0] = ulc_sys_malloc, /* 1000000 */
-    [1] = ulc_sys_calloc,
-    [2] = ulc_sys_free,
+    [0] = NULL, /* 1000000 */
+    [1] = calloc,
+    [2] = free,
     [3] = ulc_sys_rcu_malloc,
     [4] = ulc_sys_rcu_free,
-    [8] = ulc_sys_strncmp,
-    [9] = ulc_sys_strlen,
+    [5] = malloc,
+    [8] = strncmp,
+    [9] = strlen,
     [10] = ulc_sys_strnlen,
-    [11] = ulc_sys_strcmp,
+    [11] = strcmp,
     [12] = ulc_sys_strlcpy,
-    [13] = ulc_sys_strdup,
-    [40] = ulc_sys_memcpy,
-    [41] = ulc_sys_memset,
-    [100] = ulc_sys_access,
+    [13] = strdup,
+    [14] = strtok,
+    [40] = memcpy,
+    [41] = memset,
+    [42] = memmove,
     [101] = ulc_sys_fprintf,
     [102] = ulc_sys_ftell,
     [103] = ulc_sys_fseek,
@@ -289,7 +210,7 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
     [401] = ulc_get_trusteeship,
     [500] = ulc_mmap_map,
     [501] = ulc_mmap_unmap,
-    [502] = ulc_mmap_make_exe,
+    [502] = ulc_sys_mprotect,
     [507] = ulc_get_local_arch,
     [508] = ulc_get_helper,
     [509] = ulc_get_base_helpers,
@@ -298,21 +219,21 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
 };
 
 static const void * g_bpf_user_helpers[BPF_USER_HELPER_COUNT] = {
-    [0] = ulc_err_code_set, /* 2000000 */
-    [1] = ulc_err_info_set,
+    [0] = NULL, /* 2000000 */
+    [1] = NULL,
 };
 
-const void ** ulc_get_base_helpers(void)
+static const void ** ulc_get_base_helpers(void)
 {
     return g_bpf_base_helpers;
 }
 
-const void ** ulc_get_sys_helpers(void)
+static const void ** ulc_get_sys_helpers(void)
 {
     return g_bpf_sys_helpers;
 }
 
-const void ** ulc_get_user_helpers(void)
+static const void ** ulc_get_user_helpers(void)
 {
     return g_bpf_user_helpers;
 }

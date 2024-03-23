@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-int MYBPF_RunBare(void *mem, void **tmp_helpers, MYBPF_PARAM_S *p);
+int MYBPF_RunBareMain(void *mem, MYBPF_PARAM_S *p);
 
 #ifdef __cplusplus
 }

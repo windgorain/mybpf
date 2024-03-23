@@ -18,11 +18,6 @@ extern "C"
 #define MYBPF_SIMPLE_CONVERT_FLAG_HAVE_NAME 0x1 
 
 typedef struct {
-    int imm; 
-    int new_imm;
-}MYBPF_SIMPLE_CONVERT_CALL_MAP_S;
-
-typedef struct {
     int jit_arch; 
 
     UINT helper_mode: 4;
@@ -33,8 +28,7 @@ typedef struct {
 
     UINT translate_mode_aot: 1; 
     UINT param_6th: 1; 
-
-    MYBPF_SIMPLE_CONVERT_CALL_MAP_S *helper_map; 
+    UINT raw_bare: 1; 
 
     U32 app_ver;
 }MYBPF_SIMPLE_CONVERT_PARAM_S;

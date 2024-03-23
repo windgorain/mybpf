@@ -6,38 +6,23 @@
 ********************************************************/
 #include "bs.h"
 #include "utl/args_utl.h"
+#include "utl/arch_utl.h"
+#include "utl/file_func.h"
 #include "utl/subcmd_utl.h"
 #include "utl/getopt2_utl.h"
 #include "utl/mybpf_bare.h"
-#include "utl/mybpf_spf_def.h"
 #include "utl/mybpf_loader_def.h"
 #include "utl/mybpf_hookpoint_def.h"
+#include "utl/mybpf_spf_def.h"
 
 static MYBPF_BARE_S g_mybpf_bare;
+static MYBPF_SPF_S *g_mybpf_spf_ctrl;
 
-static void _runbpf_opt_help(GETOPT2_NODE_S *opt)
+static void _opt_help(GETOPT2_NODE_S *opt)
 {
     char buf[4096];
     printf("%s", GETOPT2_BuildHelpinfo(opt, buf, sizeof(buf)));
     return;
-}
-
-static U64 _do_spf_cmd(int cmd, U64 p1, U64 p2, U64 p3, U64 p4)
-{
-    MYBPF_PARAM_S p;
-
-    if (! g_mybpf_bare.prog) {
-        fprintf(stderr, "Error: spf loader not loaded \n");
-        return -1;
-    }
-
-    p.p[0] = cmd;
-    p.p[1] = p1;
-    p.p[2] = p2;
-    p.p[3] = p3;
-    p.p[4] = p4;
-
-    return MYBPF_RunBare(&g_mybpf_bare, NULL, &p);
 }
 
 static int _load_spf(int argc, char **argv)
@@ -51,7 +36,7 @@ static int _load_spf(int argc, char **argv)
         {0} };
 
     if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 
@@ -59,7 +44,7 @@ static int _load_spf(int argc, char **argv)
     p.filename = filename;
     p.flag = MYBPF_LOADER_FLAG_AUTO_ATTACH;
 
-    int ret = _do_spf_cmd(SPF_CMD_LOAD, (long)&p, 0, 0, 0);
+    int ret = g_mybpf_spf_ctrl->load_instance(&p);
     if (ret < 0) {
         printf("Load failed \n");
         return ret;
@@ -70,7 +55,8 @@ static int _load_spf(int argc, char **argv)
 
 static int _show_spf(int argc, char **argv)
 {
-    return _do_spf_cmd(SPF_CMD_SHOW, 0, 0, 0, 0);
+    g_mybpf_spf_ctrl->show_all_instance();
+    return 0;
 }
 
 static int _unload_spf(int argc, char **argv)
@@ -82,19 +68,20 @@ static int _unload_spf(int argc, char **argv)
         {0} };
 
     if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 
-    return _do_spf_cmd(SPF_CMD_UNLOAD, (long)instance, 0, 0, 0);
+    return g_mybpf_spf_ctrl->unload_instance(instance);
 }
 
 static int _unload_all_spf(int argc, char **argv)
 {
-    return _do_spf_cmd(SPF_CMD_UNLOAD_ALL, 0, 0, 0, 0);
+    g_mybpf_spf_ctrl->unload_all_instance();
+    return 0;
 }
 
-static int _run_spf_params(char *params)
+static int _run_spf_run_testcmd(char *params)
 {
     char *argv[32];
     int argc = 0;
@@ -107,10 +94,10 @@ static int _run_spf_params(char *params)
     p.p[0] = argc;
     p.p[1] = (long)argv;
  
-    return _do_spf_cmd(SPF_CMD_RUN, MYBPF_HP_TCMD, (long)&p, 0, 0);
+    return g_mybpf_spf_ctrl->run(MYBPF_HP_TCMD, &p);
 }
 
-static int _test_spf_cmd(int argc, char **argv)
+static int _test_spf_testcmd(int argc, char **argv)
 {
     char *params = NULL;
     GETOPT2_NODE_S opt[] = {
@@ -118,16 +105,16 @@ static int _test_spf_cmd(int argc, char **argv)
         {0} };
 
     if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 
-    return _run_spf_params(params);
+    return _run_spf_run_testcmd(params);
 }
 
-static int _quit(int argc, char **argv)
+static void _quit(int argc, char **argv)
 {
-    _do_spf_cmd(SPF_CMD_FIN, 0, 0, 0, 0);
+    g_mybpf_spf_ctrl->finit();
     MYBPF_UnloadBare(&g_mybpf_bare);
     exit(0);
 }
@@ -135,11 +122,11 @@ static int _quit(int argc, char **argv)
 static int _run_spf(int argc, char **argv)
 {
     static SUB_CMD_NODE_S subcmds[] = {
-        {"load file", _load_spf, "load spf file"},
-        {"show instance", _show_spf, "load spf file"},
+        {"load", _load_spf, "load spf file"},
+        {"show", _show_spf, "show instance"},
         {"unload instance", _unload_spf, "unload spf"},
         {"unload all", _unload_all_spf, "unload all spf"},
-        {"testcmd", _test_spf_cmd, "test spf cmd"},
+        {"testcmd", _test_spf_testcmd, "test spf cmd"},
         {"quit", _quit, "quit"},
         {NULL}
     };
@@ -147,26 +134,65 @@ static int _run_spf(int argc, char **argv)
     return SUBCMD_DoParams(subcmds, argc, argv);
 }
 
-static int _load_spf_loader(char *spf_loader)
+static int _load_spf_loader(FILE_MEM_S *m, char *config_file)
 {
-    int ret = MYBPF_LoadBareFile(spf_loader, NULL, &g_mybpf_bare);
+    int ret;
+    MYBPF_PARAM_S p = {0};
+
+    ret = MYBPF_LoadBare(m->data, m->len, NULL, &g_mybpf_bare);
     if (ret < 0) {
-        printf("Load loader failed \n");
+        printf("Load spfloader failed \n");
         return ret;
     }
 
-    return _do_spf_cmd(SPF_CMD_INIT, 0, 0, 0, 0);
+    p.p[0] = (long)m->data;
+    MYBPF_RunBareMain(&g_mybpf_bare, &p);
+
+    g_mybpf_spf_ctrl = (void*)(long)p.bpf_ret;
+    if (! g_mybpf_spf_ctrl) {
+        printf("Can't get spf ctrl \n");
+        return -1;
+    }
+
+    ret = g_mybpf_spf_ctrl->init();
+    if (ret < 0) {
+        printf("SPF init failed \n");
+        return -1;
+    }
+
+    if (config_file) {
+        ret = g_mybpf_spf_ctrl->config_by_file(config_file);
+        if (ret < 0) {
+            printf("Load spf config failed \n");
+            return ret;
+        }
+    }
+
+    return 0;
 }
 
-static int _run(char *spf_loader)
+static int _load_spf_loader_file(char *spf_loader, char *config_file)
+{
+    FILE_MEM_S m = {0};
+
+    int ret = FILE_Mem2m(spf_loader, &m);
+    if (ret < 0) {
+        printf("Can't open file %s", spf_loader);
+        return -1;
+    }
+
+    ret = _load_spf_loader(&m, config_file);
+
+    FILE_FreeMem(&m);
+
+    return ret;
+}
+
+static int _run_cmd()
 {
     char line[256];
     char *argv[32];
     int argc = 0;
-
-    if (_load_spf_loader(spf_loader)) {
-        return -1;
-    }
 
 	printf("> ");
 
@@ -181,14 +207,44 @@ static int _run(char *spf_loader)
     return 0;
 }
 
-
-int main(int argc, char **argv)
+static int _run(char *spf_loader, char *config_file)
 {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s spf_loader \n", argv[0]);
+    if (_load_spf_loader_file(spf_loader, config_file) < 0) {
         return -1;
     }
 
-    return _run(argv[1]);
+    return _run_cmd();
+}
+
+
+int main(int argc, char **argv)
+{
+    char *spfloader = NULL;
+    char *config_file = NULL;
+
+    GETOPT2_NODE_S opt[] = {
+        {'o', 's', "spfloader", GETOPT2_V_STRING, &spfloader, "spf loader file name", 0},
+        {'o', 'c', "cfgfile", GETOPT2_V_STRING, &config_file, "config file name", 0},
+        {0} };
+
+    ErrCode_EnablePrint(1);
+
+    if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
+        _opt_help(opt);
+        return -1;
+    }
+
+    if (! spfloader) {
+        if (ARCH_LocalArch() == ARCH_TYPE_ARM64) {
+            spfloader = "spf_loader.arm64.bare";
+        } else if (ARCH_LocalArch() == ARCH_TYPE_X86_64) {
+            spfloader = "spf_loader.x64.bare";
+        } else {
+            fprintf(stderr, "Can't support this arch \n");
+            return -1;
+        }
+    }
+
+    return _run(spfloader, config_file);
 }
 

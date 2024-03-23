@@ -15,17 +15,16 @@
 
 static inline int _mybpf_process_xdp_fd(MYBPF_XDP_BUFF_S *xdp_buf, void *prog)
 {
-    UINT64 bpf_ret;
     MYBPF_PARAM_S p;
 
     p.p[0] = (long)xdp_buf;
 
-    int ret = MYBPF_PROG_Run(prog, &bpf_ret, &p);
+    int ret = MYBPF_PROG_Run(prog, &p);
     if (ret < 0) {
         return XDP_PASS;
     }
 
-    return bpf_ret;
+    return p.bpf_ret;
 }
 
 int MYBPF_XdpInput(MYBPF_RUNTIME_S *runtime, MYBPF_XDP_BUFF_S *xdp_buf)

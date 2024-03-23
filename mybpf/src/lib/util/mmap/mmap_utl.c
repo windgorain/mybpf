@@ -6,7 +6,7 @@
 #include "bs.h"
 #include <sys/mman.h>
 
-void * MMAP_Create(int size)
+static void * _mmap_create(int size)
 {
     UCHAR *code = NULL;
 
@@ -18,13 +18,43 @@ void * MMAP_Create(int size)
     return code;
 }
 
+S64 MMAP_MapFile(char *filename, OUT void **data)
+{
+    int fd;
+    fd=open(filename, O_RDWR);
+    if (fd < 0) {
+        printf("Can't open file %s \n", filename);
+        return fd;
+    }
+
+    struct stat st;
+    int r = fstat(fd, &st);
+    if (r < 0) {
+        close(fd);
+        return r;
+    }
+
+    void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);    
+    if ((p == NULL) || (p==(void*)-1)) {
+        printf("Can't mmap file %s \n", filename);
+        close(fd);
+        return -1;
+    }
+
+    *data = p;
+
+    close(fd);
+
+    return st.st_size;
+}
+
 
 void * MMAP_Map(void *buf, int buf_size, int head_size)
 {
     UCHAR *code = NULL;
     int total_size = buf_size + head_size;
 
-    code = MMAP_Create(total_size);
+    code = _mmap_create(total_size);
     if (code)  {
         memcpy(code + head_size, buf, buf_size);
     }
@@ -37,13 +67,9 @@ void MMAP_Unmap(void *buf, int size)
     munmap(buf, size);
 }
 
-int MMAP_MakeExe(void *buf, int size)
+int MMAP_Mprotect(void *buf, int size, int flag)
 {
-    if (mprotect(buf, size, PROT_READ | PROT_EXEC) < 0) {
-        RETURN(BS_ERR);
-    }
-
-    return 0;
+    return mprotect(buf, size, flag);
 }
 
 void * MMAP_MapExe(void *buf, int size)
@@ -53,7 +79,7 @@ void * MMAP_MapExe(void *buf, int size)
         return NULL;
     }
 
-    if (MMAP_MakeExe(code, size) < 0) {
+    if (mprotect(code, size, PROT_READ | PROT_EXEC) < 0) {
         MMAP_Unmap(code, size);
         return NULL;
     }

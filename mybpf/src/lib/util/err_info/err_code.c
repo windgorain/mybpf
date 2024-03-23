@@ -51,6 +51,11 @@ static char * g_err_code_info[] = {
     [-BS_STOLEN] = "Stolen"
 };
 
+void ErrCode_EnablePrint(int enable)
+{
+    g_err_code.print = enable;
+}
+
 void ErrCode_Set(int err_code, char *info, const char *file_name, const char *func_name, int line)
 {
     ERR_CODE_S *err_code_ctrl = &g_err_code;
@@ -63,15 +68,9 @@ void ErrCode_Set(int err_code, char *info, const char *file_name, const char *fu
     if (info != NULL) {
         strlcpy(err_code_ctrl->info, info, ERR_INFO_SIZE);
     }
-}
 
-void ErrCode_SetInfo(char *info)
-{
-    ERR_CODE_S *err_code_ctrl = &g_err_code;
-
-    err_code_ctrl->info[0] = '\0';
-    if (info) {
-        strlcpy(err_code_ctrl->info, info, ERR_INFO_SIZE);
+    if (err_code_ctrl->print && err_code) {
+        ErrCode_Print();
     }
 }
 

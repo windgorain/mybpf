@@ -318,13 +318,6 @@ static int _mybpf_simple_write_prog(VBUF_S *vbuf, ELF_S *elf, MYBPF_SIMPLE_CONVE
         }
     }
 
-    if ((p) && (p->helper_map)) {
-        if (MYBPF_INSN_FixupExtCalls(mem, mem_size, _MYBPF_SIMPLE_GetHelperOffset, p->helper_map) < 0) {
-            ret = ERR_Set(BS_ERR, "Fixup ext calls error");
-            goto Out;
-        }
-    }
-
     ret = _mybpf_simple_write_prog_mem(vbuf, p, mem, mem_size, progs_info, prog_count);
 
 Out:
@@ -619,7 +612,8 @@ static int _mybpf_simple_open_elf_file(char *elf_file, MYBPF_SIMPLE_CONVERT_PARA
 
     VBUF_Init(&vbuf);
 
-    if (MYBPF_SIMPLE_Bpf2SpfBuf(elf_file, p, &vbuf) >= 0) {
+    ret = MYBPF_SIMPLE_Bpf2SpfBuf(elf_file, p, &vbuf);
+    if (ret == 0) {
         ret = FILE_MemByData(VBUF_GetData(&vbuf), VBUF_GetDataLength(&vbuf), m);
     }
 

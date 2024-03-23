@@ -303,12 +303,14 @@ typedef enum
 #define BS_DBG_OUTPUT(_ulFlag,_ulSwitch,_X)  \
     do {if ((_ulFlag) & (_ulSwitch)){IC_DbgInfo _X;}}while(0)
 
+#ifndef BS_WARNNING
 #define BS_WARNNING(X)  \
     do {    \
         PRINTLN_HYELLOW("Warnning:%s(%d): ", __FILE__, __LINE__); \
         printf X;   \
         printf ("\n");    \
     }while(0)
+#endif
 
 #ifdef IN_DEBUG
 #define BS_DBG_WARNNING(X) BS_WARNNING(X)

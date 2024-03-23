@@ -12,18 +12,6 @@
 #include "mybpf_def_inner.h"
 #include "mybpf_osbase.h"
 
-static inline int _mybpf_hookpoint_process(void *prog, MYBPF_PARAM_S *p)
-{
-    U64 bpf_ret;
-
-    int ret = MYBPF_PROG_Run(prog, &bpf_ret, p);
-    if (ret < 0) {
-        return -1;
-    }
-
-    return bpf_ret;
-}
-
 static MYBPF_HOOKPOINT_NODE_S * _mybpf_hookpoint_detach(DLL_HEAD_S *list, void *prog)
 {
     MYBPF_HOOKPOINT_NODE_S *node;
@@ -66,12 +54,12 @@ int MYBPF_HookPointCall(MYBPF_RUNTIME_S *runtime, int type, MYBPF_PARAM_S *p)
 {
     MYBPF_HOOKPOINT_NODE_S *node;
     DLL_HEAD_S *list = &runtime->hp_list[type];
-    int ret = 0;
+    U64 ret = 0;
 
     int state = RcuEngine_Lock();
 
     DLL_SCAN(list, node) {
-        ret = _mybpf_hookpoint_process(node->prog, p);
+        ret = MYBPF_PROG_Run(node->prog, p);
         if (ret == MYBPF_HP_RET_STOP) {
             break;
         }

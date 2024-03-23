@@ -10,15 +10,16 @@
 extern "C" {
 #endif
 
-enum {
-    SPF_CMD_INIT = 0, /* 初始化 */
-    SPF_CMD_FIN,      /* 去初始化 */
-    SPF_CMD_LOAD,     /* 加载spf file */
-    SPF_CMD_UNLOAD,   /* 卸载instance */
-    SPF_CMD_UNLOAD_ALL,   /* 卸载instances */
-    SPF_CMD_RUN,      /* 运行SPF */
-    SPF_CMD_SHOW,     /* 显示instance */
-};
+typedef struct {
+    int (*init)(void);
+    int (*finit)(void);
+    int (*config_by_file)(char *config_file);
+    int (*load_instance)(MYBPF_LOADER_PARAM_S *p);
+    int (*unload_instance)(char *instance_name);
+    void (*unload_all_instance)(void);
+    int (*run)(int type, MYBPF_PARAM_S *p);
+    void (*show_all_instance)(void);
+}MYBPF_SPF_S;
 
 #ifdef __cplusplus
 }

@@ -172,11 +172,56 @@ static void _mybpf_laoder_free_node_rcu(void *rcu_node)
     _mybpf_loader_free_node(node->runtime, node);
 }
 
-static void _mybpf_loader_unload_node(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_NODE_S *node)
+static MYBPF_PROG_NODE_S * _mybpf_loader_find_sec(MYBPF_LOADER_NODE_S *node, char *sec)
+{
+    MYBPF_PROG_NODE_S *prog;
+    for (int i=0; i<node->main_prog_count; i++) {
+        prog = node->main_progs[i];
+        if (strcmp(sec, prog->sec_name) == 0) {
+            return prog;
+        }
+    }
+    return NULL;
+}
+static int _mybpf_loader_do_module_init(MYBPF_LOADER_NODE_S *node)
+{
+    MYBPF_PROG_NODE_S *prog;
+    MYBPF_PARAM_S p = {0};
+    char tmp[] = ".spf/init";
+    prog = _mybpf_loader_find_sec(node, tmp);
+    if (! prog) {
+        return 0;
+    }
+    MYBPF_PROG_Run(prog, &p);
+    return p.bpf_ret;
+}
+static int _mybpf_loader_notify_module_finit(MYBPF_LOADER_NODE_S *node)
+{
+    MYBPF_PROG_NODE_S *prog;
+    MYBPF_PARAM_S p = {0};
+    char tmp[] = ".spf/finit";
+    prog = _mybpf_loader_find_sec(node, tmp);
+    if (! prog) {
+        return 0;
+    }
+
+    MYBPF_PROG_Run(prog, &p);
+
+    return p.bpf_ret;
+}
+
+static int _mybpf_loader_unload_node(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_NODE_S *node)
 {
     _mybpf_loader_deattach_prog_all(runtime, node);
+
+    if (_mybpf_loader_notify_module_finit(node) < 0) {
+        return BS_NOT_COMPLETE;
+    }
+
     MAP_Del(runtime->loader_map, node->param.instance, strlen(node->param.instance));
     RcuEngine_Call(&node->rcu, _mybpf_laoder_free_node_rcu);
+
+    return 0;
 }
 
 static void _mybpf_load_and_jit(MYBPF_LOADER_NODE_S *node)
@@ -512,6 +557,10 @@ static int _mybpf_loader_load_simple(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_NODE
         return ret;
     }
 
+    ret = _mybpf_loader_do_module_init(node);
+    if (ret < 0) {
+        return ret;
+    }
     return _mybpf_loader_load_ok(runtime, node, old);
 }
 
@@ -561,11 +610,19 @@ static MYBPF_LOADER_NODE_S * _mybpf_loader_get_node(MYBPF_RUNTIME_S *runtime, ch
     return MAP_Get(runtime->loader_map, instance, strlen(instance));
 }
 
-static MYBPF_LOADER_NODE_S * _mybpf_loader_get_first_node(MYBPF_RUNTIME_S *runtime)
+static MYBPF_LOADER_NODE_S * _mybpf_loader_get_next_node(MYBPF_RUNTIME_S *runtime, void **iter)
 {
-    return MAP_GetFirst(runtime->loader_map);
-}
+    MAP_ELE_S *ele = *iter;
 
+    ele = MAP_GetNextEle(runtime->loader_map, ele);
+    *iter = ele;
+
+    if (! ele) {
+        return NULL;
+    }
+
+    return ele->pData;
+}
 
 static MYBPF_LOADER_NODE_S * _mybpf_loader_create_node(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_PARAM_S *p)
 {
@@ -708,21 +765,24 @@ int MYBPF_AttachAuto(MYBPF_RUNTIME_S *runtime, char *instance)
     return 0;
 }
 
-void MYBPF_LoaderUnload(MYBPF_RUNTIME_S *runtime, char *instance)
+int MYBPF_LoaderUnload(MYBPF_RUNTIME_S *runtime, char *instance)
 {
     MYBPF_LOADER_NODE_S *node;
 
     node = _mybpf_loader_get_node(runtime, instance);
-    if (node) {
-        _mybpf_loader_unload_node(runtime, node);
+    if (! node) {
+        RETURN(BS_NOT_FOUND);
     }
+
+    return _mybpf_loader_unload_node(runtime, node);
 }
 
 void MYBPF_LoaderUnloadAll(MYBPF_RUNTIME_S *runtime)
 {
     MYBPF_LOADER_NODE_S *node;
+    void *iter = NULL;
 
-    while ((node = _mybpf_loader_get_first_node(runtime))) {
+    while ((node = _mybpf_loader_get_next_node(runtime, &iter))) {
         _mybpf_loader_unload_node(runtime, node);
     }
 }

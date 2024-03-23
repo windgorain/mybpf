@@ -7,7 +7,6 @@
 #include "bs.h"
 #include "utl/bpf_helper_utl.h"
 #include "utl/arch_utl.h"
-#include "utl/mybpf_jit_def.h"
 #include "utl/mybpf_bare.h"
 #include "utl/mybpf_prog_def.h"
 #include "utl/mmap_utl.h"
@@ -53,7 +52,7 @@ static int _mybpf_get_bare_size(void *mem)
     return ntohl(hdr->size);
 }
 
-int MYBPF_RunBare(void *mem, void **tmp_helpers, MYBPF_PARAM_S *p)
+int MYBPF_RunBareMain(void *mem, MYBPF_PARAM_S *p)
 {
     MYBPF_BARE_HDR_S *hdr = mem;
 
@@ -64,6 +63,6 @@ int MYBPF_RunBare(void *mem, void **tmp_helpers, MYBPF_PARAM_S *p)
 
     int head_size = sizeof(*hdr) + sizeof(int) * ntohs(hdr->depends_count);
 
-    return _runbpf_run_bare((char*)mem + head_size, size - head_size, tmp_helpers, p);
+    return _runbpf_run_bare((char*)mem + head_size, size - head_size, NULL, p);
 }
 

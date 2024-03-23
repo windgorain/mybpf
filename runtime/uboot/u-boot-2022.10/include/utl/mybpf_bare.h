@@ -16,7 +16,9 @@ extern "C" {
 
 int MYBPF_LoadBare(void *data, const void **tmp_helpers, OUT MYBPF_BARE_S *bare);
 void MYBPF_UnloadBare(MYBPF_BARE_S *bare);
-U64 MYBPF_RunBare(MYBPF_BARE_S *bare, const void **tmp_helpers, MYBPF_PARAM_S *p);
+U64 MYBPF_RunBareMain(MYBPF_BARE_S *bare, MYBPF_PARAM_S *p);
+
+
 
 #ifdef __cplusplus
 }

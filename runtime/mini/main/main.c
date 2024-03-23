@@ -15,17 +15,17 @@
 
 int FILE_Mem(char *filename, void **data)
 {
-    int fd;
-    fd=open(filename, O_RDWR);
+    struct stat st;
+
+    int fd=open(filename, O_RDWR);
     if (fd < 0) {
         return fd;
     }
 
-    struct stat st;
     int r = fstat(fd, &st);
-    if (r < 0) {
+    if ((r < 0) || (st.st_size <= 0)) {
         close(fd);
-        return r;
+        return -1;
     }
 
     void *p = mmap(NULL, st.st_size, PROT_READ, MAP_SHARED, fd, 0);    
@@ -35,6 +35,7 @@ int FILE_Mem(char *filename, void **data)
     }
 
     *data = p;
+    close(fd);
 
     return st.st_size;
 }
@@ -52,14 +53,15 @@ int main(int argc, char **argv)
     }
 
     len = FILE_Mem(argv[1], &data);
-    if (len <= 0) {
+    if (len < 0) {
+        printf("Can't open file\n");
         return -1;
     }
 
     p.p[0] = argc;
     p.p[1] = (long)argv;
 
-    MYBPF_RunBare(data, NULL, &p);
+    MYBPF_RunBareMain(data, &p);
 
     munmap(data, len);
 

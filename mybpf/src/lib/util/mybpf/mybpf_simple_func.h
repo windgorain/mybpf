@@ -287,7 +287,6 @@ int _MYBPF_SIMPLE_WriteHelperDependsSec(VBUF_S *vbuf, MYBPF_HELPER_DEPENDS_S *d)
 void _MYBPF_SIMPLE_BuildReloMaps(ELF_GLOBAL_DATA_S *data, MYBPF_MAPS_SEC_S *map_sec, OUT MYBPF_RELO_MAP_S *maps_relo);
 int _MYBPF_SIMPLE_AddHelperDepends(void *insts, int insn_index, void *ud);
 void _MYBPF_SIMPLE_DropProgName(INOUT ELF_PROG_INFO_S *progs, int count);
-int _MYBPF_SIMPLE_GetHelperOffset(int imm, void *ud);
 int _MYBPF_SIMPLE_MergeMapName(FILE_MEM_S *m1, FILE_MEM_S *m2, OUT VBUF_S *vbuf);
 int _MYBPF_SIMPLE_MergeDepends(FILE_MEM_S *m1, FILE_MEM_S *m2, OUT VBUF_S *vbuf, MYBPF_HELPER_DEPENDS_S *d);
 

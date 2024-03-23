@@ -12,7 +12,7 @@
 
 static MYBPF_BARE_S g_mybpf_bare;
 
-static void _runbpf_opt_help(GETOPT2_NODE_S *opt)
+static void _opt_help(GETOPT2_NODE_S *opt)
 {
     char buf[4096];
     printf("%s", GETOPT2_BuildHelpinfo(opt, buf, sizeof(buf)));
@@ -27,12 +27,12 @@ static int _load_bare(int argc, char **argv)
         {0} };
 
     if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 
     if (filename == NULL) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 
@@ -69,7 +69,7 @@ static int _run_bare_params(char *params)
     p.p[0] = argc;
     p.p[1] = (long)argv;
  
-    return MYBPF_RunBare(&g_mybpf_bare, NULL, &p);
+    return MYBPF_RunBareMain(&g_mybpf_bare, &p);
 }
 
 static int _run_bare(int argc, char **argv)
@@ -80,7 +80,7 @@ static int _run_bare(int argc, char **argv)
         {0} };
 
     if (BS_OK != GETOPT2_Parse(argc, argv, opt)) {
-        _runbpf_opt_help(opt);
+        _opt_help(opt);
         return -1;
     }
 

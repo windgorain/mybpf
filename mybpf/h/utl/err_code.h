@@ -21,10 +21,11 @@ typedef struct {
     char info[ERR_INFO_SIZE];
     int line;
     int err_code;
+    U32 print: 1; 
 }ERR_CODE_S;
 
+void ErrCode_EnablePrint(int enable);
 void ErrCode_Set(int err_code, char *info, const char *file_name, const char *func_name, int line);
-void ErrCode_SetInfo(char *info);
 void ErrCode_Clear(void);
 const char * ErrCode_GetFileName(void);
 int ErrCode_GetLine(void);

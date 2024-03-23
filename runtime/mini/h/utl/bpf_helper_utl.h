@@ -14,7 +14,7 @@ extern "C"
 #define BPF_BASE_HELPER_END (BPF_BASE_HELPER_COUNT)
 
 #define BPF_SYS_HELPER_START 1000000
-#define BPF_SYS_HELPER_COUNT 512
+#define BPF_SYS_HELPER_COUNT 1024
 #define BPF_SYS_HELPER_END (BPF_SYS_HELPER_START + BPF_SYS_HELPER_COUNT)
 
 #define BPF_USER_HELPER_START 2000000
@@ -27,7 +27,7 @@ extern "C"
 
 typedef U64 (*PF_BPF_HELPER_FUNC)(U64 p1, U64 p2, U64 p3, U64 p4, U64 p5);
 
-const void * BpfHelper_GetFunc(U32 id);
+void * BpfHelper_GetFunc(unsigned int id);
 void * BpfHelper_GetFuncExt(unsigned int id, const void **tmp_helpers);
 
 int BpfHelper_RegFunc(U32 id, void *func);

@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 
-static inline S64 FILE_GetFpSize(void *fp)
+static inline S64 FILE_GetFpSize(FILE *fp)
 {
     S64 cur = ftell(fp);
     if (cur < 0) {

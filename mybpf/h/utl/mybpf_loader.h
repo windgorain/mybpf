@@ -42,7 +42,7 @@ typedef struct {
 
 int MYBPF_LoaderLoad(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_PARAM_S *p);
 int MYBPF_AttachAuto(MYBPF_RUNTIME_S *runtime, char *instance);
-void MYBPF_LoaderUnload(MYBPF_RUNTIME_S *runtime, char *instance);
+int MYBPF_LoaderUnload(MYBPF_RUNTIME_S *runtime, char *instance);
 void MYBPF_LoaderUnloadAll(MYBPF_RUNTIME_S *runtime);
 MYBPF_LOADER_NODE_S * MYBPF_LoaderGet(MYBPF_RUNTIME_S *runtime, char *instance);
 MYBPF_LOADER_NODE_S * MYBPF_LoaderGetNext(MYBPF_RUNTIME_S *runtime, INOUT void **iter);

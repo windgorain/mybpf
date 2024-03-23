@@ -64,19 +64,26 @@ static int _mybpf_bare_write_hdr(VBUF_S *vbuf, MYBPF_SIMPLE_CONVERT_PARAM_S *p,
         int bss_size, int depend_count)
 {
     MYBPF_BARE_HDR_S hdr = {0};
+    MYBPF_BARE_SUB_HDR_S shdr = {0};
 
-    int len = VBUF_GetDataLength(vbuf) + sizeof(hdr);
+    int slen = VBUF_GetDataLength(vbuf) + sizeof(shdr); 
+    int tlen = slen + sizeof(hdr); 
 
     hdr.magic = htonl(MYBPF_BARE_MAGIC);
-    hdr.size = htonl(len);
+    hdr.total_size = htonl(tlen);
     hdr.jit_arch = p->jit_arch;
-    hdr.bss_size = htons(bss_size);
-    hdr.app_ver = htons(p->app_ver);
-    hdr.depends_count = htons(depend_count);
-    hdr.utc_sec = TM_SecondsFromUTC();
-    hdr.utc_sec = htonl(hdr.utc_sec);
 
-    return VBUF_AddHeadBuf(vbuf, &hdr, sizeof(hdr));
+    shdr.sub_size = htonl(slen);
+    shdr.bss_size = htons(bss_size);
+    shdr.app_ver = htons(p->app_ver);
+    shdr.depends_count = htons(depend_count);
+    shdr.utc_sec = TM_SecondsFromUTC();
+    shdr.utc_sec = htonl(shdr.utc_sec);
+
+    int ret = VBUF_AddHeadBuf(vbuf, &shdr, sizeof(shdr));
+    ret |= VBUF_AddHeadBuf(vbuf, &hdr, sizeof(hdr));
+
+    return ret;
 }
 
 static int _mybpf_bare_write_depends(VBUF_S *vbuf, MYBPF_HELPER_DEPENDS_S *depends)
@@ -130,8 +137,11 @@ static int _mybpf_bare_convert_vbuf(MYBPF_SIMPLE_CONVERT_PARAM_S *p, INOUT VBUF_
     }
 
     ret = _mybpf_bare_drop_no_used(vbuf, &m);
-    ret |= _mybpf_bare_write_depends(vbuf, &depends);
-    ret |= _mybpf_bare_write_hdr(vbuf, p, bss_size, depends.count);
+
+    if (! p->raw_bare) {
+        ret |= _mybpf_bare_write_depends(vbuf, &depends);
+        ret |= _mybpf_bare_write_hdr(vbuf, p, bss_size, depends.count);
+    }
 
     return ret;
 }
