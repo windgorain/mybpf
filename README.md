@@ -157,7 +157,7 @@ unload all
 ```
 触发cmd执行:
 ```
-testcmd args
+testcmd [args]
 ```
 
 执行bare_spf时，可以使用选项 ``` -c load.cfg ```指定配置文件，自动加载APP，配置文件格式如下:  
