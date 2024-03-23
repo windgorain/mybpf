@@ -83,6 +83,7 @@ static long __bpfget_current_comm(void *buf, U32 size_of_buf)
 static long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
 {
     char *end;
+    (void)buf_len;
     *res = strtol(buf, &end, flags);
     return end - buf;
 }
@@ -90,6 +91,7 @@ static long __bpfstrtol(const char *buf, size_t buf_len, U64 flags, long *res)
 static long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned long *res)
 {
     char *end;
+    (void)buf_len;
     *res = strtoul(buf, &end, flags);
     return end - buf;
 }
