@@ -27,16 +27,16 @@ make -j CROSS_COMPILE=aarch64-none-linux-gnu-
 ```
 
 # tftp
-在本地开启tftp服务，准备下载bare文件和spf文件到uboot
+在本地开启tftp服务，准备下载BAREE文件和SPF文件到uboot
 
 # 运行uboot
 ```
 qemu-system-aarch64 -m 512 -machine virt -cpu cortex-a53 -smp 1 -bios u-boot.bin -nographic
 ```
-# 加载spf runtime和 SPF APP
+# 加载SPF runtime和 SPF APP
 在uboot命令行下执行：  
 ```
-setenv serverip 192.168.64.8  #192.168.64.8是tftp服务的IP地址，需要根据情况修改自己tftp服务的iP
+setenv serverip 192.168.64.8   #192.168.64.8是tftp服务的IP地址，需要根据情况修改自己tftp服务的iP
 tftp 0x40200000 spf_loader.arm64.bare
 load_loader 0x40200000
 
