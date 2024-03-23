@@ -1,6 +1,14 @@
 # 环境准备
-下载uboot对应版本代码  
-将```u-boot-2022.10```中的几个文件夹拷贝到下载的代码对应位置
+下载uboot对应版本代码:
+```
+wget https://ftp.denx.de/pub/u-boot/u-boot-2022.10.tar.bz2
+tar xjf u-boot-2022.10.tar.bz2
+```
+
+将```u-boot-2022.10```中的几个文件夹拷贝到下载的代码对应位置:
+```
+cp mybpf/runtime/uboot/uboot-2022.10/* ./u-boot-2022.10
+```
 
 # 编译
 ```
