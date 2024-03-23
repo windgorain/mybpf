@@ -163,8 +163,8 @@ testcmd
 执行bare_spf时，可以使用选项 ``` -c load.cfg ```指定配置文件，自动加载APP，配置文件格式如下:  
 ````
 # cat load.cfg
-load test1 test_sub_prog.o.spf
-load test2 test_global_data.o.spf
+load test1 test_sub_prog.spf
+load test2 test_global_data.spf
 ````
 
 # 使用示例
