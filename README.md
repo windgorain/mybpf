@@ -157,7 +157,7 @@ unload all
 ```
 触发cmd执行:
 ```
-testcmd
+testcmd args
 ```
 
 执行bare_spf时，可以使用选项 ``` -c load.cfg ```指定配置文件，自动加载APP，配置文件格式如下:  
@@ -183,7 +183,7 @@ cp ../../../example/ulc/test/*.o ./
 ../tool/runbpf con simple test_func_ptr_global.o -o test_func_ptr_global.spf -j
 ./bare_spf
 > load test test_func_ptr_global.spf
-> testcmd args
+> testcmd
 > quit
 
 ```
