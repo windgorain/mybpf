@@ -6,9 +6,9 @@ tar xjf u-boot-2022.10.tar.bz2
 ```
 
 2. 将```u-boot-2022.10```中的几个文件拷贝到下载的代码对应位置
-   ```
-   cp -r mybpf/runtime/uboot/u-boot-2022.10/* ./u-boot-2022.10/
-   ```
+```
+cp -r mybpf/runtime/uboot/u-boot-2022.10/* ./u-boot-2022.10/
+```
 
 # 下载编译器  
 
