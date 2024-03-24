@@ -37,6 +37,7 @@ qemu-system-aarch64 -m 512 -machine virt -cpu cortex-a53 -smp 1 -bios u-boot.bin
 在uboot命令行下执行：  
 ```
 setenv serverip 192.168.64.8   #192.168.64.8是tftp服务的IP地址，需要根据情况修改自己tftp服务的iP
+
 tftp 0x40200000 spf_loader.arm64.bare
 load_loader 0x40200000
 
