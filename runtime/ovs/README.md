@@ -33,7 +33,7 @@ MYBPF_Notify(MYBPF_HP_TCMD, &p);
 ```
 
 # 编译
-到ovs目录下执行：
+到ovs目录下编译：
 ```
 ./boot.sh
 ./configure
