@@ -238,7 +238,7 @@ static void _mybpf_load_and_jit(MYBPF_LOADER_NODE_S *node)
 
     cfg.mmap_exe = 1;
     cfg.helper_mode = MYBPF_JIT_HELPER_MODE_ID;
-    cfg.get_helper_by_id = BpfHelper_GetFunc;
+    cfg.get_helper_by_id = BpfHelper_GetFuncExt;
     cfg.tail_call_func = 12;
 
     if (MYBPF_Jit(&jit_insn, &cfg) < 0) {

@@ -17,7 +17,7 @@
 
 static int _mybpf_prog_get_helper_offset(int imm, void *ud)
 {
-    PF_BPF_HELPER_FUNC helper_func = BpfHelper_GetFunc(imm);
+    PF_BPF_HELPER_FUNC helper_func = BpfHelper_GetFuncExt(imm, ud);
     if (! helper_func) {
         return 0;
     }
@@ -28,8 +28,8 @@ static int _mybpf_prog_get_helper_offset(int imm, void *ud)
 
 
 
-int MYBPF_PROG_FixupExtCalls(void *insts, int len)
+int MYBPF_PROG_FixupExtCalls(void *insts, int len, const void **tmp_helpers)
 {
-    return MYBPF_INSN_FixupExtCalls(insts, len, _mybpf_prog_get_helper_offset, NULL);
+    return MYBPF_INSN_FixupExtCalls(insts, len, _mybpf_prog_get_helper_offset, tmp_helpers);
 }
 

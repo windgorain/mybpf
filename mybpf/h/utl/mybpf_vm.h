@@ -32,17 +32,17 @@ typedef struct {
     uint32_t helper_fixed: 1; 
     int stack_size;
     char *stack;
-    void **tmp_helpers;
+    const void **tmp_helpers;
 }MYBPF_CTX_S;
 
 int MYBPF_SetTailCallIndex(MYBPF_VM_S *vm, unsigned int idx);
-BOOL_T MYBPF_Validate(MYBPF_VM_S *vm, void *insn, UINT num_insts);
+BOOL_T MYBPF_Validate(MYBPF_VM_S *vm, void *insn, UINT num_insts, const void **tmp_helpers);
 int MYBPF_Run(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, MYBPF_PARAM_S *p);
 
 
 int MYBPF_DefultRun(MYBPF_CTX_S *ctx, MYBPF_PARAM_S *p);
 
-int MYBPF_DefultRunCode(void *begin_addr, void *end_addr, void *entry, OUT UINT64 *bpf_ret, void **tmp_helpers, MYBPF_PARAM_S *p);
+int MYBPF_DefultRunCode(void *begin_addr, void *end_addr, void *entry, OUT UINT64 *bpf_ret, const void **tmp_helpers, MYBPF_PARAM_S *p);
 
 #ifdef __cplusplus
 }

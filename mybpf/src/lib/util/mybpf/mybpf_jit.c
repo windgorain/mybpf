@@ -93,6 +93,7 @@ static int _mybpf_prog_jit_progs(MYBPF_JIT_ARCH_S *arch, MYBPF_JIT_INSN_S *jit_i
     
     if (cfg->helper_mode == MYBPF_JIT_HELPER_MODE_ID) {
         vm.get_helper_by_id = cfg->get_helper_by_id;
+        vm.tmp_helpers = cfg->tmp_helpers;
         vm.tail_call_func = cfg->tail_call_func;
     }
 

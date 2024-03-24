@@ -13,7 +13,7 @@ extern "C"
 
 #define MYBPF_JIT_EXCEPTION_FUNC_ID 0
 
-typedef void * (*PF_MYBPF_JIT_GET_HELPER_BY_ID)(unsigned int id);
+typedef void * (*PF_MYBPF_JIT_GET_HELPER_BY_ID)(unsigned int id, const void **tmp_helpers);
 
 enum {
     MYBPF_EXCEPTION_CODE_DIV_0 = 0,
@@ -24,6 +24,7 @@ typedef struct {
     UINT num_insts;
     int tail_call_func; 
     PF_MYBPF_JIT_GET_HELPER_BY_ID get_helper_by_id;
+    const void **tmp_helpers;
 }MYBPF_JIT_VM_S;
 
 typedef struct {
@@ -62,6 +63,7 @@ typedef struct {
 
     int tail_call_func; 
     PF_MYBPF_JIT_GET_HELPER_BY_ID get_helper_by_id;
+    const void **tmp_helpers;
 }MYBPF_JIT_CFG_S;
 
 int MYBPF_Jit(MYBPF_JIT_INSN_S *jit_insn, MYBPF_JIT_CFG_S *cfg);

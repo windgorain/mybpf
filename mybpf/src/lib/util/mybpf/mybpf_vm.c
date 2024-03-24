@@ -40,7 +40,7 @@ int MYBPF_SetTailCallIndex(MYBPF_VM_S *vm, unsigned int id)
     return 0;
 }
 
-static inline void * _mybpf_get_helper(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, int imm)
+static inline void * _mybpf_get_helper(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, int imm, const void **tmp_helpers)
 {
     if (imm == -1) {
         return NULL;
@@ -51,16 +51,16 @@ static inline void * _mybpf_get_helper(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, int imm
     }
 
     if (imm >= BPF_TMP_HELPER_START) {
-        return ctx->tmp_helpers[imm - BPF_TMP_HELPER_START];
+        return (void*)ctx->tmp_helpers[imm - BPF_TMP_HELPER_START];
     }
 
-    return BpfHelper_GetFunc(imm);
+    return BpfHelper_GetFuncExt(imm, tmp_helpers);
 }
 
 static inline UINT64 _mybpf_call(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, int imm,
         UINT64 p1, UINT64 p2, UINT64 p3, UINT64 p4, UINT64 p5)
 {
-    PF_BPF_HELPER_FUNC func = _mybpf_get_helper(vm, ctx, imm);
+    PF_BPF_HELPER_FUNC func = _mybpf_get_helper(vm, ctx, imm, ctx->tmp_helpers);
 
     if (! func) {
         return -1;
@@ -821,7 +821,7 @@ static int _mybpf_run_bpf(MYBPF_VM_S *vm, MYBPF_CTX_S *ctx, MYBPF_PARAM_S *p)
     }
 }
 
-BOOL_T MYBPF_Validate(MYBPF_VM_S *vm, void *insn, UINT num_insts)
+BOOL_T MYBPF_Validate(MYBPF_VM_S *vm, void *insn, UINT num_insts, const void **tmp_helpers)
 {
     MYBPF_INSN_S *insts = insn;
 
@@ -983,7 +983,7 @@ BOOL_T MYBPF_Validate(MYBPF_VM_S *vm, void *insn, UINT num_insts)
             break;
 
         case EBPF_OP_CALL:
-            if (NULL == _mybpf_get_helper(vm, NULL, inst.imm)) {
+            if (NULL == _mybpf_get_helper(vm, NULL, inst.imm, tmp_helpers)) {
                 vm->print_func("invalid call immediate at PC %d", i);
                 return false;
             }

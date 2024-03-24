@@ -29,7 +29,7 @@ int MYBPF_DefultRun(MYBPF_CTX_S *ctx, MYBPF_PARAM_S *p)
 }
 
 
-int MYBPF_DefultRunCode(void *begin_addr, void *end_addr, void *entry, OUT UINT64 *bpf_ret, void **tmp_helpers, MYBPF_PARAM_S *p)
+int MYBPF_DefultRunCode(void *begin_addr, void *end_addr, void *entry, OUT UINT64 *bpf_ret, const void **tmp_helpers, MYBPF_PARAM_S *p)
 {
     MYBPF_CTX_S ctx = {0};
 

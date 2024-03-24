@@ -33,7 +33,7 @@ MYBPF_PROG_NODE_S * MYBPF_PROG_GetNext(MYBPF_RUNTIME_S *runtime, char *instance,
         MYBPF_PROG_NODE_S *current);
 int MYBPF_PROG_Run(MYBPF_PROG_NODE_S *prog, MYBPF_PARAM_S *p);
 
-int MYBPF_PROG_FixupExtCalls(void *insts, int len);
+int MYBPF_PROG_FixupExtCalls(void *insts, int len, const void **tmp_helpers);
 
 #ifdef __cplusplus
 }
