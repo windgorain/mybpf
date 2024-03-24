@@ -253,19 +253,6 @@ const void ** BpfHelper_UserHelper(void)
     return (const void **)g_bpf_user_helpers;
 }
 
-void * BpfHelper_GetFunc(unsigned int id)
-{
-    if (id < BPF_BASE_HELPER_END) {
-        return (void*)g_bpf_base_helpers[id];
-    } else if ((id >= BPF_SYS_HELPER_START) && (id < BPF_SYS_HELPER_END)) {
-        return (void*)g_bpf_sys_helpers[id - BPF_SYS_HELPER_START];
-    } else if ((id >= BPF_USER_HELPER_START) && (id < BPF_USER_HELPER_END)) {
-        return (void*)g_bpf_user_helpers[id - BPF_USER_HELPER_START];
-    }
-
-    return NULL;
-}
-
 void * BpfHelper_GetFuncExt(unsigned int id, const void **tmp_helpers)
 {
     if (id < BPF_BASE_HELPER_END) {
@@ -275,7 +262,11 @@ void * BpfHelper_GetFuncExt(unsigned int id, const void **tmp_helpers)
     } else if ((id >= BPF_USER_HELPER_START) && (id < BPF_USER_HELPER_END)) {
         return (void*)g_bpf_user_helpers[id - BPF_USER_HELPER_START];
     } else if ((id >= BPF_TMP_HELPER_START) && (id < BPF_TMP_HELPER_END) && (tmp_helpers)) {
-        return (void*)tmp_helpers[id - BPF_TMP_HELPER_START];
+        int idx = id - BPF_TMP_HELPER_START;
+        if ((idx <= 0) || (idx >= *(U32*)tmp_helpers)) { /* tmp_helpers的开始位置放的是tmp_helpers数组大小 */
+            return NULL;
+        }
+        return (void*)tmp_helpers[idx];
     }
 
     return NULL;
