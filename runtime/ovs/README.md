@@ -26,10 +26,13 @@ lib_libopenvswitch_la_SOURCES = \
 ...
 MYBPF_PARAM_S p = {0};
 
+/* p.p[0] - p.p[4] 是传递给bpf的5个参数 */
 p.p[0] = argc;
 p.p[1] = (long)argv;
 
-MYBPF_Notify(MYBPF_HP_TCMD, &p); 
+/* p.bpf_ret为bpf的返回值 */
+MYBPF_Notify(MYBPF_HP_TCMD, &p);
+...
 ```
 
 # 编译
