@@ -36,10 +36,8 @@ static int _runbpf_run_bare(void *data, int len, void **tmp_helpers, MYBPF_PARAM
     return ret;
 }
 
-static int _mybpf_get_bare_size(void *mem)
+static int _mybpf_bare_check(MYBPF_BARE_HDR_S *hdr)
 {
-    MYBPF_BARE_HDR_S *hdr = mem;
-
     if (hdr->magic != htonl(MYBPF_BARE_MAGIC)) {
         /* 魔数不对 */
         RETURNI(BS_NOT_MATCHED, "Magic not match");
@@ -49,20 +47,20 @@ static int _mybpf_get_bare_size(void *mem)
         RETURNI(BS_NOT_SUPPORT, "Jit arch not matched");
     }
 
-    return ntohl(hdr->size);
+    return 0;
 }
 
 int MYBPF_RunBareMain(void *mem, MYBPF_PARAM_S *p)
 {
     MYBPF_BARE_HDR_S *hdr = mem;
+    MYBPF_BARE_SUB_HDR_S *shdr = (void*)(hdr + 1);
 
-    int size = _mybpf_get_bare_size(mem);
-    if (size < 0) {
-        return size;
+    if (_mybpf_bare_check(hdr) < 0) {
+        return -1;
     }
 
-    int head_size = sizeof(*hdr) + sizeof(int) * ntohs(hdr->depends_count);
+    int head_size = sizeof(*shdr) + sizeof(int) * ntohs(shdr->depends_count);
 
-    return _runbpf_run_bare((char*)mem + head_size, size - head_size, NULL, p);
+    return _runbpf_run_bare((char*)shdr + head_size, ntohl(shdr->sub_size) - head_size, NULL, p);
 }
 

@@ -16,8 +16,8 @@
 #include <malloc.h>
 #include <phy.h>
 #include <vsprintf.h>
-#include "int_types.h"
-#include "types.h"
+#include "utl/int_types.h"
+#include "utl/types.h"
 #include "utl/uboot_stub.h"
 #include "utl/dll_utl.h"
 

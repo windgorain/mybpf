@@ -12,7 +12,7 @@
     extern "C" {
 #endif 
 
-#include "types.h"
+#include "utl/types.h"
 
 HANDLE TRAY_Create(IN HANDLE hWnd, IN UINT ulNotifyMsg, IN UINT uiID);
 VOID TRAY_Delete(IN HANDLE hTrayId);

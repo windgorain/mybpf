@@ -7,7 +7,7 @@
 #ifndef _TYPES_H
 #define _TYPES_H
 
-#include "int_types.h"
+#include "utl/int_types.h"
 
 #ifdef __cplusplus
 extern "C" {

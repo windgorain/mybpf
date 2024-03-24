@@ -7,7 +7,7 @@
 ********************************************************/
 #include <sys/mman.h>
 #include "bs.h"
-#include "types.h"
+#include "utl/types.h"
 #include "utl/file_utl.h"
 #include "utl/elf_utl.h"
 #include "utl/mem_utl.h"

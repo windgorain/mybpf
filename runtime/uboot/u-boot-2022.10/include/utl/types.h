@@ -8,7 +8,7 @@
 #ifndef __INCazHead_h
 #define __INCazHead_h
 
-#include "int_types.h"
+#include "utl/int_types.h"
 
 #ifdef __cplusplus
 extern "C" {

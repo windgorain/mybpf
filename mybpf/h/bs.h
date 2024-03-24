@@ -12,7 +12,7 @@
     extern "C" {
 #endif 
 
-#include "cpu_def.h"
+#include "utl/cpu_def.h"
 #include "bs/head_bs.h"
 #include "bs/mem_bs.h"
 #include "utl/backtrace_utl.h"
@@ -26,7 +26,7 @@
 #include "bs/exec_bs.h"
 #include "bs/rcu_engine.h"
 
-#include "stub_bs.h"
+#include "utl/stub_bs.h"
 
 #include "utl/err_code.h"
 #include "utl/num_utl.h"

@@ -16,8 +16,8 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include "baseos.h"
-#include "types.h"
+#include "utl/baseos.h"
+#include "utl/types.h"
 
 
 #ifdef __cplusplus

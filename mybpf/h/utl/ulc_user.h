@@ -6,7 +6,7 @@
 #ifndef _ULC_USER_H
 #define _ULC_USER_H
 
-#include "int_types.h"
+#include "utl/int_types.h"
 #include "utl/ulc_def.h"
 #include "utl/ulc_user_base.h"
 #include "utl/ulc_user_sys.h"

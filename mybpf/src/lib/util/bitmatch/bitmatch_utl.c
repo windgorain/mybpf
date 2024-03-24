@@ -5,7 +5,7 @@
 *
 *********************************************************/
 #include "bs.h"
-#include "types.h"
+#include "utl/types.h"
 #include "utl/array_bit.h"
 #include "utl/err_code.h"
 #include "utl/bitmatch_utl.h"
