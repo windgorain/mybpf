@@ -175,7 +175,7 @@ static int _load_spf_loader_file(char *spf_loader, char *config_file)
 {
     FILE_MEM_S m = {0};
 
-    int ret = FILE_Mem2m(spf_loader, &m);
+    int ret = FILE_Mem(spf_loader, &m);
     if (ret < 0) {
         printf("Can't open file %s", spf_loader);
         return -1;

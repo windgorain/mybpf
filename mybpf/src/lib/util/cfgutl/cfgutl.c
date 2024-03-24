@@ -45,20 +45,18 @@ VOID CFGUTL_Open(IN CHAR *pszFileName, IN CFGUTL_REG_TBL_S *pstRegTbl, IN UINT u
 {
     CHAR       *pucLineHead = NULL;
     UINT      ulLineLen;
-    FILE_MEM_S *pstMemMap;
+    FILE_MEM_S m;
 
     BS_DBGASSERT(NULL != pszFileName);
     BS_DBGASSERT(NULL != pstRegTbl);
 
-    pstMemMap = FILE_Mem(pszFileName);
-    if (NULL == pstMemMap)
-    {
+    if (0 != FILE_Mem(pszFileName, &m)) {
         return;
     }
     
-    TXT_StrimAndMove((CHAR*)pstMemMap->data);
+    TXT_StrimAndMove((CHAR*)m.data);
 
-    TXT_SCAN_LINE_BEGIN((CHAR*)pstMemMap->data, pucLineHead, ulLineLen)
+    TXT_SCAN_LINE_BEGIN((CHAR*)m.data, pucLineHead, ulLineLen)
     {
         pucLineHead[ulLineLen] = '\0';
         TXT_StrimAndMove(pucLineHead);
@@ -69,7 +67,7 @@ VOID CFGUTL_Open(IN CHAR *pszFileName, IN CFGUTL_REG_TBL_S *pstRegTbl, IN UINT u
         }
     }TXT_SCAN_LINE_END();
 
-    FILE_MemFree(pstMemMap);
+    FILE_FreeMem(&m);
 
     return;
 }

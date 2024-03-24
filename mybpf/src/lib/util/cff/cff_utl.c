@@ -28,14 +28,12 @@ BOOL_T _ccf_IsSort(IN _CFF_S *pstCff)
 
 static VOID ccf_Close(IN _CFF_S *pstCff)
 {
-    if (NULL != pstCff->pcFileName)
-    {
+    if (pstCff->pcFileName) {
         MEM_Free(pstCff->pcFileName);
     }
 
-    if (NULL != pstCff->pstFileMemMap)
-    {
-        FILE_MemFree(pstCff->pstFileMemMap);
+    if (pstCff->file_mem.data) {
+        FILE_FreeMem(&pstCff->file_mem);
     }
 
     MKV_DelAllInMark(&pstCff->stCfgRoot);
@@ -76,22 +74,18 @@ _CFF_S * _cff_Open(IN CHAR *pcFileName, IN UINT uiFlag)
     }
     TXT_Strlcpy(pstCff->pcFileName, pcFileName, uiFileNameLen + 1);
 
-    pstCff->pstFileMemMap = FILE_Mem(pcFileName);
-    if (NULL == pstCff->pstFileMemMap)
-    {
+    if (0 != FILE_Mem(pcFileName, &pstCff->file_mem)) {
         ccf_Close(pstCff);
         return NULL;
     }
 
-    pstCff->pcFileContent = (CHAR*)pstCff->pstFileMemMap->data;
+    pstCff->pcFileContent = (CHAR*)pstCff->file_mem.data;
 
     
-    if (pstCff->pstFileMemMap->len >= 3)
-    {
+    if (pstCff->file_mem.len >= 3) {
         if ((pstCff->pcFileContent[0] == (CHAR)0xef)
             && (pstCff->pcFileContent[1] == (CHAR)0xbb)
-            && (pstCff->pcFileContent[2] == (CHAR)0xbf))
-        {
+            && (pstCff->pcFileContent[2] == (CHAR)0xbf)) {
             pstCff->uiFlag |= CFF_FLAG_UTF8_BOM;
             pstCff->pcFileContent += 3;
         }

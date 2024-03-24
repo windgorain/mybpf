@@ -165,14 +165,15 @@ BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf)
 
 BS_STATUS CMDLST_ScanByFile(CMDLST_S *ctrl, char *filename)
 {
-    FILE_MEM_S *filemap = FILE_Mem(filename);
-    if (NULL == filemap) {
+    FILE_MEM_S m;
+
+    if (0 != FILE_Mem(filename, &m)) {
         RETURN(BS_CAN_NOT_OPEN);
     }
 
-    CMDLST_Scan(ctrl, (char*)filemap->data);
+    CMDLST_Scan(ctrl, (char*)m.data);
 
-    FILE_MemFree(filemap);
+    FILE_FreeMem(&m);
 
     return 0;
 }

@@ -29,7 +29,7 @@ typedef struct
     MKV_MARK_S stCfgRoot;  
     UINT uiFlag;
     CHAR *pcFileName;
-    FILE_MEM_S *pstFileMemMap;
+    FILE_MEM_S file_mem;
     CHAR *pcFileContent;
 }_CFF_S;
 

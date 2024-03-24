@@ -164,7 +164,7 @@ int MYBPF_LoadBareFile(char *file, const void **tmp_helpers, OUT MYBPF_BARE_S *b
     int ret;
     FILE_MEM_S m = {0};
 
-    ret = FILE_Mem2m(file, &m);
+    ret = FILE_Mem(file, &m);
     if (ret < 0) {
         RETURNI(BS_CAN_NOT_OPEN, "Can't open file");
     }

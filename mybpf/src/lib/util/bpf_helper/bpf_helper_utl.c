@@ -272,7 +272,6 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
 
 static const void * g_bpf_user_helpers[BPF_USER_HELPER_COUNT] = {
     [0] = NULL, 
-    [1] = NULL,
 };
 
 static const void ** ulc_get_base_helpers(void)

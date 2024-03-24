@@ -781,24 +781,6 @@ VOID FILE_WriteStr(IN FILE *fp, IN CHAR *pszString)
     fwrite(pszString, 1, strlen(pszString), fp);
 }
 
-
-FILE_MEM_S * FILE_Mem(IN CHAR *pszFilePath)
-{
-    FILE_MEM_S *m = NULL;
-
-    m = MEM_ZMalloc(sizeof(FILE_MEM_S));
-    if (! m) {
-        return NULL;
-    }
-
-    if (FILE_Mem2m(pszFilePath, m) < 0) {
-        MEM_Free(m);
-        return NULL;
-    }
-    
-    return m;
-}
-
 int FILE_MemByData(void *data, int data_len, OUT FILE_MEM_S *m)
 {
     m->len = data_len;
@@ -813,14 +795,6 @@ int FILE_MemByData(void *data, int data_len, OUT FILE_MEM_S *m)
     m->data[data_len] = '\0';
 
     return 0;
-}
-
-VOID FILE_MemFree(IN FILE_MEM_S *pstMemMap)
-{
-    if (pstMemMap) {
-        MEM_SafeFree(pstMemMap->data);
-        MEM_Free(pstMemMap);
-    }
 }
 
 

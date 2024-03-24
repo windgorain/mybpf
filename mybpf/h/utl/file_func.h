@@ -38,7 +38,7 @@ static inline void FILE_FreeMem(FILE_MEM_S *m)
     }
 }
 
-static inline int FILE_Mem2m(char *filename, FILE_MEM_S *m)
+static inline int FILE_Mem(char *filename, FILE_MEM_S *m)
 {
     FILE *fp;
     S64 filesize;

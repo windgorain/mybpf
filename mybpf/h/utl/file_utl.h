@@ -230,10 +230,7 @@ extern VOID FILE_WriteStr(IN FILE *fp, IN CHAR *pszString);
 
 extern int FILE_MemTo(IN CHAR *pszFilePath, OUT void *buf, int buf_size);
 
-
-extern FILE_MEM_S * FILE_Mem(IN CHAR *pszFilePath);
 extern int FILE_MemByData(void *data, int data_len, OUT FILE_MEM_S *m);
-VOID FILE_MemFree(IN FILE_MEM_S *pstMemMap);
 
 typedef VOID (*PF_ScanFile_Output)
 (
