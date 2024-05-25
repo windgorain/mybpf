@@ -88,18 +88,6 @@ Openwrt (Newifi2+解释器)
 树莓派 (2B+)  
 华为手机 (P20+Termux)  
 
-# 测试展示
-Linux内核：  
-![KBCM1vnTKk](https://github.com/windgorain/mybpf/assets/35138361/880a3a22-2a07-45b1-a495-234095fd2712)
-![TtDGHepWlM](https://github.com/windgorain/mybpf/assets/35138361/366fdb65-c9ac-4752-866c-ba48f1b3ffca)
-
-Uboot：  
-![img_v3_028f_3492d659-26c0-4d64-ba7e-7c1a0d54f70g](https://github.com/windgorain/mybpf/assets/35138361/2842b492-0960-4033-b62f-92424ad2e51d)
-
-MacOS：  
-![img_v3_028f_cd5a074f-8457-4308-b7db-d4ac7f6b81fg](https://github.com/windgorain/mybpf/assets/35138361/4a781dfc-a6b6-4acc-9707-1c95dd4d7405)
-
-
 # 编译mybpf
 cd mybpf  
 这里有两个build_xxx.sh文件，分别是不同环境下的编译脚本  
