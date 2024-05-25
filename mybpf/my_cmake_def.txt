@@ -1,0 +1,184 @@
+
+set(CMAKE_C_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -Wno-error=deprecated-declarations -Werror -g -ggdb")
+set(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -Wno-error=deprecated-declarations -Werror -g -ggdb")
+set(CMAKE_C_FLAGS_RELEASE "$ENV{CXXFLAGS} -Wall -Wno-error=deprecated-declarations -Werror -O3 -D__FILE__='\"$(@F:.c.o=.c)\"'")
+set(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wno-error=deprecated-declarations -Wall -Werror -D__FILE__='\"$(@F:.c.o=.c)\"'")
+
+add_definitions(-Wno-builtin-macro-redefined)
+
+IF (UNIX AND NOT APPLE)
+    set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map=output.map")
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-Map=output.map")
+ENDIF()
+
+IF (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+ENDIF()
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-D IN_DEBUG)
+endif()
+
+option (IN_LINUX "build in linux" OFF)
+if (IN_LINUX)
+    add_definitions(-D IN_LINUX)
+endif()
+
+option (IN_UNIXLIKE "build in unixlike" OFF)
+if (IN_UNIXLIKE)
+    add_definitions(-D IN_UNIXLIKE)
+endif()
+
+option (IN_MAC "build in macos" OFF)
+if (IN_MAC)
+    add_definitions(-D IN_MAC)
+endif()
+
+option (IN_WINDOWS "build in windows" OFF)
+if (IN_WINDOWS)
+    add_definitions(-D IN_WINDOWS)
+endif()
+
+option (USE_REDIS "Use redis" OFF)
+if (USE_REDIS)
+    add_definitions(-D USE_REDIS)
+endif()
+
+option (USE_ULC "Use ulc" OFF)
+if (USE_ULC)
+    add_definitions(-D USE_ULC)
+endif()
+
+if (USE_HS)
+    add_definitions(-D INTEL_HYPERSCAN)
+endif()
+
+if (NFV_FW)
+    add_definitions(-D NFV_FW)
+endif()
+
+include_directories(${CMAKE_SOURCE_DIR}/3rd/hs/include)
+
+if (USE_IOT)
+    add_definitions(-D USE_IOT)
+    link_directories(${CMAKE_SOURCE_DIR}/3rd/hs/lib)
+    include_directories(/usr/include/libxml2)
+endif()
+
+IF (UNIX AND NOT APPLE)
+    option (USE_DPDK "Use DPDK" ON)
+    if (USE_DPDK)
+        add_definitions(-D USE_DPDK)
+    endif()
+ENDIF()
+
+if (USE_XDP)
+    add_definitions(-D USE_XDP)
+endif()
+
+if (USE_MYSQL)
+    add_definitions(-D USE_MYSQL)
+endif()
+
+if (USE_BACKTRACE)
+    add_definitions(-D USE_BACKTRACE)
+endif()
+
+IF (USE_DPDK)
+    set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -march=native")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -march=native")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -march=native")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
+ENDIF()
+if (USE_SAMPLE)
+   add_definitions(-D USE_SAMPLE)
+endif()
+
+if (USE_KLC)
+	add_definitions(-D USE_KLC)
+endif()
+
+IF (WIN32)
+    set(CMAKE_C_FLAGS "/utf-8 ${CMAKE_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "/utf-8 ${CMAKE_CXX_FLAGS}")
+ENDIF()
+
+include_directories(${CMAKE_SOURCE_DIR}/h)
+IF (WIN32)
+include_directories(${CMAKE_SOURCE_DIR}/../open/h)
+include_directories(${CMAKE_SOURCE_DIR}/../open/h/pcre)
+include_directories(${CMAKE_SOURCE_DIR}/../open/h/winpcap)
+ENDIF()
+
+if(EXISTS "/usr/include/lua5.3")
+include_directories(/usr/include/lua5.3)
+endif()
+
+IF (APPLE)
+
+if(EXISTS "/usr/local/opt/openssl/include")
+include_directories(/usr/local/opt/openssl/include)
+include_directories(/usr/local/opt/libelf/include)
+include_directories(/usr/local/opt/libelf/include/libelf)
+include_directories(/usr/local/opt/mysql/include)
+include_directories(/usr/local/opt/mysql/include/mysql)
+include_directories(/usr/local/opt/pcre/include)
+include_directories(/usr/local/opt/lua/include/lua)
+link_directories(/usr/local/opt/openssl/lib)
+link_directories(/usr/local/opt/lua/lib)
+link_directories(/usr/local/opt/libelf/lib)
+link_directories(/usr/local/opt/mysql/lib)
+else()
+include_directories(/opt/homebrew/opt/openssl/include)
+include_directories(/opt/homebrew/opt/libelf/include)
+include_directories(/opt/homebrew/opt/libelf/include/libelf)
+include_directories(/opt/homebrew/opt/mysql/include)
+include_directories(/opt/homebrew/opt/mysql/include/mysql)
+include_directories(/opt/homebrew/opt/pcre/include)
+include_directories(/opt/homebrew/opt/lua/include/lua)
+link_directories(/opt/homebrew/opt/openssl/lib)
+link_directories(/opt/homebrew/opt/lua/lib)
+link_directories(/opt/homebrew/opt/libelf/lib)
+link_directories(/opt/homebrew/opt/mysql/lib)
+endif()
+
+ENDIF ()
+
+
+IF (UNIX AND NOT APPLE)
+link_directories(/usr/lib64/mysql)
+ENDIF()
+
+#使用相对路径lib
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+SET(CMAKE_SKIP_BUILD_RPATH TRUE)
+#SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+SET(CMAKE_INSTALL_RPATH "./lib")
+SET(CMAKE_LIBRARY_PATH "./lib")
+
+#设置输出目录
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/static_lib) 
+SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/out/lib) 
+SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/out) 
+
+MACRO(SUBDIRLIST result curdir)
+  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+  SET(dirlist "")
+  FOREACH(child ${children})
+    IF(IS_DIRECTORY ${curdir}/${child})
+      LIST(APPEND dirlist ${child})
+    ENDIF()
+  ENDFOREACH()
+  SET(${result} ${dirlist})
+ENDMACRO()
+
+SUBDIRLIST(SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR})
+
+MACRO(IS_IN_LIST result ele thelist)
+  SET(result 0)
+  FOREACH(the_ele ${thelist})
+    IF(${ele} STREQUAL ${the_ele})
+      SET(result 1)
+    ENDIF()  
+  ENDFOREACH()
+ENDMACRO()
