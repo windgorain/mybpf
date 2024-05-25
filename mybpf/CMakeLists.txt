@@ -21,6 +21,4 @@ add_subdirectory(./src/lib/base)
 add_subdirectory(./spf/runtime)
 
 # spf/tools
-# IF (UNIX AND NOT APPLE)
 add_subdirectory(./spf/tools)
-# ENDIF()
