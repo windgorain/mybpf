@@ -26,8 +26,6 @@ SPF/BARE格式文件的好处:
 3. 占用存储空间很少(Flash、RAM需求都很少)，需要的代码段资源也很少，这对资源紧张的嵌入式系统很友好  
 4. 简洁的runtime不用频繁更新，大多数的功能升级、演进工作在编译工具中完成  
 
-附：不同格式文件大小:  
-![image](https://github.com/windgorain/mybpf/assets/35138361/7a62a067-4d74-49cc-8cb9-3735041291e5)
 
 # runtime说明
 | 名称  | 目录 | 说明 |
