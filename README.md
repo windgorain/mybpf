@@ -44,7 +44,7 @@ MacBook Pro  芯片：Apple M2 Pro  macOS：14.2.1
 
 测试结果:  
 本地指令执行：  
-gcc -O3 fib.c  
+gcc -O3 fibonacci.c  
 time ./a.out 10000000000  
 执行两次结果  
 3.72s user 0.00s system 99% cpu 3.751 total  
