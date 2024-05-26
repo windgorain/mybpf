@@ -51,26 +51,26 @@ time ./a.out 10000000000
 3.74s user 0.00s system 98% cpu 3.793 total  
 
 解释执行:  
-time ./runbpf run file fibonacci.o -p 10000000000  
+time ./spfbuilder run fibonacci.o -p 10000000000  
 91.65s user 0.01s system 99% cpu 1:32.14 total  
 可以看出解释执行性能很低，需要90多秒
 
 JIT执行:  
-time ./runbpf run file fibonacci.o -p 10000000000 -j  
+time ./spfbuilder run fibonacci.o -p 10000000000 -j  
 执行两次结果:  
 2.89s user 0.00s system 99% cpu 2.908 total  
 2.89s user 0.00s system 99% cpu 2.914 total  
 
 编译成SPF格式执行:  
-./runbpf con sim -j -m 4 fibonacci.o -o fibonacci.spf  
-time ./runbpf run file fibonacci.spf -p 10000000000  
+./spfbuilder convert fibonacci.o -j -o fibonacci.spf  
+time ./spfbuilder run fibonacci.spf -p 10000000000  
 执行两次结果:  
 2.89s user 0.00s system 99% cpu 2.911 total  
 2.89s user 0.00s system 99% cpu 2.908 total  
 
 编译成BARE格式执行:  
-./runbpf con bare -j -m 4 fibonacci.o -o fibonacci.bare  
-time ./runbpf run bare fibonacci.bare -p 10000000000  
+./barebuilder con bare fibonacci.o -o fibonacci.bare  
+time ./barebuilder run fibonacci.bare -p 10000000000  
 执行两次结果:  
 2.89s user 0.00s system 99% cpu 2.910 total  
 2.89s user 0.00s system 99% cpu 2.907 total  
