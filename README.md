@@ -75,7 +75,7 @@ time ./barebuilder run fibonacci.bare -p 10000000000
 2.89s user 0.00s system 99% cpu 2.910 total  
 2.89s user 0.00s system 99% cpu 2.907 total  
 
-# 已实验环境
+# 已测试环境
 已经尝试在多种不同环境移植并运行，包括：  
 Linux用户态(Centos/Ubuntu)  
 Linux内核态  
