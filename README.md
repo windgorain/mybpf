@@ -100,34 +100,30 @@ cd mybpf
 
 # 用法
 ## 编译  
-  编译为BARE格式  
-    runbpf convert bare ebpf文件名 -o 输出文件名  
   编译为SPF格式  
-    runbpf convert simple -j ebpf文件名 -o 输出文件名  
+    spfbuilder convert -j ebpf文件名 -o 输出文件名  
 
 ## 执行 
-  运行BARE格式文件:  
-    runbpf run bare bare文件名  
   运行spf格式文件:  
-    runbpf run file SPF文件名  
+    spfbuilder run SPF文件名  
 
 ## runtime
-### bare_cmd
-  bare_cmd是以命令行方式执行BARE文件的runtime  
-  用法:  bare_cmd file.bare  
+### bare-cmd
+  bare-cmd是以命令行方式执行BARE文件的runtime  
+  用法:  bare-cmd file.bare  
   file.bare: 文件名  
 
 ### bare_interactive
-  bare_interactive是交互模式的 bare runtime  
+  bare-interactive是交互模式的 bare runtime  
 
-### bare_spf
-  bare_spf是交互模式的runtime，依赖 spf_loader.bare 文件  
+### spfcmd
+  spfcmd是SPF runtime，依赖 spf_loader.bare 文件  
   用法:  
 
-将bare_spf 和 spf_loader.arm64.bare spf_loader.x64.bare放在一起  
+将spfcmd 和 spf_loader.arm64.bare spf_loader.x64.bare放在一起  
 执行bare_spf:
 ```
-./bare_spf
+./spfcmd
 ```
 加载spf文件:
 ```
