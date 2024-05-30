@@ -96,7 +96,7 @@ cd mybpf
 在Linux机器上  
 ./build_linux.sh  
 
-编译结果在: build/out/  
+编译结果在: build/out/spf/  
 
 # 用法
 ## 编译  
