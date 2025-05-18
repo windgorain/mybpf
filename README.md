@@ -76,19 +76,20 @@ int main()
 clang -O2 -I ../h -target bpf -c hello_world.c  -D IN_ULC_USER  
 ```
 
-# runtime说明
-| 名称  | 目录 | 说明 |
-| --- | --- | --- |
-| bare-cmd | mybpf/spf/bare_cmd | 运行BARE文件 |
-| bare-interactive | mybpf/spf/runtime/bare_interactive | 以交互模式运行BARE文件 |
-| spfcmd | mybpf/spf/runtime/spf_cmd | 运行SPF文件的runtime |
-| mini | runtime/mini | 非常小的bare runtime |
-| uboot | runtime/uboot | 支持在uboot上运行 |
-
 # APP说明
 | 名称 | 说明 |
 | --- | --- |
 | lua5.1.spf | 将lua5.1编译成了spf格式文件. 不支持浮点数运算 |
 | loader_cmd.spf | 交互式spf运行时 |
 | nc_server.spf | nc服务器 |
+
+# runtime说明
+| 名称 | 说明 |
+| --- | --- |
+| bare-cmd | 运行BARE文件 |
+| bare-interactive | 以交互模式运行BARE文件 |
+| spfcmd | 运行SPF文件的runtime |
+| mini | 非常小的bare runtime示例 |
+| uboot | 在uboot中嵌入运行时 |
+| ovs | 在ovs中嵌入运行时 |
 
