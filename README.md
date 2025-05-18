@@ -64,15 +64,15 @@ cd build/out/spf
 cp -r ../../../loader/* ./
 cp ../../../example/*.o ./
 
-\# 执行示例
+# 执行示例
 ./spfcmd hello_world.o
 ./spfcmd app/lua5.1.spf -e "print('hello world')"
 
-\# 先转换为spf文件再执行
+# 先转换为spf文件再执行
 ./spfbuilder convert hello_world.o -o hello_world.spf -j
 ./spfcmd hello_world.spf
 
-\# 转换为bare文件执行
+# 转换为bare文件执行
 ./barebuilder convert hello_world.o -o hello_world.bare
 ./bare-cmd hello_world.bare
 ```
