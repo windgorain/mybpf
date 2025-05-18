@@ -72,7 +72,9 @@ cd mybpf
 ```
 cd mybpf
 
-./build_mac.sh 或者 ./build_linux.sh
+# ./build_mac.sh 或者 ./build_linux.sh
+# 本例以linux上执行为例
+./build_linux.sh
 
 cd build/out/spf
 cp -r ../../../loader/* ./
