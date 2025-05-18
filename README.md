@@ -58,7 +58,7 @@ cp ../../../example/*.o ./
 ```
 
 # 编写APP 示例
-cd example
+到 example 目录
 创建 hello_world.c, 输入以下内容:  
 ```
 #include "utl/ulc_user.h"
