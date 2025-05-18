@@ -50,7 +50,7 @@ cd mybpf
 
 # 用法
 ## 转换为SPF格式  
-    spfbuilder convert ebpf文件名 -o 输出文件名 -j
+  spfbuilder convert ebpf文件名 -o 输出文件名 -j
 
 ## 执行 
   运行ebpf文件:  
@@ -67,12 +67,6 @@ cd mybpf
 
 ### spfcmd
   spfcmd是SPF runtime
-  用法:  
-
-执行bare_spf:
-```
-./spfcmd hello_world.o
-```
 
 # 使用示例
 ```
@@ -80,7 +74,7 @@ cd mybpf
 
 ./build_mac.sh 或者 ./build_linux.sh
 
-cd build/out/spf_runtime
+cd build/out/spf
 cp -r ../../../loader/* ./
 cp ../../../example/*.o ./
 
@@ -93,7 +87,7 @@ cp ../../../example/*.o ./
 
 # 转换为bare文件执行
 ./barebuilder convert hello_world.o -o hello_world.bare
-./bare_cmd hello_world.bare
+./bare-cmd hello_world.bare
 ```
 
 # 编写APP 示例
