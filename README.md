@@ -15,26 +15,10 @@ mybpf主要分为两部分： 编译工具 + runtime。
 runtime负责运行SPF/BARE文件  
 
 # 文件格式
-当前支持两种目标指令集：ARM64和X86-64，其它还待增加。  
+当前支持两种目标指令集：ARM64和X86-64
 支持输出两种不同的文件格式：SPF格式和BARE格式。  
 BARE格式较简单，支持bss全局变量(不支持data, rodata),  支持内部子函数、支持helper。不支持map。  
 SPF格式比BARE格式复杂(但也比elf要简单)，支持全局变量(bss、data、rodata)、子函数、map、helper。  
-
-SPF/BARE格式文件的好处:  
-1. 相比ELF, spf的文件格式非常简单，这使得处理这种格式的runtime代码非常少。  
-2. 因为runtime代码非常精简，所以非常容易到处移植  
-3. 占用存储空间很少(Flash、RAM需求都很少)，需要的代码段资源也很少，这对资源紧张的嵌入式系统很友好  
-4. 简洁的runtime不用频繁更新，大多数的功能升级、演进工作在编译工具中完成  
-
-
-# runtime说明
-| 名称  | 目录 | 说明 |
-| --- | --- | --- |
-| bare-cmd | mybpf/spf/bare_cmd | 运行BARE文件 |
-| bare-interactive | mybpf/spf/runtime/bare_interactive | 以交互模式运行BARE文件 |
-| spfcmd | mybpf/spf/runtime/spf_cmd | 运行SPF文件的runtime |
-| mini | runtime/mini | 非常小的bare runtime |
-| uboot | runtime/uboot | 支持在uboot上运行 |
 
 # 编译
 cd mybpf  
@@ -112,4 +96,19 @@ int main()
 clang -O2 -I ../h -target bpf -c hello_world.c  -D IN_ULC_USER  
 ```
 
+# runtime说明
+| 名称  | 目录 | 说明 |
+| --- | --- | --- |
+| bare-cmd | mybpf/spf/bare_cmd | 运行BARE文件 |
+| bare-interactive | mybpf/spf/runtime/bare_interactive | 以交互模式运行BARE文件 |
+| spfcmd | mybpf/spf/runtime/spf_cmd | 运行SPF文件的runtime |
+| mini | runtime/mini | 非常小的bare runtime |
+| uboot | runtime/uboot | 支持在uboot上运行 |
+
+# APP说明
+| 名称 | 说明 |
+| --- | --- |
+| lua5.1.spf | 将lua5.1编译成了spf格式文件 |
+| loader_cmd.spf | 交互式spf运行时 |
+| nc_server.spf | nc服务器 |
 
