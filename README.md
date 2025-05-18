@@ -1,5 +1,5 @@
 # 功能
-spf是一款轻量的ebpf运行时，可以在用户态、嵌入式、内核等多种环境运行。支持多种方式运行ebpf：字节码解释执行、jit成本机指令执行、编译为SPF/BARE文件运行。  
+spf(simple bpf)是一款轻量的ebpf运行时，可以在用户态、嵌入式、内核等多种环境运行。支持多种方式运行ebpf：字节码解释执行、jit成本机指令执行、编译为SPF/BARE文件运行。  
 
 # 特点
 mybpf的特点  
@@ -10,7 +10,7 @@ mybpf的特点
   5. 节省空间：BARE和SPF格式文件非常小，占用空间小  
 
 # 架构
-mybpf主要分为两部分： 编译工具 + runtime。  
+spf主要分为两部分： 编译工具 + runtime。  
 编译工具支持将ebpf文件编译为SPF/BARE文件  
 runtime负责运行SPF/BARE文件  
 
@@ -21,7 +21,7 @@ BARE格式较简单，支持bss全局变量(不支持data, rodata),  支持内�
 SPF格式比BARE格式复杂(但也比elf要简单)，支持全局变量(bss、data、rodata)、子函数、map、helper。  
 
 SPF/BARE格式文件的好处:  
-1. 相比ELF, mybpf的文件格式非常简单，这使得处理这种格式的runtime代码非常少。  
+1. 相比ELF, spf的文件格式非常简单，这使得处理这种格式的runtime代码非常少。  
 2. 因为runtime代码非常精简，所以非常容易到处移植  
 3. 占用存储空间很少(Flash、RAM需求都很少)，需要的代码段资源也很少，这对资源紧张的嵌入式系统很友好  
 4. 简洁的runtime不用频繁更新，大多数的功能升级、演进工作在编译工具中完成  
@@ -86,7 +86,7 @@ Openwrt (Newifi2+解释器)
 树莓派 (2B+)  
 华为手机 (P20+Termux)  
 
-# 编译mybpf
+# 编译spf
 cd mybpf  
 这里有两个build_xxx.sh文件，分别是不同环境下的编译脚本  
 
@@ -105,7 +105,7 @@ cd mybpf
 
 ## 执行 
   运行spf格式文件:  
-    spfbuilder run SPF文件名  
+    spfcmd SPF文件名  
 
 ## runtime
 ### bare-cmd
@@ -117,37 +117,13 @@ cd mybpf
   bare-interactive是交互模式的 bare runtime  
 
 ### spfcmd
-  spfcmd是SPF runtime，依赖 spf_loader.bare 文件  
+  spfcmd是SPF runtime
   用法:  
 
-将spfcmd 和 spf_loader.arm64.bare spf_loader.x64.bare放在一起  
 执行bare_spf:
 ```
-./spfcmd
+./spfcmd hello_world.o
 ```
-加载spf文件:
-```
-load instance_name file.spf  
-```
-卸载spf文件:
-```
-unload instance instance_name  
-```
-卸载所有spf文件:
-```
-unload all  
-```
-触发cmd执行:
-```
-testcmd [args]
-```
-
-执行bare_spf时，可以使用选项 ``` -c load.cfg ```指定配置文件，自动加载APP，配置文件格式如下:  
-````
-# cat load.cfg
-load test1 test_sub_prog.spf
-load test2 test_global_data.spf
-````
 
 # 使用示例
 ```
