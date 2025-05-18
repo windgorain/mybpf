@@ -36,7 +36,7 @@ SPF/BARE格式文件的好处:
 | mini | runtime/mini | 非常小的bare runtime |
 | uboot | runtime/uboot | 支持在uboot上运行 |
 
-# 编译spf
+# 编译
 cd mybpf  
 这里有两个build_xxx.sh文件，分别是不同环境下的编译脚本  
 
@@ -49,13 +49,12 @@ cd mybpf
 编译结果在: build/out/spf/  
 
 # 用法
-## 编译  
-  编译为SPF格式  
-    spfbuilder convert -j ebpf文件名 -o 输出文件名  
+## 转换为SPF格式  
+    spfbuilder convert ebpf文件名 -o 输出文件名 -j
 
 ## 执行 
-  运行spf格式文件:  
-    spfcmd SPF文件名  
+  运行ebpf文件:  
+    spfcmd 文件名  
 
 ## runtime
 ### bare-cmd
@@ -85,14 +84,20 @@ cd build/out/spf_runtime
 cp -r ../../../loader/* ./
 cp ../../../example/*.o ./
 
+# 直接执行ebpf文件
 ./spfcmd hello_world.o
 
+# 转换为spf文件执行
+./spfbuilder convert hello_world.o -o hello_world.spf -j
+./spfcmd hello_world.spf
+
+# 转换为bare文件执行
 ./barebuilder convert hello_world.o -o hello_world.bare
 ./bare_cmd hello_world.bare
 ```
 
 # 编写APP 示例
-cd example/ulc/test  
+cd example
 创建 hello_world.c, 输入以下内容:  
 ```
 #include "utl/ulc_user.h"
@@ -107,7 +112,7 @@ int main()
 
 编译成ebpf字节码文件:  
 ```
-clang -O2 -I ../../../h -target bpf -c hello_world.c  -D IN_ULC_USER  
+clang -O2 -I ../h -target bpf -c hello_world.c  -D IN_ULC_USER  
 ```
 
 
