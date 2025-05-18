@@ -88,7 +88,7 @@ clang -O2 -I ../h -target bpf -c hello_world.c  -D IN_ULC_USER
 # APP说明
 | 名称 | 说明 |
 | --- | --- |
-| lua5.1.spf | 将lua5.1编译成了spf格式文件 |
+| lua5.1.spf | 将lua5.1编译成了spf格式文件. 不支持浮点数运算 |
 | loader_cmd.spf | 交互式spf运行时 |
 | nc_server.spf | nc服务器 |
 
