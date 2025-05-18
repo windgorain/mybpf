@@ -1,5 +1,5 @@
 # 功能
-spf(simple bpf)是一款轻量的ebpf运行时，可以在用户态、嵌入式、内核等多种环境运行。支持多种方式运行ebpf：字节码解释执行、jit成本机指令执行、编译为SPF/BARE文件运行。  
+mybpf是一款轻量的ebpf运行时，可以在用户态、嵌入式、内核等多种环境运行。支持多种方式运行ebpf：字节码解释执行、jit成本机指令执行、编译为SPF/BARE文件运行。  
 
 # 特点
 mybpf的特点  
@@ -10,7 +10,7 @@ mybpf的特点
   5. 节省空间：BARE和SPF格式文件非常小，占用空间小  
 
 # 架构
-spf主要分为两部分： 编译工具 + runtime。  
+mybpf主要分为两部分： 编译工具 + runtime。  
 编译工具支持将ebpf文件编译为SPF/BARE文件  
 runtime负责运行SPF/BARE文件  
 
@@ -35,31 +35,6 @@ SPF/BARE格式文件的好处:
 | spfcmd | mybpf/spf/runtime/spf_cmd | 运行SPF文件的runtime |
 | mini | runtime/mini | 非常小的bare runtime |
 | uboot | runtime/uboot | 支持在uboot上运行 |
-
-# 性能测试
-测试环境:  
-MacBook Pro  芯片：Apple M2 Pro  macOS：14.2.1   
-
-测试方法： 计算Fibonacci，使用time命令计算消耗时间  
-
-测试结果:  
-本地指令执行：  
-gcc -O3 fibonacci.c  
-time ./a.out 10000000000  
-执行两次结果  
-3.72s user 0.00s system 99% cpu 3.751 total  
-3.74s user 0.00s system 98% cpu 3.793 total  
-
-解释执行:  
-time ./spfbuilder run fibonacci.o -p 10000000000  
-91.65s user 0.01s system 99% cpu 1:32.14 total  
-可以看出解释执行性能很低，需要90多秒
-
-JIT执行:  
-time ./spfbuilder run fibonacci.o -p 10000000000 -j  
-执行两次结果:  
-2.89s user 0.00s system 99% cpu 2.908 total  
-2.89s user 0.00s system 99% cpu 2.914 total  
 
 编译成SPF格式执行:  
 ./spfbuilder convert fibonacci.o -j -o fibonacci.spf  
