@@ -23,22 +23,6 @@ typedef struct tagSL_HEAD
     SL_NODE_S* pstFirst;
 } SL_HEAD_S;
 
-static inline VOID SL_Init(IN SL_HEAD_S* pstList);
-static inline VOID SL_NodeInit(IN SL_NODE_S* pstNode);
-static inline BOOL_T SL_IsEmpty(IN const SL_HEAD_S* pstList);
-static inline SL_NODE_S* SL_First(IN const SL_HEAD_S* pstList);
-static inline SL_NODE_S* SL_Next(IN const SL_NODE_S* pstNode);
-static inline VOID SL_AddHead(IN SL_HEAD_S* pstList, IN SL_NODE_S* pstNode);
-static inline SL_NODE_S* SL_DelHead(IN SL_HEAD_S* pstList);
-static inline VOID SL_AddAfter(IN SL_HEAD_S* pstList,
-                               IN SL_NODE_S* pstPrev,
-                               IN SL_NODE_S* pstInst);
-static inline SL_NODE_S* SL_DelAfter(IN SL_HEAD_S* pstList,
-                                     IN SL_NODE_S* pstPrev);
-static inline VOID SL_Del(IN SL_HEAD_S* pstList, IN const SL_NODE_S* pstNode);
-static inline VOID SL_Append(IN SL_HEAD_S* pstDstList, IN SL_HEAD_S* pstSrcList);
-static inline VOID SL_FreeAll(IN SL_HEAD_S *pstList, IN VOID (*pfFree)(VOID *));
-
 static inline VOID SL_Init(IN SL_HEAD_S* pstList)
 {
     pstList->pstFirst = (SL_NODE_S *)NULL;
@@ -77,13 +61,19 @@ static inline VOID SL_AddHead(IN SL_HEAD_S* pstList, IN SL_NODE_S* pstNode)
     return;
 }
 
+static inline VOID SL_AddHeadRcu(IN SL_HEAD_S* pstList, IN SL_NODE_S* pstNode)
+{
+    pstNode->pstNext  = pstList->pstFirst;
+    ATOM_BARRIER();
+    pstList->pstFirst = pstNode;
+    return;
+}
 
 static inline SL_NODE_S* SL_DelHead(IN SL_HEAD_S* pstList)
 {
     SL_NODE_S* pstNode = pstList->pstFirst;
 
-    if (NULL != pstNode)
-    {
+    if (pstNode) {
         pstList->pstFirst = pstNode->pstNext;
     }
 
@@ -105,7 +95,6 @@ static inline VOID SL_AddAfter(IN SL_HEAD_S* pstList,
     }
     return;
 }
-
 
 static inline SL_NODE_S* SL_DelAfter(IN SL_HEAD_S* pstList,
                                      IN SL_NODE_S* pstPrev)
@@ -169,7 +158,6 @@ static inline SL_NODE_S* SL_DelAfter(IN SL_HEAD_S* pstList,
           NULL != (pstEntry); \
           (VOID)({(pstPrevEntry) = (pstEntry); \
                    (pstEntry) = SL_ENTRY_NEXT(pstEntry, member);}))
-
 
 static inline VOID SL_Del(IN SL_HEAD_S* pstList, IN const SL_NODE_S* pstNode)
 {

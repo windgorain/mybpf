@@ -25,6 +25,7 @@ typedef struct netlink_msg_st {
     struct nlmsghdr hdr;
     struct genlmsghdr g;  
     int msg_type;
+    int data_len;
     int reply_size; 
     void *reply_ptr;
     char data[0];

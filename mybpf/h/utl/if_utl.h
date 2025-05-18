@@ -23,19 +23,17 @@
 
 #define IF_TYPE_INDEX_LINKER '-' 
 
-typedef UINT IF_INDEX;
+typedef UINT IF_IDX;
 
 typedef HANDLE IF_CONTAINER;
 
 
-typedef enum
-{
+typedef enum {
     IFNET_DOWN = 0,
     IFNET_UP    
 }IF_STATUS_E;
 
-typedef enum
-{
+typedef enum {
     IFNET_CMD_PHY_SET_STATUS = 0,   
     IFNET_CMD_LINK_SET_STATUS,      
     IFNET_CMD_PROTO_SET_STATUS,     
@@ -52,8 +50,7 @@ typedef enum
     IFNET_CMD_MAX
 }IF_IOCTL_CMD_E;
 
-typedef enum
-{
+typedef enum {
     IF_PHY_IOCTL_CMD_SET_SHUTDOWN = 0,  
     IF_PHY_IOCTL_CMD_GET_PRIVATE_INFO,  
 
@@ -67,35 +64,31 @@ typedef enum {
     IFCTL_CMD_MAX
 }IF_TYPE_CTL_CMD_E;
 
-typedef BS_STATUS (*PF_IF_TYPE_CTL)(IF_INDEX ifindex, int cmd, void *data);
-typedef BS_STATUS (*PF_IF_EVENT_FUNC)(IN IF_INDEX ifIndex, IN UINT uiEvent, IN USER_HANDLE_S *pstUserHandle);
-typedef BS_STATUS (*IF_PROTO_INPUT_FUNC)(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
-typedef BS_STATUS (*IF_LINK_INPUT_FUNC)(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
-typedef BS_STATUS (*IF_LINK_OUTPUT_FUNC)(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
-typedef BS_STATUS (*IF_PHY_OUTPUT_FUNC)(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
-typedef BS_STATUS (*PF_PHY_IOCTL_FUNC)(IN IF_INDEX ifIndex, IN UINT uiCmd, INOUT VOID *pData);
+typedef BS_STATUS (*PF_IF_TYPE_CTL)(IF_IDX ifindex, int cmd, void *data);
+typedef BS_STATUS (*PF_IF_EVENT_FUNC)(IN IF_IDX ifIndex, IN UINT uiEvent, IN USER_HANDLE_S *pstUserHandle);
+typedef BS_STATUS (*IF_PROTO_INPUT_FUNC)(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
+typedef BS_STATUS (*IF_LINK_INPUT_FUNC)(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
+typedef BS_STATUS (*IF_LINK_OUTPUT_FUNC)(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
+typedef BS_STATUS (*IF_PHY_OUTPUT_FUNC)(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
+typedef BS_STATUS (*PF_PHY_IOCTL_FUNC)(IN IF_IDX ifIndex, IN UINT uiCmd, INOUT VOID *pData);
 
-typedef BS_STATUS (*PF_IF_PKT_PORCESSER_FUNC)(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
+typedef BS_STATUS (*PF_IF_PKT_PORCESSER_FUNC)(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
 
-typedef struct
-{
+typedef struct {
     IF_PROTO_INPUT_FUNC pfProtoInput;
 }IF_PROTO_PARAM_S;
 
-typedef struct
-{
+typedef struct {
     IF_LINK_INPUT_FUNC pfLinkInput;
     IF_LINK_OUTPUT_FUNC pfLinkOutput;
 }IF_LINK_PARAM_S;
 
-typedef struct
-{
+typedef struct {
     IF_PHY_OUTPUT_FUNC pfPhyOutput;
     PF_PHY_IOCTL_FUNC pfPhyIoctl;
 }IF_PHY_PARAM_S;
 
-typedef struct
-{
+typedef struct {
     CHAR *pcProtoType;
     CHAR *pcLinkType;
     CHAR *pcPhyType;
@@ -119,30 +112,25 @@ IF_LINK_PARAM_S * IF_GetLinkType(IN IF_CONTAINER hContainer, IN CHAR *pcLinkType
 BS_STATUS IF_SetPhyType(IN IF_CONTAINER hContainer, IN CHAR *pcPhyType, IN IF_PHY_PARAM_S *pstParam);  
 IF_PHY_PARAM_S * IF_GetPhyType(IN IF_CONTAINER hContainer, IN CHAR *pcPhyType);
 
-UINT IF_AddIfType
-(
-    IN IF_CONTAINER hContainer,
-    IN CHAR *pcIfType,
-    IN IF_TYPE_PARAM_S *pstParam
-);
+UINT IF_AddIfType(IF_CONTAINER hContainer, CHAR *pcIfType, IF_TYPE_PARAM_S *pstParam);
 CHAR * IF_GetTypeNameByType(IN IF_CONTAINER hContainer, IN UINT uiType);
 UINT IF_GetIfTypeFlag(IN IF_CONTAINER hContainer, IN CHAR *pcIfType);
-IF_INDEX IF_CreateIf(IN IF_CONTAINER hContainer, IN CHAR *pcIfType);
-IF_INDEX IF_CreateIfByName(IN IF_CONTAINER hContainer, IN CHAR *pcIfType, IN CHAR *pcIfName);
-VOID IF_DeleteIf(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex);
-BS_STATUS IF_Ioctl(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex, IN IF_IOCTL_CMD_E enCmd, IN HANDLE hData);
-BS_STATUS IF_PhyIoctl(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex, IN IF_PHY_IOCTL_CMD_E enCmd, IN HANDLE hData);
-IF_INDEX IF_GetIfIndex(IN IF_CONTAINER hContainer, IN CHAR *pcIfName);
+IF_IDX IF_CreateIf(IN IF_CONTAINER hContainer, IN CHAR *pcIfType);
+IF_IDX IF_CreateIfByName(IN IF_CONTAINER hContainer, IN CHAR *pcIfType, IN CHAR *pcIfName);
+VOID IF_DeleteIf(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex);
+BS_STATUS IF_Ioctl(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex, IN IF_IOCTL_CMD_E enCmd, IN HANDLE hData);
+BS_STATUS IF_PhyIoctl(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex, IN IF_PHY_IOCTL_CMD_E enCmd, IN HANDLE hData);
+IF_IDX IF_GetIfIndex(IN IF_CONTAINER hContainer, IN CHAR *pcIfName);
 CHAR * IF_GetPhyIndexStringByIfName(IN CHAR *pcName);
 #define IF_INVALID_PHY_INDEX 0xffffffff
 UINT IF_GetPhyIndexByIfName(char *ifname);
 BS_STATUS IF_GetTypeNameByIfName(IN CHAR *pcIfName, OUT CHAR *pcTypeName);
-IF_PHY_OUTPUT_FUNC IF_GetPhyOutPut (IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex);
-IF_LINK_INPUT_FUNC IF_GetLinkInput (IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex);
-IF_LINK_OUTPUT_FUNC IF_GetLinkOutput (IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex);
-IF_PROTO_INPUT_FUNC IF_GetProtoInput(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex);
-BS_STATUS IF_SetUserData(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex, IN UINT uiUserIndex, IN HANDLE hData);
-BS_STATUS IF_GetUserData(IN IF_CONTAINER hContainer, IN IF_INDEX ifIndex, IN UINT uiUserIndex, OUT HANDLE *phData);
+IF_PHY_OUTPUT_FUNC IF_GetPhyOutPut (IN IF_CONTAINER hContainer, IN IF_IDX ifIndex);
+IF_LINK_INPUT_FUNC IF_GetLinkInput (IN IF_CONTAINER hContainer, IN IF_IDX ifIndex);
+IF_LINK_OUTPUT_FUNC IF_GetLinkOutput (IN IF_CONTAINER hContainer, IN IF_IDX ifIndex);
+IF_PROTO_INPUT_FUNC IF_GetProtoInput(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex);
+BS_STATUS IF_SetUserData(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex, IN UINT uiUserIndex, IN HANDLE hData);
+BS_STATUS IF_GetUserData(IN IF_CONTAINER hContainer, IN IF_IDX ifIndex, IN UINT uiUserIndex, OUT HANDLE *phData);
 UINT IF_GetNext(IN IF_CONTAINER hContainer, IN UINT uiCurrentIfIndex);
 
 
@@ -160,13 +148,13 @@ typedef enum
 
 BS_STATUS IF_RegPktProcesser(
     IN IF_CONTAINER hContainer,
-    IN IF_INDEX ifIndex,
+    IN IF_IDX ifIndex,
     IN IF_PKT_PROCESSER_TYPE_E enType,
     IN UINT uiPri,  
     IN PF_IF_PKT_PORCESSER_FUNC pfFunc
 );
-VOID * IF_GetPktProcesserList(IN IF_CONTAINER hContainer, IN IF_PKT_PROCESSER_TYPE_E enType, IN IF_INDEX ifIndex);
-BS_STATUS IF_NotifyPktProcesser(IN VOID *pProcesserList, IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
+VOID * IF_GetPktProcesserList(IN IF_CONTAINER hContainer, IN IF_PKT_PROCESSER_TYPE_E enType, IN IF_IDX ifIndex);
+BS_STATUS IF_NotifyPktProcesser(IN VOID *pProcesserList, IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
 
 
 #ifdef __cplusplus

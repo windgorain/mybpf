@@ -53,6 +53,15 @@ int BS_FormatN(FormatCompile_S *fc, char *buf, int size, ...);
         if (_nlen >= (size)) _nlen = -1; \
         _nlen; })
 
+
+
+#define MY_Snprintf(buf,size,...) ({ \
+        int _nlen = 0; \
+        if ((int)(size) > 0) _nlen = snprintf((buf), (size), ##__VA_ARGS__); \
+        if (_nlen < 0) _nlen = 0; \
+        _nlen; })
+
+
 #ifdef __cplusplus
     }
 #endif 

@@ -4,6 +4,7 @@
 *
 ================================================================*/
 #include "bs.h"
+#include "utl/mem_inline.h"
 #include "utl/hash_utl.h"
 #include "utl/jhash_utl.h"
 #include "utl/ufd_utl.h"
@@ -17,36 +18,50 @@ typedef struct {
 
 typedef struct {
     HASH_NODE_S hash_node; 
+    RCU_NODE_S rcu_node;
     UMAP_HASH_S *ctrl;
     void *key;
     void *value;
 }UMAP_HASH_NODE_S;
 
-static UINT _umap_hash_hash_index(void *node)
+static UINT _umap_hash_hash_index(void *node, void *ud)
 {
     UMAP_HASH_NODE_S *n = node;
     return JHASH_GeneralBuffer(n->key, n->ctrl->hdr.size_key, 0);
 }
 
-static int _umap_hash_cmp(void *node, void *key)
+static int _umap_hash_cmp(const void *key, const void *node, const void *ud)
 {
-    UMAP_HASH_NODE_S *n = node;
-    UMAP_HASH_NODE_S *k = key;
+    const UMAP_HASH_NODE_S *n = node;
+    const UMAP_HASH_NODE_S *k = key;
 
-    return memcmp(n->key, k->key, k->ctrl->hdr.size_key);
+    if (! k) {
+        return -1;
+    }
+
+    return memcmp(k->key, n->key, k->ctrl->hdr.size_key);
+}
+
+static void _umap_hash_free_node_rcu(void *pstRcuNode)
+{
+    UMAP_HASH_NODE_S *node = container_of(pstRcuNode, UMAP_HASH_NODE_S, rcu_node);
+
+    if (node->key) {
+        MEM_KFree(node->key);
+        node->key = NULL;
+    }
+
+    if (node->value) {
+        MEM_KFree(node->value);
+        node->value = NULL;
+    }
+
+    MEM_KFree(node);
 }
 
 static void _umap_hash_free_node(UMAP_HASH_NODE_S *node)
 {
-    if (node->key) {
-        MEM_RcuFree(node->key);
-        node->key = NULL;
-    }
-    if (node->value) {
-        MEM_RcuFree(node->value);
-        node->value = NULL;
-    }
-    MEM_RcuFree(node);
+    RcuEngine_Call(&node->rcu_node, _umap_hash_free_node_rcu);
 }
 
 static void _umap_hash_hash_free_node(void *hash_tbl, void *node, void *ud)
@@ -80,17 +95,16 @@ static void * _umap_hash_open(void *map_def)
 
     ctrl->hash_tbl = HASH_CreateInstance(RcuEngine_GetMemcap(), ctrl->buckets_num, _umap_hash_hash_index);
     if (! ctrl->hash_tbl) {
-        MEM_RcuFree(ctrl);
+        MEM_Free(ctrl);
         return NULL;
     }
 
     return ctrl;
 }
 
-static void * _umap_hash_lookup_elem(void *map, const void *key)
+static UMAP_HASH_NODE_S * _umap_hash_find_node(void *map, const void *key)
 {
     UMAP_HASH_S *ctrl = map;
-    UMAP_HASH_NODE_S *found;
     UMAP_HASH_NODE_S node;
 
     if ((!map) || (!key)) {
@@ -100,11 +114,15 @@ static void * _umap_hash_lookup_elem(void *map, const void *key)
     node.ctrl = ctrl;
     node.key = (void*)key;
 
-    found = HASH_Find(ctrl->hash_tbl, _umap_hash_cmp, &node);
+    return HASH_FindNode(ctrl->hash_tbl, _umap_hash_cmp, &node, NULL);
+}
+
+static void * _umap_hash_lookup_elem(void *map, const void *key)
+{
+    UMAP_HASH_NODE_S *found = _umap_hash_find_node(map, key);
     if (! found) {
         return NULL;
     }
-
     return found->value;
 }
 
@@ -113,12 +131,13 @@ static long _umap_hash_delete_elem(void *map, const void *key)
     UMAP_HASH_S *ctrl = map;
     UMAP_HASH_NODE_S *old;
 
-    old = _umap_hash_lookup_elem(map, key);
+    old = _umap_hash_find_node(map, key);
     if (! old) {
         return -ENOENT;
     }
 
     HASH_Del(ctrl->hash_tbl, old);
+
     _umap_hash_free_node(old);
 
     return 0;
@@ -134,7 +153,7 @@ static long _umap_hash_update_elem(void *map, const void *key, const void *value
 		return -EINVAL;
     }
 
-    old = _umap_hash_lookup_elem(map, key);
+    old = _umap_hash_find_node(map, key);
 
     if ((flag == UMAP_UPDATE_EXIST) && (! old)){
 		return -ENOENT;
@@ -144,13 +163,14 @@ static long _umap_hash_update_elem(void *map, const void *key, const void *value
 		return -EEXIST;
     }
 
-    node = MEM_RcuZMalloc(sizeof(UMAP_HASH_NODE_S));
+    node = MEM_ZKalloc(sizeof(UMAP_HASH_NODE_S));
     if (! node) {
         return -ENOMEM;
     }
 
-    node->key = MEM_RcuDup((char*)key, ctrl->hdr.size_key);
-    node->value = MEM_RcuDup((char*)value, ctrl->hdr.size_value);
+    node->ctrl = ctrl;
+    node->key = MEM_KDup((char*)key, ctrl->hdr.size_key);
+    node->value = MEM_KDup((char*)value, ctrl->hdr.size_value);
 
     if ((!node->key) || (!node->value)) {
         _umap_hash_free_node(node);
@@ -158,11 +178,9 @@ static long _umap_hash_update_elem(void *map, const void *key, const void *value
     }
 
     HASH_Add(ctrl->hash_tbl, node);
-    if (old) {
-        HASH_Del(ctrl->hash_tbl, old);
-    }
 
     if (old) {
+        HASH_Del(ctrl->hash_tbl, old);
         _umap_hash_free_node(old);
     }
 
@@ -187,7 +205,7 @@ static int _umap_hash_getnext_key(void *map, void *key, OUT void *next_key)
         tmp = &node;
     }
 
-    found = (void*)HASH_GetNextDict(ctrl->hash_tbl, _umap_hash_cmp, (void*)tmp);
+    found = (void*)HASH_GetNextDict(ctrl->hash_tbl, _umap_hash_cmp, (void*)tmp, NULL);
     if (! found) {
         return -1;
     }

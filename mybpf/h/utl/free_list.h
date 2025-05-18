@@ -15,12 +15,12 @@ typedef struct {
     SL_HEAD_S free_list;
 }FREE_LIST_S;
 
-int FreeList_Init(FREE_LIST_S *list);
-int FreeList_Puts(FREE_LIST_S *list, void *nodes, UINT node_len, UINT max_nodes);
+void FreeList_Init(FREE_LIST_S *list);
+void FreeList_Puts(FREE_LIST_S *list, void *nodes, UINT node_len, UINT max_nodes);
 
 static inline void FreeList_Put(FREE_LIST_S *list, void *node)
 {
-    SL_AddHead(&list->free_list, node);
+    SL_AddHeadRcu(&list->free_list, node);
 }
 
 
@@ -33,6 +33,8 @@ static inline BOOL_T FreeList_IsEmpty(FREE_LIST_S *list)
 {
     return SL_IsEmpty(&list->free_list);
 }
+
+#define FreeList_ForEach(list, node) SL_FOREACH(&(list)->free_list, node)
 
 
 #ifdef __cplusplus

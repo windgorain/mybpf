@@ -30,7 +30,9 @@ BS_STATUS SSL_UTL_Ctx_LoadSelfSignCert(IN VOID *pstSslCtx, IN PKI_DOMAIN_CONFIGU
 int SSL_UTL_Ctx_LoadVerifyLocations(IN VOID *pstSslCtx, IN CHAR *caFile, IN CHAR *caPath);
 VOID * SSL_UTL_New(IN VOID *pstSslCtx);
 VOID SSL_UTL_Free(IN VOID *pstSsl);
+VOID SSL_UTL_FreeAll(IN VOID *pstSsl);
 INT SSL_UTL_SetFd(IN VOID * pstSsl, IN INT iFd);
+int SSL_UTL_GetFd(IN VOID * pstSsl);
 INT SSL_UTL_Connect(IN VOID *pstSsl);
 void * SSL_UTL_BlockConnect(unsigned int ip, unsigned short port, char * host_name, int timeout);
 INT SSL_UTL_Accept(IN VOID *pstSsl);

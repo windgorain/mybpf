@@ -1,5 +1,6 @@
 /*================================================================
 *   Created by LiXingang
+*   Version: 1.0  Date: 2007-5-13
 *   Description: 
 *
 ================================================================*/
@@ -33,10 +34,12 @@ typedef struct {
     USHORT port;
 }IP_PORT_S;
 
-USHORT IP_CheckSum (IN UCHAR *pucBuf, IN UINT ulLen);
+U16 IP_CheckSum(void *iphdr, U32 iphdr_len);
 IP_HEAD_S * IP_GetIPHeader(IN UCHAR *pucData, IN UINT uiDataLen, IN NET_PKT_TYPE_E enPktType);
-BOOL_T IPUtl_IsExistInIpArry(IN IP_MASK_S *pstIpMask, IN UINT uiNum, IN UINT uiIP, IN UINT uiMask);
+BOOL_T IP_IsExistInIpArry(IN IP_MASK_S *pstIpMask, IN UINT uiNum, IN UINT uiIP, IN UINT uiMask);
 BOOL_T IP_IsPrivateIp(UINT ip);
+char * IP_NToP4(const struct in_addr *addr, char *buf, socklen_t len);
+void IP_BuildHeader(IP_HEAD_S *iphdr, U8 proto, U32 sip, U32 dip, U16 total_len);
 
 #ifdef __cplusplus
 }

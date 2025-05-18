@@ -21,6 +21,8 @@ int test_map()
 {
     int id = 0;
 
+    printf("map ptr=%p \n", &g_test_cfg_tbl);
+
     CFG_S *cfg = bpf_map_lookup_elem(&g_test_cfg_tbl, &id);
     if (! cfg) {
         printf("Cat't lookup elem \n");

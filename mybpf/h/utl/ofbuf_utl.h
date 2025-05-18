@@ -5,6 +5,8 @@
 * History:     
 ******************************************************************************/
 
+
+
 #ifndef __OFBUF_UTL_H_
 #define __OFBUF_UTL_H_
 
@@ -12,12 +14,11 @@
     extern "C" {
 #endif 
 
-typedef struct
-{
-    UINT uiBufSize;
-    UINT uiDataSize;
-    UINT uiOffset;
-    UCHAR *pucData;
+typedef struct {
+    UINT uiBufSize;  
+    UINT uiDataSize; 
+    UINT uiOffset;   
+    UCHAR *pucData;  
 }_OFBUF_CTRL_S;
 
 static inline HANDLE OFBUF_Create(IN UINT uiSize)

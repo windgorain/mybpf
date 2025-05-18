@@ -22,8 +22,9 @@ typedef struct {
 
 int RcuDelay_Init(RCU_DELAY_S *ctrl);
 void RcuDelay_Call(RCU_DELAY_S *ctrl, RCU_NODE_S *node, PF_RCU_FREE_FUNC func);
-void RcuDelay_Wait(RCU_DELAY_S *ctrl);
 void RcuDelay_Sync(RCU_DELAY_S *ctrl);
+void RcuDelay_FastSync(RCU_DELAY_S *ctrl);
+void RcuDelay_Barrier(RCU_DELAY_S *ctrl);
 void RcuDelay_Step(RCU_DELAY_S *ctrl);
 
 

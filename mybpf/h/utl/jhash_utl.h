@@ -14,9 +14,9 @@
     extern "C" {
 #endif 
 
-#define JHASH_INITVAL		0xdeadbeef
+#define _JHASH_INITVAL		0xdeadbeef
 
-#define JHASH_MIX(a, b, c)    { \
+#define _JHASH_MIX(a, b, c)    { \
 	a -= c;  a ^= NUM_Rol32(c, 4);  c += b;	\
 	b -= a;  b ^= NUM_Rol32(a, 6);  a += c;	\
 	c -= b;  c ^= NUM_Rol32(b, 8);  b += a;	\
@@ -25,7 +25,7 @@
 	c -= b;  c ^= NUM_Rol32(b, 4);  b += a;	\
 }
 
-#define JHASH_FINAL(a, b, c)  { \
+#define _JHASH_FINAL(a, b, c)  { \
 	c ^= b; c -= NUM_Rol32(b, 14);		\
 	a ^= c; a -= NUM_Rol32(c, 11);		\
 	b ^= a; b -= NUM_Rol32(a, 25);		\
@@ -35,20 +35,29 @@
 	c ^= b; c -= NUM_Rol32(b, 24);		\
 }
 
+static inline UINT _jhash_nwords(UINT a, UINT b, UINT c, UINT initval)
+{
+	a += initval;
+	b += initval;
+	c += initval;
+	_JHASH_FINAL(a, b, c);
+	return c;
+}
+
 static inline UINT JHASH_GeneralBuffer(const void *key, UINT length, UINT initval)
 {
 	UINT a, b, c;
 	const UCHAR *k = key;
     UINT *d;
 
-	a = b = c = JHASH_INITVAL + length + initval;
+	a = b = c = _JHASH_INITVAL + length + initval;
 
 	while (length > 12) {
         d = (void*)k;
 		a += d[0];
 		b += d[1];
 		c += d[2];
-		JHASH_MIX(a, b, c);
+		_JHASH_MIX(a, b, c);
 		length -= 12;
 		k += 12;
 	}
@@ -65,7 +74,7 @@ static inline UINT JHASH_GeneralBuffer(const void *key, UINT length, UINT initva
 	case 4:  a += (UINT)k[3]<<24; fallthrough;
 	case 3:  a += (UINT)k[2]<<16; fallthrough;
 	case 2:  a += (UINT)k[1]<<8; fallthrough;
-	case 1:  a += k[0]; JHASH_FINAL(a, b, c); fallthrough;
+	case 1:  a += k[0]; _JHASH_FINAL(a, b, c); fallthrough;
 	case 0:  break;
 	}
 
@@ -73,25 +82,25 @@ static inline UINT JHASH_GeneralBuffer(const void *key, UINT length, UINT initva
 }
 
 
-static inline UINT JHASH_U32Buffer(const UINT *k, UINT length, UINT initval)
+static inline UINT JHASH_U32Buffer(const UINT *k, UINT u32_count, UINT initval)
 {
 	UINT a, b, c;
 
-	a = b = c = JHASH_INITVAL + (length<<2) + initval;
+	a = b = c = _JHASH_INITVAL + (u32_count<<2) + initval;
 
-	while (length > 3) {
+	while (u32_count > 3) {
 		a += k[0];
 		b += k[1];
 		c += k[2];
-		JHASH_MIX(a, b, c);
-		length -= 3;
+		_JHASH_MIX(a, b, c);
+		u32_count -= 3;
 		k += 3;
 	}
 
-    switch (length) {
+    switch (u32_count) {
         case 3: c += k[2];
         case 2: b += k[1];
-        case 1: a += k[0]; JHASH_FINAL(a, b, c);
+        case 1: a += k[0]; _JHASH_FINAL(a, b, c);
         case 0:	break;
     }
 
@@ -100,35 +109,26 @@ static inline UINT JHASH_U32Buffer(const UINT *k, UINT length, UINT initval)
 
 static inline UINT JHASH_Buffer(const void *k, UINT len, UINT initval)
 {
-    if ((len & 0x3) == 0) { 
+    if ((((ULONG)k & 0x3) == 0) &&  ((len & 0x3) == 0)) { 
         return JHASH_U32Buffer(k, len >> 2, initval);
     } else {
         return JHASH_GeneralBuffer(k, len, initval);
     }
 }
 
-static inline UINT _jhash_nwords(UINT a, UINT b, UINT c, UINT initval)
-{
-	a += initval;
-	b += initval;
-	c += initval;
-	JHASH_FINAL(a, b, c);
-	return c;
-}
-
 static inline UINT JHASH_3Words(UINT a, UINT b, UINT c, UINT initval)
 {
-	return _jhash_nwords(a, b, c, initval + JHASH_INITVAL + (3 << 2));
+	return _jhash_nwords(a, b, c, initval + _JHASH_INITVAL + (3 << 2));
 }
 
 static inline UINT JHASH_2Words(UINT a, UINT b, UINT initval)
 {
-	return _jhash_nwords(a, b, 0, initval + JHASH_INITVAL + (2 << 2));
+	return _jhash_nwords(a, b, 0, initval + _JHASH_INITVAL + (2 << 2));
 }
 
 static inline UINT JHASH_Word(UINT a, UINT initval)
 {
-	return _jhash_nwords(a, 0, 0, initval + JHASH_INITVAL + (1 << 2));
+	return _jhash_nwords(a, 0, 0, initval + _JHASH_INITVAL + (1 << 2));
 }
 
 #ifdef __cplusplus

@@ -13,9 +13,9 @@
 #endif 
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define BS_BIG_ENDIAN 0
-#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define BS_BIG_ENDIAN 1
+#elif __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+#define BS_BIG_ENDIAN 0
 #else
 #error "Error"
 #endif
@@ -29,11 +29,11 @@
 #define hton3B(x) ntoh3B(x)
 #endif
 
-#if __BYTE_ORDER == __LITTLE_ENDIAN
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 static inline int HostIsLitter(void) {
     return 1;
 }
-#elif __BYTE_ORDER == __BIG_ENDIAN
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 static inline int HostIsLitter(void) {
     return 0;
 }

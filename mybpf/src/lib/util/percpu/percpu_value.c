@@ -14,7 +14,7 @@ static void * _percpu_add(PERCPU_VALUE_S *tbl, int cpu)
         return NULL;
     }
 
-    if (__sync_bool_compare_and_swap(&tbl->values[cpu], NULL, v)) {
+    if (ATOM_BOOL_COMP_SWAP(&tbl->values[cpu], NULL, v)) {
         return v;
     }
 

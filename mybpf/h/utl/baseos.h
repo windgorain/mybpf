@@ -19,6 +19,8 @@
     #include <windows.h>
     #include <process.h>
     #include <io.h>
+    #include <fcntl.h>
+    #include <sys/stat.h>
     #include <conio.h>
     #include <winioctl.h>
     #include <Iphlpapi.h>
@@ -27,6 +29,7 @@
     #include <direct.h>
     #include <errno.h>
     #include <sys/utime.h>
+    #include <ws2ipdef.h>
 
     #define random rand
     #define srandom srand
@@ -51,11 +54,16 @@
     #define chdir _chdir
     #define getch _getch
 
+    static inline unsigned int sleep(unsigned int second) {
+        Sleep(second * 1000);
+        return 0;
+    }
+
 #endif
 
 #ifdef IN_LINUX
 #ifndef __USE_GNU
-    #define __USE_GNU 1
+#define __USE_GNU 1
 #endif
     #include <sched.h>
 #endif

@@ -32,22 +32,20 @@
 typedef VOID* FSM_SWITCH_TBL;
 
 
-typedef struct
-{
+typedef struct {
     CHAR *pcStateName;
     UINT uiState;
 }FSM_STATE_MAP_S;
 
 
-typedef struct
-{
+typedef struct {
     CHAR *pcEventName;
     UINT uiEvent;
 }FSM_EVENT_MAP_S;
 
-typedef struct
-{
+typedef struct {
     FSM_SWITCH_TBL hSwitchTbl;
+    char *fsm_name;
 
     QUE_HANDLE hEventQue;       
 
@@ -93,7 +91,7 @@ VOID FSM_DestorySwitchTbl(IN FSM_SWITCH_TBL hSwitchTbl);
 BS_STATUS FSM_RegStateListener(IN FSM_SWITCH_TBL hSwitchTbl, IN PF_FSM_STATE_LISTEN pfListenFunc, IN USER_HANDLE_S *pstUserHandle);
 
 
-VOID FSM_Init(INOUT FSM_S *pstFsm, IN FSM_SWITCH_TBL hSwitchTbl);
+VOID FSM_Init(INOUT FSM_S *pstFsm, char * fsm_name, FSM_SWITCH_TBL hSwitchTbl);
 VOID FSM_Finit(IN FSM_S *pstFsm);
 BS_STATUS FSM_InitEventQue(IN FSM_S *pstFsm, IN UINT uiCapacity);
 VOID FSM_InitState(IN FSM_S *pstFsm, IN UINT uiInitState);

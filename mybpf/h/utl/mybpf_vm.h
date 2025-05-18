@@ -19,16 +19,16 @@ typedef struct {
 }MYBPF_VM_S;
 
 typedef struct {
-    uint64_t bpf_ret;
+    U64 bpf_ret;
     void *begin_addr; 
     void *end_addr; 
     void *mybpf_prog; 
     void *insts; 
     void *mem;        
-    uint32_t mem_len; 
-    uint32_t mem_check: 1; 
-    uint32_t auto_stack: 1; 
-    uint32_t helper_fixed: 1; 
+    U32 mem_len; 
+    U32 mem_check: 1; 
+    U32 auto_stack: 1; 
+    U32 helper_fixed: 1; 
     int stack_size;
     char *stack;
     const void **tmp_helpers;

@@ -30,7 +30,7 @@ enum {
 
 typedef struct {
     char name[MYBPF_NAME_SIZE];
-    char filename[256];
+    char filename[MYBPF_FILENAME_SIZE];
 }SPF_INSTANCE_S;
 
 typedef struct {

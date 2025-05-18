@@ -325,7 +325,7 @@ typedef struct structMBUF_ITOR_S
     UINT        ulOffset;
 }MBUF_ITOR_S;
 
-extern MBUF_CLUSTER_S * MBUF_CreateCluster();
+extern MBUF_CLUSTER_S * MBUF_CreateCluster(void);
 extern VOID MBUF_FreeCluster(IN MBUF_CLUSTER_S *pstCluster);
 extern MBUF_S * MBUF_Create (IN UCHAR ucType, IN UINT ulHeadSpaceLen);
 extern VOID MBUF_Free (IN MBUF_S *pstMbuf);
@@ -393,8 +393,7 @@ static inline BS_STATUS MBUF_MakeContinue (IN MBUF_S * pstMbuf, IN UINT ulLen)
 
     pstMblk = (MBUF_MBLK_S *)DLL_FIRST (&pstMbuf->stMblkHead);
 
-    if ((pstMblk != NULL) && (MBUF_DATABLOCK_LEN (pstMblk) >= ulLen))
-    {
+    if ((pstMblk != NULL) && (MBUF_DATABLOCK_LEN (pstMblk) >= ulLen)) {
         return BS_OK;
     }
 

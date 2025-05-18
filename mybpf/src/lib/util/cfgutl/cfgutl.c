@@ -15,7 +15,7 @@
 
 #define _CFGUTL_MAX_KEY_NUM 255   
 
-VOID _CFGUTL_ParseLine(IN CHAR *pszLine, IN CFGUTL_REG_TBL_S *pstRegTbl, IN UINT ulTblSize)
+static VOID _CFGUTL_ParseLine(IN CHAR *pszLine, IN CFGUTL_REG_TBL_S *pstRegTbl, IN UINT ulTblSize)
 {
     CHAR       *paargz[_CFGUTL_MAX_KEY_NUM];
     UINT      ulKeyNum;
@@ -50,7 +50,7 @@ VOID CFGUTL_Open(IN CHAR *pszFileName, IN CFGUTL_REG_TBL_S *pstRegTbl, IN UINT u
     BS_DBGASSERT(NULL != pszFileName);
     BS_DBGASSERT(NULL != pstRegTbl);
 
-    if (0 != FILE_Mem(pszFileName, &m)) {
+    if (0 != FILE_MemStringFormat(pszFileName, &m)) {
         return;
     }
     

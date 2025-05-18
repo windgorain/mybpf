@@ -12,6 +12,8 @@
     extern "C" {
 #endif 
 
+#ifdef IN_WINDOWS
+
 
 
 #define TAP_WIN_CONTROL_CODE(request,method) \
@@ -47,6 +49,7 @@
 #define USERDEVICEDIR     "\\DosDevices\\Global\\"
 #define TAP_WIN_SUFFIX    ".tap"
 
+#endif
 
 VNIC_HANDLE VNIC_Dev_Open();
 VOID VNIC_Dev_SetTun(VNIC_HANDLE hVnic, UINT ip, UINT mask);

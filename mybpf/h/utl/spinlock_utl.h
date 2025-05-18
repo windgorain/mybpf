@@ -27,7 +27,7 @@ static inline void SpinLock_Init(IN SPINLOCK_S *lock)
 
 static inline void SpinLock_Lock(IN SPINLOCK_S *lock)
 {
-    while (! __sync_bool_compare_and_swap(&lock->count, 0, 1));
+    while (! ATOM_BOOL_COMP_SWAP(&lock->count, 0, 1));
 }
 
 static inline void SpinLock_UnLock(IN SPINLOCK_S *lock)
@@ -37,7 +37,7 @@ static inline void SpinLock_UnLock(IN SPINLOCK_S *lock)
 
 static inline BOOL_T SpinLock_TryLock(IN SPINLOCK_S *lock)
 {
-    return __sync_bool_compare_and_swap(&lock->count, 0, 1);
+    return ATOM_BOOL_COMP_SWAP(&lock->count, 0, 1);
 }
 
 #ifdef __cplusplus

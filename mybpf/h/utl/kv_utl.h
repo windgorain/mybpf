@@ -37,6 +37,7 @@ VOID KV_Destory(IN KV_HANDLE hKvHandle);
 void KV_Reset(KV_HANDLE hKvHandle);
 
 VOID KV_SetDecode(IN KV_HANDLE hKvHandle, IN PF_KV_DECODE_FUNC pfDecode);
+BS_STATUS KV_MParse(IN KV_HANDLE hKvHandle, IN LSTR_S *pstLstr, char *separators, char cEquelChar);
 BS_STATUS KV_Parse(IN KV_HANDLE hKvHandle, IN LSTR_S *pstLstr, IN CHAR cSeparator, IN CHAR cEquelChar);
 BS_STATUS KV_ParseOne(IN KV_HANDLE hKvHandle, IN LSTR_S *pstLstr, IN CHAR cSeparator);
 BS_STATUS KV_Build

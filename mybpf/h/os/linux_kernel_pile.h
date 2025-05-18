@@ -137,12 +137,12 @@ static inline long long atomic64_xchg(atomic64_t *v, long long new_val)
 
 static inline int atomic_cmpxchg(atomic_t *v, int expected, int new_val)
 {
-    return ATOM_BOOL_COMP_SWAP(&v->counter, &expected, new_val);
+    return ATOM_BOOL_COMP_SWAP(&v->counter, expected, new_val);
 }
 
 static inline long long atomic64_cmpxchg(atomic64_t *v, long long expected, long long new_val)
 {
-    return ATOM_BOOL_COMP_SWAP(&v->counter, &expected, new_val);
+    return ATOM_BOOL_COMP_SWAP(&v->counter, expected, new_val);
 }
 
 #ifdef __cplusplus

@@ -1,5 +1,6 @@
 /*================================================================
 *   Created by LiXingang
+*   Author: lixingang  Version: 1.0  Date: 2007-2-8
 *   Description: 
 *
 ================================================================*/
@@ -145,10 +146,17 @@ UINT TXT_StrToToken(IN CHAR *pszStr, IN CHAR *pszPatterns, OUT CHAR *apszArgz[],
 
     uiPatternLen = strlen(pszPatterns);
 
-    do {
+    while (pt) {
         pt = (CHAR*)TXT_FindFirstNonSuch((UCHAR*)pt, strlen(pt), (UCHAR*)pszPatterns, uiPatternLen);
         if (pt == NULL) {
-            return uiCount;
+            break;
+        }
+
+        apszArgz[uiCount] = pt;
+        uiCount ++;
+
+        if (uiCount >= uiMaxArgz) {
+            break;
         }
 
         pt1 = TXT_FindOneOf(pt, pszPatterns);
@@ -157,11 +165,8 @@ UINT TXT_StrToToken(IN CHAR *pszStr, IN CHAR *pszPatterns, OUT CHAR *apszArgz[],
             pt1 ++;
         }
 
-        apszArgz[uiCount] = pt;
-        uiCount ++;
-
         pt = pt1;
-    } while ((pt) && (uiCount < uiMaxArgz));
+    }
 
     return uiCount;
 }
@@ -280,6 +285,35 @@ CHAR * TXT_Strnchr(IN CHAR *pcBuf, IN CHAR ch2Find, IN UINT ulLen)
     }
 
     return NULL;
+}
+
+
+CHAR * TXT_MStrnchr(CHAR *pcString, U64 uiStringLen, CHAR *pcToFind)
+{
+    CHAR *pcStringEnd;
+    CHAR *pcChar;
+    CHAR *pcFound = NULL;
+    UINT uiPatternLen;
+
+    pcStringEnd = pcString + uiStringLen;
+    pcChar = pcString;
+    uiPatternLen = (UINT)strlen(pcToFind);
+
+    while (pcChar < pcStringEnd) {
+        if (TXT_Strnchr(pcToFind, *pcChar, uiPatternLen) != NULL) {
+            pcFound = pcChar;
+            break;
+        }
+
+        pcChar ++;
+    }
+
+    return pcFound;
+}
+
+char * TXT_MStrchr(char *string, char *to_finds)
+{
+    return TXT_MStrnchr(string, strlen(string), to_finds);
 }
 
 BS_STATUS TXT_Atoui(IN CHAR *pszBuf, OUT UINT *puiNum)

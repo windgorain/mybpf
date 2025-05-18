@@ -13,13 +13,13 @@ extern "C"
 
 
 #ifdef __X86__
-static inline UINT64 RDTSC_Get()
+static inline UINT64 RDTSC_Get(void)
 {
 	union {
-		uint64_t tsc_64;
+		U64 tsc_64;
 		struct {
-			uint32_t lo_32;
-			uint32_t hi_32;
+			U32 lo_32;
+			U32 hi_32;
 		};
 	} tsc;
 
@@ -29,27 +29,15 @@ static inline UINT64 RDTSC_Get()
 
 	return tsc.tsc_64;
 }
-#endif
-
-#if 0
-#ifdef __ARM__
-static inline UINT64 RDTSC_Get()
+#elif defined(__ARM__)
+static inline UINT64 RDTSC_Get(void)
 {
-	unsigned tsc;
-	UINT64 final_tsc;
-
-	
-	asm volatile("mrc p15, 0, %0, c9, c13, 0" : "=r"(tsc));
-	
-	final_tsc = ((UINT64)tsc) << 6;
-
-	return final_tsc;
+    U64 tsc;
+    asm volatile("mrs %0, cntvct_el0" : "=r"(tsc));
+    return tsc;
 }
-#endif
-#endif
-
-#ifndef __X86__
-static inline UINT64 RDTSC_Get()
+#else
+static inline UINT64 RDTSC_Get(void)
 {
     struct timespec val;
     UINT64 v;
@@ -65,7 +53,7 @@ extern UINT64 RDTSC_HZ;
 extern UINT64 RDTSC_MS_HZ;
 extern UINT64 RDTSC_US_HZ;
 
-UINT64 RDTSC_GetHz();
+UINT64 RDTSC_GetHz(void);
 
 #ifdef __cplusplus
 }

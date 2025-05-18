@@ -193,7 +193,7 @@ acsmx_ConvertNfa2Dfa (ACSMX_S * acsm)
     SQUE_Final (queue);
 }
 
-ACSMX_S * ACSMX_New()
+ACSMX_S * ACSMX_New(void)
 {
     ACSMX_S * p;
     p = (void *) MEM_ZMalloc(sizeof (ACSMX_S));
@@ -330,7 +330,7 @@ int ACSMX_Search(ACSMX_S * acsm, unsigned char *Tx, int n,
 
         if( StateTable[state].MatchList != NULL ) {
             mlist = StateTable[state].MatchList;
-            offset = T - mlist->n + 1 - Tx;
+            offset = (int)(T - mlist->n + 1 - Tx);
             nfound++;
             if (match_func(mlist, offset, user_data) > 0) {
                 break;

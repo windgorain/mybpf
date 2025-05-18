@@ -82,8 +82,7 @@ BS_STATUS Event_Write(EVENT_HANDLE hEventID, UINT64 events)
     return BS_OK;
 }
 
-BS_STATUS Event_Read(EVENT_HANDLE hEventID, UINT64 events,
-        OUT UINT64 *events_out, UINT ulFlag, UINT ulTimeToWait)
+BS_STATUS Event_Read(EVENT_HANDLE hEventID, UINT64 events, OUT UINT64 *events_out, UINT ulFlag, UINT ulTimeToWait)
 {
     BS_STATUS eRet = BS_OK;
     UINT ulIsBS_OK = 0;

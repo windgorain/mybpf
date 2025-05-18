@@ -34,7 +34,7 @@ int NumList_ParseElement(LSTR_S *lstr, OUT UINT *min, OUT UINT *max)
     LSTR_S stBegin;
     LSTR_S stEnd;
 
-    LSTR_Split(lstr, '-', &stBegin, &stEnd);
+    LSTR_MSplit(lstr, "-/", &stBegin, &stEnd);
 
     LSTR_Strim(&stBegin, " \t\r\n", &stBegin);
     LSTR_Strim(&stEnd, " \t\r\n", &stEnd);

@@ -106,7 +106,7 @@ static THREAD_NAMED_NODE_S * _threadnamed_Find(char *name)
     return found;
 }
 
-static void _threadnamed_main(void *user_data)
+static int _threadnamed_main(void *user_data)
 {
     THREAD_NAMED_NODE_S *node = user_data;
 
@@ -119,6 +119,8 @@ static void _threadnamed_main(void *user_data)
     _threadnamed_event_notify(THREAD_NAMED_EVENT_QUIT, node);
 
     _threadnamed_FreeNode(node);
+
+    return 0;
 }
 
 static void * _threadnamed_GetNext(THREAD_NAMED_ITER_S *iter)

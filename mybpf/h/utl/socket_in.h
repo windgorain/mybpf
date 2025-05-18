@@ -112,7 +112,7 @@ static inline VOID IN6ADDR_GetPrefix(IN const IN6ADDR_S *pstAddr, IN const IN6AD
     return;
 }
 
-
+ 
 static inline INT IN6ADDR_Cmp(IN const IN6ADDR_S *pstAddr1, IN const IN6ADDR_S *pstAddr2)
 {
     UINT i;
@@ -164,6 +164,8 @@ static inline INT INET_ADDR_Cmp(IN const INET_ADDR_S *pstAddr1, IN const INET_AD
 
 BS_STATUS INET_ADDR_Str2IP(IN USHORT usFamily, IN const CHAR *pcStr, OUT INET_ADDR_S *pstAddr);
 BS_STATUS INET_ADDR_N_Str2IP(IN USHORT usFamily, IN const CHAR *pcStr, IN UINT uiStrLen, OUT INET_ADDR_S *pstAddr);
+
+int inet_pton(int af,const char *src,void *dst);
 
 #ifdef __cplusplus
     }

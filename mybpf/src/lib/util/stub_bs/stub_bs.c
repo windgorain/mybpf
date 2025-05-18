@@ -8,7 +8,7 @@
 #include "utl/mem_utl.h"
 #include "utl/mem_inline.h"
 
-VOID * _mem_Malloc(IN UINT uiSize, const char *pcFileName, IN UINT uiLine)
+VOID * _mem_Malloc(U64 uiSize, const char *pcFileName, IN UINT uiLine)
 {
 #ifdef SUPPORT_MEM_MANAGED
     return MEM_MallocMem(uiSize, pcFileName, uiLine);
@@ -26,7 +26,7 @@ VOID _mem_Free(IN VOID *pMem, const char *pcFileName, IN UINT uiLine)
 #endif
 }
 
-void * _mem_Realloc(void *old_mem, UINT old_size, UINT new_size, char *filename, UINT line)
+void * _mem_Realloc(void *old_mem, U64 old_size, U64 new_size, char *filename, UINT line)
 {
 #ifdef SUPPORT_MEM_MANAGED
     void *mem;

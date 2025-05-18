@@ -20,7 +20,7 @@ typedef ULONG THREAD_ID;
 
 #define THREAD_ID_INVALID 0
 
-typedef void (*PF_THREAD_UTL_FUNC)(void *user_data);
+typedef int (*PF_THREAD_UTL_FUNC)(void *user_data);
 
 THREAD_ID ThreadUtl_Create(PF_THREAD_UTL_FUNC func, UINT pri, UINT stack_size, void *user_data);
 BS_STATUS ThreadUtl_Suspend(THREAD_ID thread_id);

@@ -48,9 +48,9 @@ extern "C"
 
 struct inotify_event {
    int      wd;       
-   uint32_t mask;     
-   uint32_t cookie;   
-   uint32_t len;      
+   U32 mask;     
+   U32 cookie;   
+   U32 len;      
    char     name[];   
 };
 

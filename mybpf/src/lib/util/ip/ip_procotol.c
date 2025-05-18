@@ -10,29 +10,40 @@
 
 typedef struct {
     UCHAR protocol;
-    char *str;
+    char *str;  
+    char *strl; 
 }IP_PROTOCOL_MAP_S;
 
 static IP_PROTOCOL_MAP_S g_ip_protocol_map[] = {
-    {.protocol=0, .str="IP"},
-    {.protocol=IPPROTO_TCP, .str="TCP"},
-    {.protocol=IPPROTO_UDP, .str="UDP"},
-    {.protocol=IPPROTO_ICMP, .str="ICMP"},
-    {.protocol=IPPROTO_IGMP, .str="IGMP"},
+    {.protocol=0, .str="IP", .strl="ip"},
+    {.protocol=IPPROTO_TCP, .str="TCP", .strl="tcp"},
+    {.protocol=IPPROTO_UDP, .str="UDP", .strl="udp"},
+    {.protocol=IPPROTO_ICMP, .str="ICMP", .strl="icmp"},
+    {.protocol=IPPROTO_IGMP, .str="IGMP", .strl="igmp"},
 };
 
-
-CHAR * IPProtocol_GetName(IN UCHAR ucProtocol)
+static IP_PROTOCOL_MAP_S * _ip_protocol_get_map_by_proto(U8 proto)
 {
     int i;
 
-    for (i=0; i<sizeof(g_ip_protocol_map)/sizeof(IP_PROTOCOL_MAP_S); i++) {
-        if (g_ip_protocol_map[i].protocol == ucProtocol) {
-            return g_ip_protocol_map[i].str;
+    for (i=0; i<ARRAY_SIZE(g_ip_protocol_map); i++) {
+        if (g_ip_protocol_map[i].protocol == proto) {
+            return &g_ip_protocol_map[i];
         }
     }
 
     return NULL;
+
+}
+
+
+CHAR * IPProtocol_GetName(IN UCHAR ucProtocol)
+{
+    IP_PROTOCOL_MAP_S *map = _ip_protocol_get_map_by_proto(ucProtocol);
+    if (! map) {
+        return NULL;
+    }
+    return map->str;
 }
 
 
@@ -44,6 +55,27 @@ CHAR * IPProtocol_GetNameExt(IN UCHAR ucProtocol)
     }
     return p;
 }
+
+
+CHAR * IPProtocol_GetLName(IN UCHAR ucProtocol)
+{
+    IP_PROTOCOL_MAP_S *map = _ip_protocol_get_map_by_proto(ucProtocol);
+    if (! map) {
+        return NULL;
+    }
+    return map->strl;
+}
+
+
+CHAR * IPProtocol_GetLNameExt(IN UCHAR ucProtocol)
+{
+    char *p = IPProtocol_GetLName(ucProtocol);
+    if (! p) {
+        p = "";
+    }
+    return p;
+}
+
 
 int IPProtocol_GetByName(char *protocol_name)
 {

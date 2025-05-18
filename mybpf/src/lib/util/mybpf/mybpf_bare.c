@@ -13,14 +13,15 @@
 
 static void ** _mybpf_bare_malloc_bss(int bss_size)
 {
-    void **bss = MEM_ZMalloc(16 + bss_size);
-    if (! bss) {
+    void **m = MEM_ZMalloc(16 + bss_size);
+    if (! m) {
         return NULL;
     }
 
-    bss[0] = (char*)bss + 16;
+    
+    m[0] = (char*)m + 16;
 
-    return bss;
+    return m;
 }
 
 static void _mybpf_bare_free_bss(void **bss)

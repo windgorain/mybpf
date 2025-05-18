@@ -36,7 +36,7 @@ BS_STATUS _OSSEM_Delete(OS_SEM *pOsSem)
     return BS_OK;
 }
 
-BS_STATUS _OSSEM_P(OS_SEM *pOsSem, UINT ulFlag, UINT ulMilliseconds)
+BS_STATUS _OSSEM_P(OS_SEM *pOsSem, BS_WAIT_E wait_mode, UINT ulMilliseconds)
 {
     UINT ulRet = BS_OK;
     
@@ -50,7 +50,7 @@ BS_STATUS _OSSEM_P(OS_SEM *pOsSem, UINT ulFlag, UINT ulMilliseconds)
     {
         pOsSem->v --;
     }
-    else if (BS_WAIT == ulFlag)
+    else if (BS_WAIT == wait_mode)
     {
         if (BS_WAIT_FOREVER == ulMilliseconds)
         {

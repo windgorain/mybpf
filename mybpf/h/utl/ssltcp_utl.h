@@ -26,8 +26,7 @@
 #define SSLTCP_EVENT_EXECPT  0x4
 
 
-typedef enum
-{
+typedef enum {
     SSLTCP_ASYN_MODE_LEVEL = 0,
     SSLTCP_ASYN_MODE_EDGE,
 }SSLTCP_ASYN_MODE_E;

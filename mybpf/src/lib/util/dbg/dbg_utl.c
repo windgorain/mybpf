@@ -8,12 +8,17 @@
 
 #include "utl/dbg_utl.h"
 
-void DBG_UTL_Init(DBG_UTL_CTRL_S *ctrl, const char *name, UINT *dbg_flags, DBG_UTL_DEF_S *dbg_defs, int max_id)
+static DBG_UTL_DEF_S * _dbg_utl_GetDef(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiDbgID, IN UINT uiFlag)
 {
-    ctrl->product_name = name;
-    ctrl->debug_flags = dbg_flags;
-    ctrl->debug_defs = dbg_defs;
-    ctrl->max_module_id = max_id;
+    DBG_UTL_DEF_S *def = pstCtrl->debug_defs;
+
+    for (; def->pcModuleName; def++) {
+        if ((def->uiDbgID == uiDbgID) && (def->uiDbgFlag == uiFlag)) {
+            return def;
+        }
+    }
+
+    return NULL;
 }
 
 void DBG_UTL_SetDebugFlag(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiModuleID, IN UINT uiFlag)
@@ -90,19 +95,6 @@ void DBG_UTL_NoDebugCmd(IN DBG_UTL_CTRL_S *pstCtrl, IN CHAR *pcModuleName, IN CH
 
         pstCtrl->debug_flags[def->uiDbgID] &= (~(def->uiDbgFlag));
     }
-}
-
-static DBG_UTL_DEF_S * _dbg_utl_GetDef(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiDbgID, IN UINT uiFlag)
-{
-    DBG_UTL_DEF_S *def = pstCtrl->debug_defs;
-
-    for (; def->pcModuleName; def++) {
-        if ((def->uiDbgID == uiDbgID) && (def->uiDbgFlag == uiFlag)) {
-            return def;
-        }
-    }
-
-    return NULL;
 }
 
 void DBG_UTL_OutputHeader(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiDbgID, IN UINT uiFlag)

@@ -40,7 +40,7 @@ typedef struct tagDLL_HEAD_S {
 #define DLL_HEAD_INIT_VALUE(pstDllHead)  {(void*)(pstDllHead), (void*)(pstDllHead), 0}
 
 static inline void DLL_INIT(DLL_HEAD_S *pstDllHead) {
-    pstDllHead->prev = pstDllHead->next = (void*)pstDllHead;
+    pstDllHead->prev = pstDllHead->next = (DLL_NODE_S*)(void*)pstDllHead;
     pstDllHead->ulCount = 0;
 }
 
@@ -84,10 +84,10 @@ static inline void * DLL_FIRST(DLL_HEAD_S *pstDllHead) {
 
 
 static inline void DLL_ADD_TO_HEAD(DLL_HEAD_S *pstDllHead, void *new_node) {
-    DLL_NODE_S *pstNewNode = new_node;
+    DLL_NODE_S *pstNewNode = (DLL_NODE_S*)new_node;
     pstNewNode->pstHead = pstDllHead;
     pstNewNode->next = pstDllHead->next;
-    pstNewNode->prev = (void*)pstDllHead;
+    pstNewNode->prev = (DLL_NODE_S*)(void*)pstDllHead;
     pstDllHead->next->prev = pstNewNode;
     pstDllHead->next = pstNewNode;
     pstDllHead->ulCount++;
@@ -107,9 +107,9 @@ static inline void DLL_ADD_TO_HEAD(DLL_HEAD_S *pstDllHead, void *new_node) {
 
 
 static inline void DLL_ADD(DLL_HEAD_S *pstDllHead, void *new_node) {
-    DLL_NODE_S *pstNewNode = new_node;
+    DLL_NODE_S *pstNewNode = (DLL_NODE_S*)new_node;
     pstNewNode->pstHead = pstDllHead;
-    pstNewNode->next = (void*)pstDllHead;
+    pstNewNode->next = (DLL_NODE_S*)(void*)pstDllHead;
     pstNewNode->prev = pstDllHead->prev;
     pstDllHead->prev->next = pstNewNode;
     pstDllHead->prev = pstNewNode;
@@ -152,7 +152,7 @@ static inline void DLL_ADD(DLL_HEAD_S *pstDllHead, void *new_node) {
     do {DLL_INSERT_BEFORE_RCU(pstDllHead,pstNewNode, DLL_NEXT(pstDllHead, pstNode));} while(0)
 
 static inline void DLL_DEL(DLL_HEAD_S *pstDllHead, void *del_node) {
-    DLL_NODE_S *pstDelNode = del_node;
+    DLL_NODE_S *pstDelNode = (DLL_NODE_S*)del_node;
     pstDelNode->prev->next = pstDelNode->next;
     pstDelNode->next->prev = pstDelNode->prev;
     pstDelNode->pstHead = NULL;

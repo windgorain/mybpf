@@ -1,5 +1,6 @@
 /*================================================================
 *   Created by LiXingang
+*   Version: 1.0  Date: 2007-10-3
 *   Description: 
 *
 ================================================================*/
@@ -11,14 +12,16 @@ extern "C"
 #endif
 
 typedef struct {
-    uint64_t burst_limit; 
-    uint64_t speed;       
-    uint64_t token_count; 
-    uint64_t ts;      
+    U64 speed;       
+    U64 burst_limit; 
+    U64 token_count; 
+    U64 ts;      
 }TOKEN_BUCKET_S;
 
-void TokenBucket_Init(INOUT TOKEN_BUCKET_S *bucket, uint64_t burst, uint64_t speed);
-uint64_t TokenBucket_Acquire(TOKEN_BUCKET_S *bucket, uint64_t n);
+void TokenBucket_Init(INOUT TOKEN_BUCKET_S *bucket);
+void TokenBucket_Set(OUT TOKEN_BUCKET_S *bucket, U64 speed, U64 burst);
+U64 TokenBucket_Get(TOKEN_BUCKET_S *bucket, U64 n);
+U64 TokenBucket_ExertGet(TOKEN_BUCKET_S *bucket, U64 n);
 
 #ifdef __cplusplus
 }

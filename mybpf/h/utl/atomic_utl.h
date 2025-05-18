@@ -53,9 +53,14 @@
 
 #endif
 
+#ifdef _MSC_VER
 
-#define ATOM_BOOL_COMP_SWAP(ptr,ifptr,newval) __sync_bool_compare_and_swap((ptr), *(ifptr), (newval))
+#define ATOM_BOOL_COMP_SWAP(ptr,oldval,newval) (InterlockedCompareExchange((ptr), (newval), (oldval)) == (oldval))
+#define ATOM_BARRIER() MemoryBarrier()
+#else
+#define ATOM_BOOL_COMP_SWAP(ptr,oldval,newval) __sync_bool_compare_and_swap((ptr), (oldval), (newval))
 #define ATOM_BARRIER() (__sync_synchronize())
+#endif
 
 #ifdef __cplusplus
     }

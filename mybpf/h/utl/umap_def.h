@@ -44,7 +44,6 @@ typedef struct {
 
 typedef struct {
     void *magic; 
-    UMAP_FUNC_TBL_S *opts;
     char map_name[UMAP_NAME_SIZE];
     int ref_count;
 	UINT type;

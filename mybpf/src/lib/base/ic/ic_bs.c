@@ -16,7 +16,7 @@
 #include "utl/atomic_utl.h"
 
 #define BS_PRINTF_MAX_LEN    2048
-#define _IC_MAX_OB 1
+#define _IC_MAX_OB 16
 
 
 typedef struct {
@@ -62,7 +62,6 @@ static _IC_REG_NODE_S * _ic_alloc_regnode()
             break;
         }
     }
-
 
     return found;
 }

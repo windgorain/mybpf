@@ -20,13 +20,11 @@ extern "C"
 #pragma pack(1)
 
 #ifndef s6_addr
-struct in6_addr
-{
-    union
-    {
-        uint8_t u6_addr8[16];
-        uint16_t u6_addr16[8];
-        uint32_t u6_addr32[4];
+struct in6_addr {
+    union {
+        U8 u6_addr8[16];
+        U16 u6_addr16[8];
+        U32 u6_addr32[4];
     } in6_u;
 #define s6_addr         in6_u.u6_addr8
 #define s6_addr16       in6_u.u6_addr16
@@ -37,6 +35,14 @@ struct in6_addr
 #ifdef IN_MAC
 #define s6_addr32	__u6_addr.__u6_addr32
 #endif
+
+typedef struct {
+    union {
+        U8 u6_addr[16];
+        U16 u6_addr16[8];
+        U32 u6_addr32[4];
+    };
+}IP6_ADDR_S;
 
 typedef struct ip6 {
     UINT            vcl;      
@@ -67,6 +73,7 @@ typedef struct tagIP6_FRAG {
     USHORT offset_flag;      
     UINT id;      
 }IP6_FRAG_S;
+
 #pragma pack()
 
 typedef struct {
@@ -145,6 +152,26 @@ static inline void * IP6_ADDR_MAX(void *addr1, void *addr2) {
         return addr2;
     }
     return addr1;
+}
+
+
+static inline BOOL_T IP6_AddrIsV4Mapped(const void *addr)
+{
+    const U32 *a = addr;
+    if ((a[0] == 0) && (a[1] == 0) && (a[2] == htonl(0xffff))) {
+        return TRUE;
+    }
+    return FALSE;
+}
+
+
+static inline BOOL_T IP6_AddrIsV4Compat(const void *addr)
+{
+    const U32 *a = addr;
+    if ((a[0] == 0) && (a[1] == 0) && (a[2] == 0) && (ntohl(a[3]) > 1)) {
+        return TRUE;
+    }
+    return FALSE;
 }
 
 #ifdef __cplusplus

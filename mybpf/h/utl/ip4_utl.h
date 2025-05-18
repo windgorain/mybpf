@@ -88,6 +88,7 @@ extern "C"
 #define IP_SET_HEAD_LEN(pstIpHead, usLen) (((pstIpHead)->ucHLen) = ((usLen) >> 2))
 #define IP_HEAD_FLAG(pstIpHead) ((ntohs((pstIpHead)->usOff) & 0xe000) >> 13)
 #define IP_HEAD_FRAG_OFFSET(pstIpHead) ((ntohs((pstIpHead)->usOff) & 0x1fff))
+#define IP_L4_HDR(iphdr) ((void*)((U8*)(iphdr) + IP_HEAD_LEN(iphdr)))
 
 
 #define IP_DF           0x4000  
@@ -98,8 +99,7 @@ extern "C"
 
 #pragma pack(1)
 
-typedef struct 
-{
+typedef struct {
 #if BS_BIG_ENDIAN
     UCHAR    ucVer:4;              
     UCHAR    ucHLen:4;             
@@ -118,8 +118,6 @@ typedef struct
 	IP_ADDR_U   unDstIp; 
 }IP_HEAD_S;
 #pragma pack()
-
-char * inet_ntop4(const struct in_addr *addr, char *buf, socklen_t len);
 
 #ifdef __cplusplus
 }

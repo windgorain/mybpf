@@ -137,20 +137,17 @@ BS_STATUS HSTACK_Pop(IN HANDLE hHandle, OUT HANDLE *phUserHandle)
 {
     _HSTACK_CTRL_S *pstCtrl = hHandle;
 
-    if (NULL != phUserHandle)
-    {
+    if (NULL != phUserHandle) {
         *phUserHandle = NULL;
     }
 
-    if (pstCtrl->uiNextIndex == 0)
-    {
+    if (pstCtrl->uiNextIndex == 0) {
         return BS_EMPTY;
     }
 
     pstCtrl->uiNextIndex --;
 
-    if (NULL != phUserHandle)
-    {
+    if (NULL != phUserHandle) {
         *phUserHandle = pstCtrl->pHandleStack[pstCtrl->uiNextIndex];
     }
 

@@ -126,7 +126,7 @@ static int _map_list_add_check(MAP_HANDLE map, VOID *pKey, UINT uiKeyLen, UINT f
 {
     _MAP_LIST_S *list_map = map->impl_map;
 
-    if ((map->uiCapacity != 0) && (map->uiCapacity <= list_map->count)) {
+    if ((map->capacity != 0) && (map->capacity <= list_map->count)) {
         RETURN(BS_NO_RESOURCE);
     }
 
@@ -354,6 +354,7 @@ MAP_HANDLE MAP_ListCreate(void *memcap)
 
     DLL_INIT(&list_map->list);
     ctrl->impl_map = list_map;
+    ctrl->type = MAP_TYPE_LIST;
 
     return ctrl;
 }

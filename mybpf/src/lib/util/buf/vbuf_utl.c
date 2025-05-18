@@ -10,7 +10,7 @@
 
 
 
-int VBUF_AddHead(INOUT VBUF_S *vbuf, ULONG len)
+int VBUF_AddHead(INOUT VBUF_S *vbuf, U64 len)
 {
     if (vbuf->ulOffset < len) {
         int ret = VBUF_MoveData(vbuf, len);
@@ -26,7 +26,7 @@ int VBUF_AddHead(INOUT VBUF_S *vbuf, ULONG len)
 }
 
 
-int VBUF_AddHeadBuf(INOUT VBUF_S *vbuf, void *buf, ULONG len)
+int VBUF_AddHeadBuf(INOUT VBUF_S *vbuf, void *buf, U64 len)
 {
     int ret;
 
@@ -42,7 +42,7 @@ int VBUF_AddHeadBuf(INOUT VBUF_S *vbuf, void *buf, ULONG len)
 }
 
 
-int VBUF_AddTail(INOUT VBUF_S *vbuf, ULONG len)
+int VBUF_AddTail(INOUT VBUF_S *vbuf, U64 len)
 {
     int ret = _vbuf_pre_cat(vbuf, len);
     if (ret < 0) {
@@ -70,7 +70,7 @@ BS_STATUS VBUF_CpyFromVBuf(IN VBUF_S *pstVBufDst, IN VBUF_S *pstVBufSrc)
     return VBUF_CpyBuf(pstVBufDst, pstVBufSrc->pucData, pstVBufSrc->ulUsedLen);
 }
 
-INT VBUF_CmpByBuf(IN VBUF_S *pstVBuf, IN void *buf, IN ULONG ulLen)
+INT VBUF_CmpByBuf(IN VBUF_S *pstVBuf, IN void *buf, U64 ulLen)
 {
     BS_DBGASSERT(0 != pstVBuf);
 

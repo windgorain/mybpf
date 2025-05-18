@@ -45,7 +45,10 @@ int IPString_ParseIpPrefix(CHAR *pcIpPrefixString, OUT IP_PREFIX_S *pstIpPrefix)
     if (uiPrefix > 32) {
         return BS_BAD_PARA;
     }
+
     pstIpPrefix->ucPrefix = (UCHAR)uiPrefix;
+
+    pstIpPrefix->uiIP &= PREFIX_2_MASK(uiPrefix);
 
     return BS_OK;
 }

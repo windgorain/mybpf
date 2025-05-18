@@ -1,11 +1,16 @@
-
+/******************************************************************************
+* Copyright (C), Xingang.Li
+* Author:      Xingang.Li  Version: 1.0  Date: 2007-5-13
+* Description: 
+* History:     
+******************************************************************************/
 
 #ifndef __IN_CHECKSUM_H_
 #define __IN_CHECKSUM_H_
 
 #ifdef __cplusplus
     extern "C" {
-#endif /* __cplusplus */
+#endif 
 
 
 USHORT IN_CHKSUM_AddRaw(IN USHORT usCurrentSum, IN UCHAR *pucData, IN UINT uiDataLen);
@@ -18,8 +23,7 @@ static inline USHORT IN_CHKSUM_AddRawWord(IN USHORT usCurrentSum, IN USHORT usWo
     uiCheckSum += usWord;
 
     
-    if (uiCheckSum & 0xffff0000)
-    {
+    if (uiCheckSum & 0xffff0000) {
         uiCheckSum = (uiCheckSum & 0xFFFF) + ((uiCheckSum >> 16) & 0xFFFF);
     }
 
@@ -53,8 +57,8 @@ static inline USHORT IN_CHKSUM_CheckSum(IN UCHAR *pucData, IN UINT uiDataLen)
 }
 
 
-static inline USHORT IN_CHKSUM_Change(USHORT *olddata, int oldcount,
-        USHORT *newdata, int newcount, USHORT old_checksum)
+
+static inline U16 IN_CHKSUM_Change(U16 *olddata, int oldcount, U16 *newdata, int newcount, U16 old_checksum)
 {
     UINT sum;
     int i;

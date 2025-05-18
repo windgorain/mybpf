@@ -10,7 +10,6 @@ extern "C"
 {
 #endif
 
-void CaseConvert_Init();
 void CaseConvert_ToUpper(UCHAR *dst, UCHAR *src, int len);
 void CaseConvert_ToLower(UCHAR *dst, UCHAR *src, int len);
 

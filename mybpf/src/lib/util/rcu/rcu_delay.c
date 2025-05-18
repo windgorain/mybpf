@@ -24,7 +24,7 @@ int RcuDelay_Init(RCU_DELAY_S *ctrl)
 }
 
 
-void RcuDelay_Wait(RCU_DELAY_S *ctrl)
+void RcuDelay_Sync(RCU_DELAY_S *ctrl)
 {
     int old_period_count;
     int now_period_count;
@@ -32,7 +32,7 @@ void RcuDelay_Wait(RCU_DELAY_S *ctrl)
     old_period_count = ctrl->grace_period_count;
 
     while (1) {
-        Sleep(100);
+        Sleep(0);
         RcuDelay_Step(ctrl);
         now_period_count = ctrl->grace_period_count;
         if ((now_period_count - old_period_count) >= 2) {
@@ -44,7 +44,7 @@ void RcuDelay_Wait(RCU_DELAY_S *ctrl)
 }
 
 
-void RcuDelay_Sync(RCU_DELAY_S *ctrl)
+void RcuDelay_FastSync(RCU_DELAY_S *ctrl)
 {
     int old_period_count;
     int now_period_count;
@@ -56,7 +56,7 @@ void RcuDelay_Sync(RCU_DELAY_S *ctrl)
     old_period_count = ctrl->grace_period_count;
 
     while (1) {
-        Sleep(100);
+        Sleep(0);
         RcuDelay_Step(ctrl);
         if (rcudelay_do_just(ctrl)) {
             break;
@@ -68,6 +68,12 @@ void RcuDelay_Sync(RCU_DELAY_S *ctrl)
     }
 
     return;
+}
+
+
+void RcuDelay_Barrier(RCU_DELAY_S *ctrl)
+{
+    RcuDelay_Sync(ctrl);
 }
 
 void RcuDelay_Call(RCU_DELAY_S *ctrl, RCU_NODE_S *node, PF_RCU_FREE_FUNC func)

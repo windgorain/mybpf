@@ -51,30 +51,6 @@ long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned long *res
     return end - buf;
 }
 
-
-
-static int ulc_sys_strlcpy(char *dst, char *src, int size)
-{
-    unsigned long n;
-    char *p;
-
-    for (p = dst, n = 0; n + 1 < size && *src!= '\0';  ++p, ++src, ++n) {
-        *p = *src;
-    }
-    *p = '\0';
-    if(*src == '\0') {
-        return n;
-    } else {
-        return n + strlen(src);
-    }
-}
-
-static int ulc_sys_strnlen(void *a, int max_len)
-{
-    const char *end = memchr(a, '\0', max_len);
-    return end ? end - (char*)a : max_len;
-}
-
 /* base helper. 和linux内置定义helper一一对应,请不要注册和linux不一致的helper */
 static const void * g_bpf_base_helpers[BPF_BASE_HELPER_COUNT] = {
     [4] = __bpfprobe_read,
@@ -87,26 +63,11 @@ static const void * g_bpf_base_helpers[BPF_BASE_HELPER_COUNT] = {
 /* sys helper. linux系统定义之外的统一定义, 请不要随意定义 */
 static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
     [0] = NULL, /* 1000000 */
-    [1] = calloc,
+    [1] = malloc,
     [2] = free,
-    [5] = malloc,
-    [8] = strncmp,
-    [9] = strlen,
-    [10] = ulc_sys_strnlen,
-    [11] = strcmp,
-    [12] = ulc_sys_strlcpy,
-    [13] = strdup,
-    [14] = strtok_r,
-    [40] = memcpy,
-    [41] = memset,
-    [42] = memmove,
-    [102] = ftell,
-    [103] = fseek,
-    [104] = fopen,
-    [105] = fread,
-    [106] = fclose,
-    [107] = fgets,
-    [130] = time,
+    [3] = malloc,
+    [4] = free,
+    [5] = realloc,
 };
 /* user helper. 没有任何预规定，用户可以定义 */
 static const void * g_bpf_user_helpers[BPF_USER_HELPER_COUNT];

@@ -93,8 +93,15 @@ int CmdExp_DoCmd(CMD_EXP_HDL hCmdExp, char *cmd);
 BOOL_T CmdExp_IsShowing(HANDLE hFileHandle);
 
 
+BOOL_T CmdExp_IsShowAll(IN HANDLE hFileHandle);
+
+
 BOOL_T CmdExp_IsSaving(HANDLE hFileHandle);
+#ifndef IN_WINDOWS
 int CmdExp_OutputMode(IN HANDLE hFileHandle, IN CHAR *fmt, ...) __attribute__((warn_unused_result));
+#else
+int CmdExp_OutputMode(IN HANDLE hFileHandle, IN CHAR *fmt, ...);
+#endif
 int CmdExp_OutputModeQuit(IN HANDLE hFileHandle);
 int CmdExp_OutputCmd(IN HANDLE hFileHandle, IN CHAR *fmt, ...);
 int CmdExp_RegSave(CMD_EXP_HDL hCmdExp, char *save_path, CMD_EXP_REG_CMD_PARAM_S *param);
@@ -182,6 +189,7 @@ BOOL_T CmdExp_IsOptPermitOutput(IN HANDLE hFile, IN CHAR *pcString);
 #define CMD_EXP_GetParam CmdExp_GetParam
 #define CMD_EXP_IsSaving CmdExp_IsSaving
 #define CMD_EXP_IsShowing CmdExp_IsShowing
+#define CMD_EXP_IsShowAll CmdExp_IsShowAll
 #define CMD_EXP_DestroyRunner CmdExp_DestroyRunner
 
 #ifdef __cplusplus

@@ -17,9 +17,8 @@
 
 typedef HANDLE IPMAC_HANDLE;
 
-typedef struct
-{
-    HASH_NODE_S stHashNode;
+typedef struct {
+    HASH_NODE_S stHashNode; 
     UINT uiIp;
     MAC_ADDR_S stMac;
     UINT uiUsrContext;

@@ -9,16 +9,14 @@
 #endif 
 
 
-typedef struct 
-{
+typedef struct {
 	USHORT usSrcPort;		
 	USHORT usDstPort; 		
-	USHORT usDataLength; 	
-	USHORT usCrc;			
+	USHORT usDataLength; 
+	USHORT usCrc;  
 }UDP_HEAD_S;
 
-USHORT UDP_CheckSum
-(
+USHORT UDP_CheckSum (
     IN UCHAR *pucBuf,
 	IN UINT ulLen,
 	IN UCHAR *pucSrcIp,
@@ -38,6 +36,15 @@ static inline BOOL_T UDP_IsHeaderEnough(UDP_HEAD_S *udp_head, int len)
 
     return TRUE;
 }
+
+static inline void UDP_BuildHeader(OUT UDP_HEAD_S *udp_hdr, U16 src_port, U16 dst_port, U16 total_len)
+{
+    udp_hdr->usSrcPort = src_port;
+    udp_hdr->usDstPort = dst_port;
+    udp_hdr->usDataLength = htons(total_len);
+    udp_hdr->usCrc = 0;
+}
+
 
 #ifdef __cplusplus
     }

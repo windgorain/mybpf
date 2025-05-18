@@ -89,15 +89,12 @@ VOID LSTR_MSplit
     LONG lTemp;
 
     pcSplit = TXT_MStrnchr(pstString->pcData, pstString->uiLen, pcSplitChar);
-    if (NULL == pcSplit)
-    {
+    if (NULL == pcSplit) {
         pstStr1->pcData = pstString->pcData;
         pstStr1->uiLen = pstString->uiLen;
         pstStr2->pcData = NULL;
         pstStr2->uiLen = 0;
-    }
-    else
-    {
+    } else {
         pstStr1->pcData = pstString->pcData;
         lTemp = pcSplit - pstString->pcData;
         pstStr1->uiLen = (UINT)lTemp;
@@ -121,15 +118,12 @@ VOID LSTR_Split
     UINT uiStringLen;
 
     pcSplit = LSTR_Strchr(pstString, cSplitChar);
-    if (NULL == pcSplit)
-    {
+    if (NULL == pcSplit) {
         pstStr1->pcData = pstString->pcData;
         pstStr1->uiLen = pstString->uiLen;
         pstStr2->pcData = NULL;
         pstStr2->uiLen = 0;
-    }
-    else
-    {
+    } else {
         uiStringLen = pstString->uiLen;
         pstStr1->pcData = pstString->pcData;
         pstStr1->uiLen = (UINT)(pcSplit - pstString->pcData);

@@ -29,11 +29,13 @@ typedef struct {
     PF_CUCKOO_INDEX index_func;
     CUCKOO_HASH_NODE_S *table;
     UINT table_alloced:1;
+    UINT reseerved: 15;
+    UINT max_try: 16;  
 }CUCKOO_HASH_S;
 
-int CuckooHash_Init(CUCKOO_HASH_S *cuckoo_hash, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth);
+int CuckooHash_Init(CUCKOO_HASH_S *cuckoo_hash, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth);
 void CuckooHash_Fini(CUCKOO_HASH_S *hash);
+void CuckooHash_SetMaxTry(CUCKOO_HASH_S *hash, U32 max_try);
 void CuckooHash_Reinit(CUCKOO_HASH_S *cuckoo_hash);
 void CuckooHash_SetIndexFunc(CUCKOO_HASH_S *hash, PF_CUCKOO_INDEX index_func);
 void CuckooHash_SetCmpFunc(CUCKOO_HASH_S *hash, PF_CUCKOO_CMP cmp_func);

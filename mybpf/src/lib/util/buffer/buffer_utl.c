@@ -144,7 +144,7 @@ int BUFFER_Print(BUFFER_S *pstBuffer, char *fmt, ...)
     return BS_OK;
 }
 
-BS_STATUS BUFFER_Flush(BUFFER_S *pstBuffer)
+int BUFFER_Flush(BUFFER_S *pstBuffer)
 {
     if (! pstBuffer) {
         return BS_ERR;

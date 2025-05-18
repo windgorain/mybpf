@@ -25,7 +25,7 @@ S64 FILE_GetFpSize(FILE *fp)
     return size;
 }
 
-int FILE_Mem(char *filename, FILE_MEM_S *m)
+int FILE_MemExt(char *filename, FILE_MEM_S *m, int tail )
 {
     FILE *fp;
     S64 filesize;
@@ -42,13 +42,19 @@ int FILE_Mem(char *filename, FILE_MEM_S *m)
     filesize = FILE_GetFpSize(fp);
 
     m->len = filesize;
-    m->data = MEM_Malloc(filesize);
+    m->data = MEM_Malloc(filesize + tail);
     if (! m->data) {
         goto _ERR;
     }
 
-    if (filesize != fread(m->data, 1, filesize, fp)) {
-        goto _ERR;
+    if (filesize) {
+        if (filesize != fread(m->data, 1, filesize, fp)) {
+            goto _ERR;
+        }
+    }
+
+    if (tail) {
+        memset(m->data + m->len, 0, tail);
     }
 
     fclose(fp);
@@ -63,6 +69,18 @@ _ERR:
         FILE_FreeMem(m);
     }
     return -1;
+}
+
+int FILE_Mem(char *filename, OUT FILE_MEM_S *m)
+{
+    return FILE_MemExt(filename, m, 0);
+}
+
+
+int FILE_MemStringFormat(char *filename, OUT FILE_MEM_S *m)
+{
+    
+    return FILE_MemExt(filename, m, 1);
 }
 
 

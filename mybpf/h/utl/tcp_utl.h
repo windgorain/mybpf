@@ -27,7 +27,8 @@
 #define TCPS_FIN_WAIT_2    9    
 #define TCPS_TIME_WAIT    10    
 
-#define TCP_HEAD_LEN(pstTcpHead) ((((pstTcpHead)->ucHeadLenAndOther & 0xf0) >> 4) * 4)
+#define TCP_HEAD_LEN(pstTcpHead) ((((pstTcpHead)->ucHeadLenAndOther & 0xf0) >> 4) << 2)
+#define TCP_SET_HEAD_LEN(pstTcpHead, len) ((pstTcpHead)->ucHeadLenAndOther |= (((len) >> 2) << 4))
 
 #define    TCP_FLAG_FIN    0x01
 #define    TCP_FLAG_SYN    0x02
@@ -74,7 +75,7 @@ typedef struct tagTCP_HEAD_S
 	UCHAR  ucHeadLenAndOther; 
 	UCHAR  ucFlag;            
 	USHORT usWindow;
-	USHORT usCrc;
+	USHORT usCrc;  
 	USHORT usUrg;
 }TCP_HEAD_S;
 
@@ -91,13 +92,7 @@ typedef struct {
 }TCP_OPT_INFO_S;
 
 
-USHORT TCP_CheckSum
-(
-    IN UCHAR *pucBuf,
-	IN UINT ulLen,
-	IN UCHAR *pucSrcIp,
-	IN UCHAR *pucDstIp
-);
+U16 TCP_CheckSum(void *tcphdr, U32 tcp_len, void *pucSrcIp, void *pucDstIp);
 TCP_HEAD_S * TCP_GetTcpHeader(IN UCHAR *pucData, IN UINT uiDataLen, IN NET_PKT_TYPE_E enPktType);
 CHAR * TCP_Header2String(IN VOID *tcp, OUT CHAR *info, IN UINT infosize);
 CHAR * TCP_Header2Hex(IN VOID *tcp, OUT CHAR *hex);

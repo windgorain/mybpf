@@ -74,7 +74,7 @@ _CFF_S * _cff_Open(IN CHAR *pcFileName, IN UINT uiFlag)
     }
     TXT_Strlcpy(pstCff->pcFileName, pcFileName, uiFileNameLen + 1);
 
-    if (0 != FILE_Mem(pcFileName, &pstCff->file_mem)) {
+    if (0 != FILE_MemStringFormat(pcFileName, &pstCff->file_mem)) {
         ccf_Close(pstCff);
         return NULL;
     }

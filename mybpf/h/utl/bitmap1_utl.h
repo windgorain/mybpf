@@ -42,6 +42,8 @@ extern UINT BITMAP1_GetBusyFrom(BITMAP_S *pstBitMap, UINT from);
 
 extern UINT BITMAP1_GetAUnsettedBitIndex(IN BITMAP_S * pstBitMap);
 
+extern UINT BITMAP1_GetFree(IN BITMAP_S *pstBitMap);
+
 
 extern UINT BITMAP1_GetFreeCycle(IN BITMAP_S *pstBitMap);
 

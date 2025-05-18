@@ -15,19 +15,19 @@
 #endif 
 
 typedef struct {
-    ULONG ulTotleLen;
-    ULONG ulUsedLen;
-    ULONG ulOffset;  
-    UINT  double_mem: 1; 
+    U64 ulTotleLen;
+    U64 ulUsedLen;
+    U64 ulOffset;  
+    U32 double_mem: 1; 
     UCHAR *pucData;
 }VBUF_S;
 
-int VBUF_AddHead(INOUT VBUF_S *vbuf, ULONG len);
-int VBUF_AddHeadBuf(INOUT VBUF_S *vbuf, void *buf, ULONG len);
-int VBUF_AddTail(INOUT VBUF_S *vbuf, ULONG len);
+int VBUF_AddHead(INOUT VBUF_S *vbuf, U64 len);
+int VBUF_AddHeadBuf(INOUT VBUF_S *vbuf, void *buf, U64 len);
+int VBUF_AddTail(INOUT VBUF_S *vbuf, U64 len);
 BS_STATUS VBUF_CatFromVBuf(IN VBUF_S *pstVBufDst, IN VBUF_S *pstVBufSrc);
 BS_STATUS VBUF_CpyFromVBuf(IN VBUF_S *pstVBufDst, IN VBUF_S *pstVBufSrc);
-INT VBUF_CmpByBuf(IN VBUF_S *pstVBuf, IN void *buf, IN ULONG ulLen);
+INT VBUF_CmpByBuf(IN VBUF_S *pstVBuf, IN void *buf, U64 ulLen);
 INT VBUF_CmpByVBuf(IN VBUF_S *pstVBuf1, IN VBUF_S *pstVBuf2);
 long VBUF_Ptr2Offset(VBUF_S *vbuf, void *ptr);
 int VBUF_Insert(VBUF_S *vbuf, U64 data_offset, U64 len);
@@ -36,10 +36,10 @@ int VBUF_WriteFile(char *filename, VBUF_S *vbuf);
 int VBUF_ReadFP(void *fp, OUT VBUF_S *vbuf);
 int VBUF_ReadFile(char *filename, OUT VBUF_S *vbuf);
 
-static inline int _vbuf_expand_to(IN VBUF_S *pstVBuf, IN ULONG ulLen)
+static inline int _vbuf_expand_to(IN VBUF_S *pstVBuf, U64 ulLen)
 {
     UCHAR *pucTmp;
-    UINT uiNewTotleLen = ulLen;
+    U64 uiNewTotleLen = ulLen;
 
     if (uiNewTotleLen <= pstVBuf->ulTotleLen) {
         return BS_OK;
@@ -61,9 +61,9 @@ static inline int _vbuf_expand_to(IN VBUF_S *pstVBuf, IN ULONG ulLen)
     return BS_OK;
 }
 
-static inline int _vbuf_resize_double_up_to(VBUF_S *pstVBuf, ULONG min)
+static inline int _vbuf_resize_double_up_to(VBUF_S *pstVBuf, U64 min)
 {
-    ULONG new_size = pstVBuf->ulTotleLen;
+    U64 new_size = pstVBuf->ulTotleLen;
 
     if (new_size == 0) {
         new_size = 1;
@@ -77,7 +77,7 @@ static inline int _vbuf_resize_double_up_to(VBUF_S *pstVBuf, ULONG min)
 }
 
 
-static inline int _vbuf_resize_up_to(VBUF_S *pstVBuf, ULONG len)
+static inline int _vbuf_resize_up_to(VBUF_S *pstVBuf, U64 len)
 {
     if (pstVBuf->double_mem) {
         return _vbuf_resize_double_up_to(pstVBuf, len);
@@ -85,13 +85,13 @@ static inline int _vbuf_resize_up_to(VBUF_S *pstVBuf, ULONG len)
     return _vbuf_expand_to(pstVBuf, len);
 }
 
-static inline int _vbuf_resize_up(VBUF_S *pstVBuf, ULONG len)
+static inline int _vbuf_resize_up(VBUF_S *pstVBuf, U64 len)
 {
     return _vbuf_resize_up_to(pstVBuf, pstVBuf->ulTotleLen + len);
 }
 
 
-static inline int _vbuf_move_data(IN VBUF_S *pstVBuf, IN ULONG ulOffset)
+static inline int _vbuf_move_data(IN VBUF_S *pstVBuf, U64 ulOffset)
 {
     if (pstVBuf->ulOffset == ulOffset) {
         return BS_OK;
@@ -112,9 +112,9 @@ static inline int _vbuf_move_data(IN VBUF_S *pstVBuf, IN ULONG ulOffset)
     return BS_OK;
 }
 
-static inline int _vbuf_pre_cat(IN VBUF_S *pstVBuf, IN ULONG ulLen)
+static inline int _vbuf_pre_cat(IN VBUF_S *pstVBuf, U64 ulLen)
 {
-    ULONG ulTailLen;
+    U64 ulTailLen;
 
     ulTailLen = (pstVBuf->ulTotleLen - pstVBuf->ulOffset) - pstVBuf->ulUsedLen;
 
@@ -152,12 +152,12 @@ static inline void * VBUF_Steal(INOUT VBUF_S *vbuf)
     return mem;
 }
 
-static inline void VBUF_SetData(INOUT VBUF_S *pstVBuf, void *data, int data_len)
+static inline void VBUF_SetData(INOUT VBUF_S *pstVBuf, void *buf, U64 buf_size, void *data, U64 data_len)
 {
-    VBUF_Finit(pstVBuf);
-    pstVBuf->pucData = data;
-    pstVBuf->ulTotleLen = data_len;
+    pstVBuf->ulTotleLen = buf_size;
     pstVBuf->ulUsedLen = data_len;
+    pstVBuf->pucData = buf;
+    pstVBuf->ulOffset = (U8*)data - (U8*)buf;
 }
 
 static inline void * VBUF_GetData(IN VBUF_S *pstVBuf)
@@ -172,9 +172,8 @@ static inline void * VBUF_GetTailFreeBuf(IN VBUF_S *pstVBuf)
 }
 
 
-static inline ULONG VBUF_GetDataLength(IN VBUF_S *pstVBuf)
+static inline U64 VBUF_GetDataLength(IN VBUF_S *pstVBuf)
 {
-    BS_DBGASSERT(0 != pstVBuf);
     return pstVBuf->ulUsedLen;
 }
 
@@ -188,19 +187,19 @@ static inline void VBUF_ToM(INOUT VBUF_S *vbuf, OUT LLDATA_S *m)
 
 static inline void VBUF_FromM(OUT VBUF_S *vbuf, INOUT LLDATA_S *m)
 {
-    VBUF_SetData(vbuf, m->data, m->len);
+    VBUF_SetData(vbuf, m->data, m->len, m->data, m->len);
     m->data = NULL;
     m->len = 0;
 }
 
 
-static inline ULONG VBUF_GetHeadFreeLength(IN VBUF_S *pstVBuf)
+static inline U64 VBUF_GetHeadFreeLength(IN VBUF_S *pstVBuf)
 {
     return pstVBuf->ulOffset;
 }
 
 
-static inline ULONG VBUF_GetTailFreeLength(IN VBUF_S *pstVBuf)
+static inline U64 VBUF_GetTailFreeLength(IN VBUF_S *pstVBuf)
 {
     BS_DBGASSERT(pstVBuf->ulTotleLen >= (pstVBuf->ulOffset + pstVBuf->ulUsedLen));
     return (pstVBuf->ulTotleLen - pstVBuf->ulOffset) - pstVBuf->ulUsedLen;
@@ -254,21 +253,21 @@ static inline int VBUF_CatBuf(INOUT VBUF_S *pstVBuf, IN VOID *buf, IN ULONG ulLe
 }
 
 
-static inline int VBUF_ExpandTo(IN VBUF_S *pstVBuf, IN ULONG ulLen)
+static inline int VBUF_ExpandTo(IN VBUF_S *pstVBuf, U64 ulLen)
 {
     return _vbuf_expand_to(pstVBuf, ulLen);
 }
 
 
-static inline int VBUF_Expand(IN VBUF_S *pstVBuf, IN ULONG ulLen)
+static inline int VBUF_Expand(IN VBUF_S *pstVBuf, U64 ulLen)
 {
-    UINT uiNewTotleLen;
+    U64 uiNewTotleLen;
     uiNewTotleLen = ulLen + pstVBuf->ulTotleLen;
     return VBUF_ExpandTo(pstVBuf, uiNewTotleLen);
 }
 
 
-static inline int VBUF_MoveData(IN VBUF_S *pstVBuf, IN ULONG ulOffset)
+static inline int VBUF_MoveData(IN VBUF_S *pstVBuf, U64 ulOffset)
 {
     return _vbuf_move_data(pstVBuf, ulOffset);
 }
@@ -300,13 +299,17 @@ static inline void VBUF_ClearData(IN VBUF_S *pstVBuf)
 }
 
 
-static inline int VBUF_SetDataLength(INOUT VBUF_S *vbuf, ULONG ulDataLength)
+static inline int VBUF_SetDataLength(INOUT VBUF_S *vbuf, U64 ulDataLength)
 {
     BS_DBGASSERT(NULL != vbuf);
 
-    ULONG new_len = vbuf->ulOffset + ulDataLength;
+    if (vbuf->ulUsedLen == ulDataLength) {
+        return 0;
+    }
 
-    if (unlikely(new_len > vbuf->ulTotleLen)) {
+    U64 tail = vbuf->ulOffset + ulDataLength;
+
+    if (unlikely(tail > vbuf->ulTotleLen)) {
         RETURN(BS_OUT_OF_RANGE);
     }
 
@@ -316,11 +319,11 @@ static inline int VBUF_SetDataLength(INOUT VBUF_S *vbuf, ULONG ulDataLength)
 }
 
 
-static inline int VBUF_AddDataLength(INOUT VBUF_S *vbuf, ULONG add_len)
+static inline int VBUF_AddDataLength(INOUT VBUF_S *vbuf, U64 add_len)
 {
     BS_DBGASSERT(0 != vbuf);
 
-    ULONG new_len = (vbuf->ulOffset + vbuf->ulUsedLen) + add_len;
+    U64 new_len = (vbuf->ulOffset + vbuf->ulUsedLen) + add_len;
 
     if (unlikely(new_len > vbuf->ulTotleLen)) {
         RETURN(BS_OUT_OF_RANGE);
@@ -332,7 +335,7 @@ static inline int VBUF_AddDataLength(INOUT VBUF_S *vbuf, ULONG add_len)
 }
 
 
-static inline int VBUF_Cut(VBUF_S *vbuf, ULONG offset, ULONG cut_len)
+static inline int VBUF_Cut(VBUF_S *vbuf, U64 offset, U64 cut_len)
 {
     if (offset + cut_len >= vbuf->ulUsedLen) {
         vbuf->ulUsedLen = offset;
@@ -342,7 +345,7 @@ static inline int VBUF_Cut(VBUF_S *vbuf, ULONG offset, ULONG cut_len)
     char *data = VBUF_GetData(vbuf);
     char *dst = data + offset;
     char *src = dst + cut_len;
-    ULONG src_len = vbuf->ulUsedLen - (offset + cut_len);
+    U64 src_len = vbuf->ulUsedLen - (offset + cut_len);
 
     memmove(dst, src, src_len);
 
@@ -352,7 +355,7 @@ static inline int VBUF_Cut(VBUF_S *vbuf, ULONG offset, ULONG cut_len)
 }
 
 
-static inline int VBUF_CutHead(IN VBUF_S *pstVBuf, IN ULONG ulCutLen)
+static inline int VBUF_CutMoveHead(IN VBUF_S *pstVBuf, U64 ulCutLen)
 {
     if (ulCutLen < pstVBuf->ulUsedLen) {
         pstVBuf->ulUsedLen -= ulCutLen;
@@ -367,7 +370,7 @@ static inline int VBUF_CutHead(IN VBUF_S *pstVBuf, IN ULONG ulCutLen)
 }
 
 
-static inline int VBUF_EarseHead(IN VBUF_S *pstVBuf, IN ULONG ulCutLen)
+static inline int VBUF_CutHead(IN VBUF_S *pstVBuf, U64 ulCutLen)
 {
     BS_DBGASSERT(0 != pstVBuf);
 
@@ -390,7 +393,7 @@ static inline void VBUF_CutAll(IN VBUF_S *pstVBuf)
     pstVBuf->ulOffset = 0;
 }
 
-static inline int VBUF_CutTail(IN VBUF_S *pstVBuf, IN ULONG ulCutLen)
+static inline int VBUF_CutTail(IN VBUF_S *pstVBuf, U64 ulCutLen)
 {
     BS_DBGASSERT(0 != pstVBuf);
 

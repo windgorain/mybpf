@@ -14,8 +14,25 @@
 #include "utl/mmap_utl.h"
 #include "utl/get_cpu.h"
 #include "utl/ulc_helper_id.h"
+#include <setjmp.h>
+#include <locale.h>
 
 #undef IN_ULC_USER
+
+static long _ulc_ret_0(void)
+{
+    return 0;
+}
+
+static long _ulc_ret_1(void)
+{
+    return 1;
+}
+
+static long _ulc_ret_negative_1(void)
+{
+    return -1;
+}
 
 static long __bpfprobe_read(void *dst, U32 size, const void *unsafe_ptr)
 {
@@ -92,7 +109,7 @@ static long __bpfstrtoul(const char *buf, size_t buf_len, U64 flags, unsigned lo
     return end - buf;
 }
 
-static long __bpf_snprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32 d_len)
+static long __bpf_sprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32 d_len)
 {
     switch (d_len) {
         case 0: return snprintf(str,str_size,"%s",fmt);
@@ -108,6 +125,18 @@ static long __bpf_snprintf(char *str, U32 str_size, const char *fmt, U64 *d, U32
         case 80: return snprintf(str,str_size,fmt,d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7],d[8],d[9]);
         default: return -1;
     }
+}
+
+static unsigned long ulc_sys_copy_from_user(OUT void *to, void *from, unsigned long len)
+{
+    memcpy(to, from ,len);
+    return 0;
+}
+
+static unsigned long ulc_sys_copy_to_user(OUT void *to, void *from, unsigned long len)
+{
+    memcpy(to, from ,len);
+    return 0;
 }
 
 static void ulc_sys_usleep(U64 us)
@@ -131,6 +160,34 @@ static inline void * _ulc_fp_2_process(void *fp)
     return fp;
 }
 
+
+static int _sprintf(OUT char *buf, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    int ret = vsnprintf(buf, 4096, fmt, args);
+    va_end(args);
+    return ret;
+}
+
+static int ulc_sys_fflush(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fflush(fp);
+}
+
+static int ulc_sys_setvbuf(void *fp, char *buffer, int mode, size_t size)
+{
+    fp = _ulc_fp_2_process(fp);
+    return setvbuf(fp, buffer, mode ,size);
+}
+
+static void ulc_sys_clearerr(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return clearerr(fp);
+}
+
 static int ulc_sys_fprintf(void *fp, char *fmt, U64 *d, int count)
 {
     fp = _ulc_fp_2_process(fp);
@@ -151,11 +208,131 @@ static int ulc_sys_fprintf(void *fp, char *fmt, U64 *d, int count)
     }
 }
 
-char * ulc_sys_fgets(char *s, int size, void *fp)
+static int ulc_sys_fscanf(void *fp, char *fmt, U64 *d, int count)
+{
+    fp = _ulc_fp_2_process(fp);
+
+    switch (count) {
+        case 0: return fscanf(fp,"%s",fmt);
+        case 1: return fscanf(fp,fmt,d[0]);
+        case 2: return fscanf(fp,fmt,d[0],d[1]);
+        case 3: return fscanf(fp,fmt,d[0],d[1],d[2]);
+        case 4: return fscanf(fp,fmt,d[0],d[1],d[2],d[3]);
+        case 5: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4]);
+        case 6: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4],d[5]);
+        case 7: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4],d[5],d[6]);
+        case 8: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7]);
+        case 9: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7],d[8]);
+        case 10: return fscanf(fp,fmt,d[0],d[1],d[2],d[3],d[4],d[5],d[6],d[7],d[8],d[9]);
+        default: return -1;
+    }
+}
+
+static int ulc_sys_getc(void *fp)
+{
+    return getc(fp);
+}
+
+static int ulc_sys_ungetc(int c, void *fp)
+{
+    return ungetc(c, fp);
+}
+
+static char * ulc_sys_strerror(int errnum)
+{
+    return strerror(errnum);
+}
+
+static int ulc_sys_fclose(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fclose(fp);
+}
+
+static long ulc_sys_ftell(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return ftell(fp);
+}
+
+static int ulc_sys_fseek(void *fp, long int offset, int whence)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fseek(fp, offset, whence);
+}
+
+static long ulc_sys_fread(void *ptr, long size, long nmemb, void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fread(ptr, size, nmemb, fp);
+}
+
+static char * ulc_sys_fgets(char *s, int size, void *fp)
 {
     fp = _ulc_fp_2_process(fp);
     return fgets(s, size, fp);
 }
+
+static size_t ulc_sys_fwrite(const void *ptr, size_t size, size_t nmemb, void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fwrite(ptr, size, nmemb, fp);
+}
+
+int ulc_sys_fputs(const char *str, void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fputs(str, fp);
+}
+
+static int ulc_sys_fputc(int c, void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return fputc(c, fp);
+}
+
+static int ulc_sys_ferror(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return ferror(fp);
+}
+
+static int ulc_sys_feof(void *fp)
+{
+    fp = _ulc_fp_2_process(fp);
+    return feof(fp);
+}
+
+static char * ulc_sys_tmpnam(char *str)
+{
+	static char internal[L_tmpnam];
+    char s[]="/tmp/cmguiXXXXXX";
+    int temp_fd;
+
+    temp_fd=mkstemp(s);
+    if (temp_fd < 0) {
+        return NULL;
+    }
+
+    
+    close(temp_fd);
+
+    
+    return strcpy(str ? str : internal, s);
+}
+
+static void * g_bpf_runtime_ctrl = NULL; 
+
+static void ulc_set_runtime(void *ptr)
+{
+    g_bpf_runtime_ctrl = ptr;
+}
+
+static void * ulc_get_runtime(void)
+{
+    return g_bpf_runtime_ctrl;
+}
+
 
 static void * g_bpf_helper_trusteeship[16];
 
@@ -190,7 +367,7 @@ static void ulc_do_nothing()
 {
 }
 
-void * ulc_sys_get_sym(char *sym_name)
+static void * ulc_sys_get_sym(char *sym_name)
 {
     return dlsym(RTLD_DEFAULT, sym_name);
 }
@@ -213,11 +390,26 @@ static int ulc_sys_get_errno()
     return errno;
 }
 
-static void ulc_init_timer(void *timer_node, void *timeout_func)
+static int ulc_sys_setjmp(void *env)
 {
+    return setjmp(env);
+}
+
+static void ulc_sys_longjmp(void *env, int val)
+{
+    longjmp(env, val);
+}
+
+static int ulc_init_timer(void *timer_node, void *timeout_func, int node_size)
+{
+    if (node_size < sizeof(MTIMER_S)) {
+        return -1;
+    }
+
     MTIMER_S *t = timer_node;
     t->vclock.pfFunc = timeout_func;
-    return;
+
+    return 0;
 }
 
 static int ulc_add_timer(void *timer_node, U32 ms)
@@ -253,7 +445,7 @@ static const void * g_bpf_base_helpers[BPF_BASE_HELPER_COUNT] = {
     [94] = SpinLock_UnLock,
     [105] = __bpfstrtol,
     [106] = __bpfstrtoul,
-    [165] = __bpf_snprintf,
+    [165] = __bpf_sprintf,
 };
 
 #undef _
@@ -263,28 +455,58 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
     [0] = NULL, 
     [_(ULC_ID_MALLOC)] = malloc,
     [_(ULC_ID_FREE)] = free,
-    [_(ULC_ID_KALLOC)] = malloc,
-    [_(ULC_ID_KFREE)] = free,
+    [_(ULC_ID_VMALLOC)] = malloc,
+    [_(ULC_ID_VFREE)] = free,
     [_(ULC_ID_REALLOC)] = realloc,
-
-    [_(ULC_ID_USLEEP)] = ulc_sys_usleep,
+    [_(ULC_ID_MODULE_ALLOC)] = malloc,
+    [_(ULC_ID_MODULE_FREE)] = free,
+    [_(ULC_ID_COPY_FROM_USER)] = ulc_sys_copy_from_user,
+    [_(ULC_ID_COPY_TO_USER)] = ulc_sys_copy_to_user,
 
     [_(ULC_ID_PRINTF)] = printf,
     [_(ULC_ID_PUTS)] = ulc_sys_puts,
-    [_(ULC_ID_SPRINTF)] = sprintf,
-    [_(ULC_ID_FPRINTF)] = ulc_sys_fprintf,
-
-    [_(ULC_ID_ACCESS)] = access,
-    [_(ULC_ID_FTELL)] = ftell,
-    [_(ULC_ID_FSEEK)] = fseek,
+    [_(ULC_ID_SPRINTF)] = _sprintf,
+    [_(ULC_ID_GETC)] = ulc_sys_getc,
+    [_(ULC_ID_UNGETC)] = ulc_sys_ungetc,
+    [_(ULC_ID_STRERROR)] = ulc_sys_strerror,
+    [_(ULC_ID_FTELL)] = ulc_sys_ftell,
+    [_(ULC_ID_FSEEK)] = ulc_sys_fseek,
     [_(ULC_ID_FOPEN)] = fopen,
-    [_(ULC_ID_FREAD)] = fread,
-    [_(ULC_ID_FCLOSE)] = fclose,
+    [_(ULC_ID_FREAD)] = ulc_sys_fread,
+    [_(ULC_ID_FCLOSE)] = ulc_sys_fclose,
     [_(ULC_ID_FGETS)] = ulc_sys_fgets,
-    [_(ULC_ID_FWRITE)] = fwrite,
-    [_(ULC_ID_STAT)] = stat,
+    [_(ULC_ID_FWRITE)] = ulc_sys_fwrite,
+    [_(ULC_ID_FREOPEN)] = freopen,
+    [_(ULC_ID_FERROR)] = ulc_sys_ferror,
+    [_(ULC_ID_FEOF)] = ulc_sys_feof,
+    [_(ULC_ID_FPUTS)] = ulc_sys_fputs,
+    [_(ULC_ID_FPUTC)] = ulc_sys_fputc,
+    [_(ULC_ID_FFLUSH)] = ulc_sys_fflush,
+    [_(ULC_ID_SETVBUF)] = ulc_sys_setvbuf,
+    [_(ULC_ID_CLEARERR)] = ulc_sys_clearerr,
+    [_(ULC_ID_FPRINTF)] = ulc_sys_fprintf,
+    [_(ULC_ID_FSCANF)] = ulc_sys_fscanf,
+    [_(ULC_ID_TMPFILE)] = tmpfile,
+    [_(ULC_ID_TMPNAM)] = ulc_sys_tmpnam,
 
+    [_(ULC_ID_STAT)] = stat,
+    [_(ULC_ID_ACCESS)] = access,
     [_(ULC_ID_TIME)] = time,
+    [_(ULC_ID_LOCALECONV)] = localeconv,
+    [_(ULC_ID_SETLOCALE)] = setlocale,
+    [_(ULC_ID_USLEEP)] = ulc_sys_usleep,
+    [_(ULC_ID_EXIT)] = exit,
+    [_(ULC_ID_GETENV)] = getenv,
+    [_(ULC_ID_CLOCK)] = clock,
+    [_(ULC_ID_GMTIME)] = gmtime,
+    [_(ULC_ID_LOCALTIME)] = localtime,
+    [_(ULC_ID_STRFTIME)] = strftime,
+    [_(ULC_ID_MKTIME)] = mktime,
+    [_(ULC_ID_SYSTEM)] = system,
+    [_(ULC_ID_REMOVE)] = remove,
+    [_(ULC_ID_RENAME)] = rename,
+    [_(ULC_ID_SIGNAL)] = signal,
+    [_(ULC_ID_ABORT)] = abort,
 
     [_(ULC_ID_SOCKET)] = socket,
     [_(ULC_ID_BIND)] = bind,
@@ -302,8 +524,11 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
     [_(ULC_ID_RCU_LOCK)] = RcuEngine_Lock,
     [_(ULC_ID_RCU_UNLOCK)] = RcuEngine_UnLock,
     [_(ULC_ID_RCU_SYNC)] = RcuEngine_Sync,
+    [_(ULC_ID_RCU_BARRIER)] = RcuEngine_Barrier,
 
     [_(ULC_ID_ERRNO)] = ulc_sys_get_errno,
+    [_(ULC_ID_SETJMP)] = ulc_sys_setjmp,
+    [_(ULC_ID_LONGJMP)] = ulc_sys_longjmp,
 
     [_(ULC_ID_INIT_TIMER)] = ulc_init_timer,
     [_(ULC_ID_ADD_TIMER)] = ulc_add_timer,
@@ -325,8 +550,20 @@ static const void * g_bpf_sys_helpers[BPF_SYS_HELPER_COUNT] = {
     [_(ULC_ID_GET_BASE_HELPER)] = ulc_get_base_helpers,
     [_(ULC_ID_GET_SYS_HELPER)] = ulc_get_sys_helpers,
     [_(ULC_ID_GET_USER_HELPER)] = ulc_get_user_helpers,
-    [_(ULC_ID_MAP_GET_NEXT_KEY)] = UMAP_GetNextKey,
     [_(ULC_ID_ENV_NAME)] = ulc_sys_env_name,
+
+    [_(ULC_ID_MAP_LOOKUP_ELEM)] = UMAP_LookupElem,
+    [_(ULC_ID_MAP_UPDATE_ELEM)] = UMAP_UpdateElem,
+    [_(ULC_ID_MAP_DELETE_ELEM)] = UMAP_DeleteElem,
+    [_(ULC_ID_MAP_GET_NEXT_KEY)] = UMAP_GetNextKey,
+
+    
+    [_(ULC_ID_RAW_MAP_LOOKUP_ELEM)] = UMAP_LookupElem,
+    [_(ULC_ID_RAW_MAP_UPDATE_ELEM)] = UMAP_UpdateElem,
+    [_(ULC_ID_RAW_MAP_DELETE_ELEM)] = UMAP_DeleteElem,
+
+    [_(ULC_ID_SET_RUNTIME)] = ulc_set_runtime,
+    [_(ULC_ID_GET_RUNTIME)] = ulc_get_runtime,
 };
 
 
@@ -371,6 +608,14 @@ const void ** ulc_get_user_helpers(void)
 
 int ulc_set_helper(U32 id, void *func)
 {
+    if (func == NULL) {
+        func = _ulc_ret_0;
+    } else if (func == (void*)(long)1) {
+        func = _ulc_ret_1;
+    } else if (func == (void*)(long)-1) {
+        func = _ulc_ret_negative_1;
+    }
+
     if (id < BPF_BASE_HELPER_END) {
         g_bpf_base_helpers[id] = func;
     } else if ((id >= BPF_SYS_HELPER_START) && (id < BPF_SYS_HELPER_END)) {

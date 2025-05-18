@@ -17,6 +17,10 @@ extern "C" {
     bpf_trace_printk(_msg, sizeof(_msg), ##__VA_ARGS__); \
 })
 
+#define BPF_PrintLn() do { \
+    BPF_Print("%d\n", __LINE__); \
+} while(0)
+
 #define ulc_sys_snprintf(buf,size,_fmt, ...) ({ \
     int _count = BS_ARG_COUNT(__VA_ARGS__); \
     U64 _d[10]; \
@@ -68,7 +72,7 @@ static unsigned long long (*bpf_get_current_uid_gid)(void) = (void *) 15;
 static long (*bpf_get_current_comm)(void *buf, unsigned int size_of_buf) = (void *) 16;
 static long (*bpf_strtol)(const char *buf, int buf_len, unsigned long long flags, long *res) = (void *) 105;
 static long (*bpf_strtoul)(const char *buf, int buf_len, unsigned long long flags, unsigned long *res) = (void *) 106;
-static long (*bpf_snprintf)(char *str, U32 str_size, const char *fmt, U64 *data, U32 data_len) = (void*)165;
+static long (*bpf_snprintf)(char *str, unsigned int str_size, const char *fmt, unsigned long long *data, unsigned int data_len) = (void*)165;
 
 #endif
 

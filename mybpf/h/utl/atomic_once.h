@@ -30,7 +30,7 @@ static inline void AtomOnce_Do(ATOM_ONCE_S *once, PF_ATOM_ONCE_CB func, void *ud
         return;
     }
 
-    if (ATOM_BOOL_COMP_SWAP(&once->begin, &to, 1)) {
+    if (ATOM_BOOL_COMP_SWAP(&once->begin, to, 1)) {
         func(ud);
         ATOM_BARRIER();
         ATOM_SET(&once->end, 1);
@@ -49,7 +49,7 @@ static inline void AtomOnce_WaitDo(ATOM_ONCE_S *once, PF_ATOM_ONCE_CB func, void
         return;
     }
 
-    if (ATOM_BOOL_COMP_SWAP(&once->begin, &to, 1)) {
+    if (ATOM_BOOL_COMP_SWAP(&once->begin, to, 1)) {
         func(ud);
         ATOM_BARRIER();
         once->end = 1;

@@ -22,7 +22,7 @@ typedef void (*PF_AC_USER_FREE)(void *id);
 
 typedef struct _acsm_userdata
 {
-    uint32_t ref_count;
+    U32 ref_count;
     void *id;
 }ACSMX_USERDATA_S;
 
@@ -51,7 +51,7 @@ typedef struct {
     int numPatterns;
 }ACSMX_S;
 
-ACSMX_S * ACSMX_New();
+ACSMX_S * ACSMX_New(void);
 int ACSMX_AddPattern(ACSMX_S * p, UCHAR *pat, int n, void *id);
 int ACSMX_Compile(ACSMX_S * acsm);
 int ACSMX_Search(ACSMX_S * acsm, unsigned char *Tx, int n,

@@ -9,7 +9,7 @@
 static UCHAR g_case_convert_to_upper[256];
 static UCHAR g_case_convert_to_lower[256];
 
-static void caseconvert_Init()
+static void caseconvert_Init(void)
 {
     int i;
     for (i = 0; i < 256; i++) {

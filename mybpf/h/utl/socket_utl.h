@@ -24,7 +24,9 @@
 
 #ifdef IN_WINDOWS
 #define SOCKET_E_AGAIN      -WSAEWOULDBLOCK
+#ifndef EAGAIN 
 #define EAGAIN SOCKET_E_AGAIN
+#endif
 #endif
 
 #ifdef IN_UNIXLIKE
@@ -70,11 +72,13 @@ extern int Socket_WriteString(int fd, char *buf, unsigned int flag);
 
 extern BS_STATUS Socket_WriteUntilFinish(IN INT iSocketId, IN UCHAR *pucBuf, IN UINT ulLen, IN UINT ulFlag);
 
+extern int Socket_GetLastErrno(void);
+
 
 extern INT Socket_Read(IN INT iSocketId, OUT void *buf, IN UINT uiBufLen, IN UINT uiFlag);
 
 
-extern BS_STATUS Socket_Read2(int iSocketId, OUT void *buf, UINT uiLen, OUT UINT *puiReadLen, UINT ulFlag);
+extern int Socket_Read2(int iSocketId, OUT void *buf, UINT uiLen, OUT UINT *puiReadLen, UINT ulFlag);
 
 extern BS_STATUS Socket_SendTo
 (

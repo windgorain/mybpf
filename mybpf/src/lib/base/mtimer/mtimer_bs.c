@@ -1,8 +1,6 @@
 /******************************************************************************
 * Copyright (C), Xingang.Li
 * Author:      Xingang.Li  Version: 1.0  Date: 2007-8-18
-* Description: 相比于VTimer, 只创建一个Timer定时向一个线程发送消息
-*              所有MTimer在这个线程中使用vclock调度
 * History:     
 ******************************************************************************/
 #include "bs.h"
@@ -13,6 +11,8 @@
 #include "utl/event_utl.h"
 #include "utl/timerfd_utl.h"
 #include "utl/thread_utl.h"
+
+
 
 
 #define _MTimer_DFT_TIME_PER_TICK 100  
@@ -108,12 +108,10 @@ int MTimer_AddExt(MTIMER_S *timer, UINT first_time_ms,UINT time_ms, UINT flag,
     tick = _mtimer_Ms2Tick(time_ms);
     first_tick = _mtimer_Ms2Tick(first_time_ms) + _MTimer_GetAdjustTick();
 
-    return VCLOCK_AddTimer(g_stMTimerHead.hClockId, &timer->vclock,
-            first_tick, tick, flag, pfFunc, pstUserHandle);
+    return VCLOCK_AddTimer(g_stMTimerHead.hClockId, &timer->vclock, first_tick, tick, flag, pfFunc, pstUserHandle);
 }
 
-int MTimer_Add(MTIMER_S *timer, UINT time_ms, UINT flag,
-        PF_TIME_OUT_FUNC pfFunc, USER_HANDLE_S *pstUserHandle)
+int MTimer_Add(MTIMER_S *timer, UINT time_ms, UINT flag, PF_TIME_OUT_FUNC pfFunc, USER_HANDLE_S *pstUserHandle)
 {
     return MTimer_AddExt(timer, time_ms, time_ms, flag, pfFunc, pstUserHandle);
 }
@@ -143,7 +141,7 @@ BS_STATUS MTimer_GetInfo(MTIMER_S *timer, OUT TIMER_INFO_S *pstTimerInfo)
     BS_STATUS eRet;
     
     eRet = VCLOCK_GetInfo(g_stMTimerHead.hClockId, &timer->vclock, pstTimerInfo);
-    pstTimerInfo->ulTime *= _MTimer_DFT_TIME_PER_TICK;
+    pstTimerInfo->time_value *= _MTimer_DFT_TIME_PER_TICK;
 
     return eRet;
 }

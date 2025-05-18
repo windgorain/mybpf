@@ -72,8 +72,8 @@ typedef struct
 }ARP_NODE_S;
 
 typedef BS_STATUS (*PF_ARP_SEND_PACKET_FUNC)(IN MBUF_S *pstMbuf, IN USER_HANDLE_S *pstUserHandle);
-typedef BOOL_T (*PF_ARP_IS_HOST_IP_FUNC)(IF_INDEX uiIfIndex, ARP_HEADER_S *pstArpHeader, USER_HANDLE_S *pstUserHandle);
-typedef UINT (*PF_ARP_GET_HOST_IP_FUNC)(IN IF_INDEX ifIndex, IN UINT uiDstIP, IN USER_HANDLE_S *pstUserHandle);  
+typedef BOOL_T (*PF_ARP_IS_HOST_IP_FUNC)(IF_IDX uiIfIndex, ARP_HEADER_S *pstArpHeader, USER_HANDLE_S *pstUserHandle);
+typedef UINT (*PF_ARP_GET_HOST_IP_FUNC)(IN IF_IDX ifIndex, IN UINT uiDstIP, IN USER_HANDLE_S *pstUserHandle);  
 typedef int (*PF_ARP_WALK_CALL_BACK_FUNC)(IN ARP_NODE_S *pstArpNode, IN HANDLE hUserHandle);
 
 

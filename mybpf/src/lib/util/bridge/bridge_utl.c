@@ -17,7 +17,7 @@ typedef struct BR_CTRL_STRUCT {
 }BR_CTRL_S;;
 
 typedef struct {
-    IF_INDEX ifindex;
+    IF_IDX ifindex;
 }BR_MAC_UD_S;
 
 static int _br_if_fwd_each(IN MAP_ELE_S *pstEle, IN VOID *ud)
@@ -32,7 +32,7 @@ static int _br_if_fwd_each(IN MAP_ELE_S *pstEle, IN VOID *ud)
     return 0;
 }
 
-BR_HANDLE BR_Create()
+BR_HANDLE BR_Create(void)
 {
     BR_CTRL_S *br = MEM_ZMalloc(sizeof(BR_CTRL_S));
     if (! br) {
@@ -68,17 +68,17 @@ void BR_Destroy(BR_HANDLE br)
     MEM_Free(br);
 }
 
-int BR_AddIf(BR_HANDLE br, IF_INDEX ifindex)
+int BR_AddIf(BR_HANDLE br, IF_IDX ifindex)
 {
     return MAP_Add(br->if_map, ULONG_HANDLE(ifindex), 0, 0, 0);
 }
 
-void BR_DelIf(BR_HANDLE br, IF_INDEX ifindex)
+void BR_DelIf(BR_HANDLE br, IF_IDX ifindex)
 {
     MAP_Del(br->if_map, ULONG_HANDLE(ifindex), 0);
 }
 
-int BR_PktInput(BR_HANDLE br, IF_INDEX ifindex, BR_PKT_S *pkt, void *ud)
+int BR_PktInput(BR_HANDLE br, IF_IDX ifindex, BR_PKT_S *pkt, void *ud)
 {
     ETH_HEADER_S *eth_hdr = pkt->eth_hdr;
     MAC_NODE_S node;

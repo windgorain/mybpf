@@ -29,6 +29,7 @@ extern "C" {
 #define fclose(a) ulc_sys_fclose(a)
 #define fgets(a,b,c) ulc_sys_fgets(a,b,c)
 #define fwrite(a,b,c,d) ulc_sys_fwrite(a,b,c,d)
+#define getc(a) ulc_sys_getc(a)
 #define stat(a,b) ulc_sys_stat(a,b)
 #undef stdin
 #define  stdin ((void*)0)
@@ -59,6 +60,28 @@ extern "C" {
     _ret; \
 })
 
+#define fscanf(fp,fmt, ...) ({ \
+    char _fmt[] = fmt; \
+    int _count = BS_ARG_COUNT(__VA_ARGS__); \
+    U64 _d[10]; \
+    long _ret = -1; \
+    switch (_count) { \
+        case 10: _d[9]=(unsigned long long)BS_ARG_GET(10, ##__VA_ARGS__); \
+        case 9: _d[8]=(unsigned long long)BS_ARG_GET(9, ##__VA_ARGS__); \
+        case 8: _d[7]=(unsigned long long)BS_ARG_GET(8, ##__VA_ARGS__); \
+        case 7: _d[6]=(unsigned long long)BS_ARG_GET(7, ##__VA_ARGS__); \
+        case 6: _d[5]=(unsigned long long)BS_ARG_GET(6, ##__VA_ARGS__); \
+        case 5: _d[4]=(unsigned long long)BS_ARG_GET(5, ##__VA_ARGS__); \
+        case 4: _d[3]=(unsigned long long)BS_ARG_GET(4, ##__VA_ARGS__); \
+        case 3: _d[2]=(unsigned long long)BS_ARG_GET(3, ##__VA_ARGS__); \
+        case 2: _d[1]=(unsigned long long)BS_ARG_GET(2, ##__VA_ARGS__); \
+        case 1: _d[0]=(unsigned long long)BS_ARG_GET(1, ##__VA_ARGS__); \
+        case 0: break; \
+    } \
+    if (_count <= 10) { _ret = ulc_sys_fscanf(fp,fmt,_d,_count);} \
+    _ret; \
+})
+
 #define time(a) ulc_sys_time(a)
 
 #undef assert
@@ -78,6 +101,8 @@ extern "C" {
 #define RcuEngine_Lock ulc_sys_rcu_lock
 #define RcuEngine_UnLock ulc_sys_rcu_unlock
 #define RcuEngine_Sync() ulc_sys_rcu_sync()
+#define RcuEngine_Barrier() ulc_sys_rcu_barrier()
+#define RcuEngine_FastSync() ulc_sys_rcu_sync()
 
 #undef MEM_Malloc
 #define MEM_Malloc(x) ulc_sys_malloc(x)
@@ -87,11 +112,28 @@ extern "C" {
 #define MEM_Free(x) ulc_sys_free(x)
 
 #undef MEM_Kalloc
-#define MEM_Kalloc(uiSize) ulc_sys_kalloc(uiSize)
+#define MEM_Kalloc(uiSize) ulc_sys_malloc(uiSize)
 #undef MEM_ZKalloc
-#define MEM_ZKalloc(x) ({void *p = ulc_sys_kalloc(x); if (p) {memset(p, 0, (x));} p;})
+#define MEM_ZKalloc(x) ({void *p = ulc_sys_malloc(x); if (p) {memset(p, 0, (x));} p;})
 #undef MEM_KFree
-#define MEM_KFree(x) ulc_sys_kfree(x)
+#define MEM_KFree(x) ulc_sys_free(x)
+
+#undef MEM_VMalloc
+#define MEM_VMalloc(uiSize) ulc_sys_vmalloc(uiSize)
+#undef MEM_ZMValloc
+#define MEM_ZMValloc(x) ({void *p = ulc_sys_vmalloc(x); if (p) {memset(p, 0, (x));} p;})
+#undef MEM_VFree
+#define MEM_VFree(x) ulc_sys_vfree(x)
+
+#undef MEM_ModuleAlloc
+#define MEM_ModuleAlloc(uiSize) ulc_sys_module_alloc(uiSize)
+#undef MEM_ModuleFree
+#define MEM_ModuleFree(x) ulc_sys_module_free(x)
+
+#undef MEM_CopyFromUser
+#define MEM_CopyFromUser(to,from,n) ulc_sys_copy_from_user(to,from,n)
+#undef MEM_CopyToUser
+#define MEM_CopyToUser(to,from,n) ulc_sys_copy_to_user(to,from,n)
 
 #define malloc(a) ulc_sys_malloc(a)
 #define free(a) ulc_sys_free(a)

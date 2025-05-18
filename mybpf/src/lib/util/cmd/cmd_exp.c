@@ -22,6 +22,7 @@
 #include "utl/stack_utl.h"
 #include "utl/exchar_utl.h"
 #include "utl/cmd_exp.h"
+#include "utl/ip_string.h"
 #include "pcre.h"
 
 #define _DEF_CMD_EXP_MAX_VIEW_NAME_LEN           31
@@ -193,6 +194,7 @@ typedef struct {
 static _CMD_EXP_MATCH_E cmdexp_ParsePatternString(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd);
 static _CMD_EXP_MATCH_E cmdexp_ParsePatternInt(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd);
 static _CMD_EXP_MATCH_E cmdexp_ParsePatternIP(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd);
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternIPPrefix(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd);
 static _CMD_EXP_MATCH_E cmdexp_ParsePatternOption(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd);
 static int cmdexp_QuitCmd(IN UINT ulArgc, IN CHAR **pArgv, IN VOID *pEnv);
 static int cmdexp_Run(CMD_EXP_RUNNER hRunner, UCHAR ucCmdChar);
@@ -213,6 +215,7 @@ static _CMD_EXP_PATTERN_PARSE_S g_astCmdExpParse[] =
     {"%STRING", cmdexp_ParsePatternString},
     {"%INT", cmdexp_ParsePatternInt},
     {"%IP", cmdexp_ParsePatternIP},
+    {"%IPPREFIX", cmdexp_ParsePatternIPPrefix},
     {"%OPTION", cmdexp_ParsePatternOption},
     {0}
 };
@@ -363,8 +366,9 @@ static int cmdexp_EnterMode(_CMD_EXP_RUNNER_S *pstRunner, _CMD_EXP_VIEW_S *pstVi
     pstModeNode->pstViewTbl = pstViewTbl;
 
     if (CMD_EXP_IS_TEMPLET(property)) {
-        BS_Snprintf(pstModeNode->szModeName, sizeof(pstModeNode->szModeName),
-                "%s-%s", view_name, pcModeValue);
+        char mod_name[128];
+        snprintf(mod_name, sizeof(mod_name), "%s-%s", view_name, pcModeValue);
+        strlcpy(pstModeNode->szModeName, mod_name, sizeof(pstModeNode->szModeName));
         strlcpy(pstModeNode->szModeValue, pcModeValue, sizeof(pstModeNode->szModeValue));
     } else {
         strlcpy(pstModeNode->szModeName, view_name, sizeof(pstModeNode->szModeName));
@@ -397,7 +401,7 @@ int CmdExp_QuitMode(CMD_EXP_RUNNER hRunner)
     _CMD_EXP_NEW_MODE_NODE_S *pstModeTmp;
 
     if (BS_OK != HSTACK_Pop(pstRunner->hModeStack, (HANDLE*)&pstModeTmp)) {
-        return BS_STOP;
+        return BS_QUIT_APP; 
     }
 
     cmdexp_FreeModeNode(pstRunner->pstCurrentMode);
@@ -407,11 +411,9 @@ int CmdExp_QuitMode(CMD_EXP_RUNNER hRunner)
     return BS_OK;
 }
 
-static int cmdexp_QuitCmd(IN UINT ulArgc, IN CHAR **pArgv,
-        IN VOID *pEnv)
+static int cmdexp_QuitCmd(IN UINT ulArgc, IN CHAR **pArgv, IN VOID *pEnv)
 {
     _CMD_EXP_ENV_S *pstEnv = pEnv;
-
     return CmdExp_QuitMode(pstEnv->pstRunner);
 }
 
@@ -528,12 +530,14 @@ static int cmdexp_Init(CMD_EXP_S *cmdexp)
     stCmdParam.pcCmd = "quit(Quit current view)";
     stCmdParam.pcViewName = NULL;
     stCmdParam.pfFunc = cmdexp_QuitCmd;
-
     cmdexp_AddCmdViewPattern(cmdexp, &stCmdParam);
 
     stCmdParam.pcCmd = "show(Show information) this [all]";
     stCmdParam.pfFunc = CmdExp_CmdShow;
+    cmdexp_AddCmdViewPattern(cmdexp, &stCmdParam);
 
+    stCmdParam.pcCmd = "save";
+    stCmdParam.pfFunc = CmdExp_CmdSave;
     cmdexp_AddCmdViewPattern(cmdexp, &stCmdParam);
 
     return BS_OK;
@@ -558,8 +562,7 @@ void CmdExp_SetFlag(CMD_EXP_HDL hCmdExp, UINT flag)
 }
 
 
-static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet,
-        OUT INT64 *min, OUT INT64 *max)
+static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet, OUT INT64 *min, OUT INT64 *max)
 {
     CHAR *pcSplit = NULL, *pcSplitTmp = NULL;
     CHAR szNum[64] = "";
@@ -567,8 +570,7 @@ static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet,
     INT i;
 
     pcSplit = strchr(pszCmdElemet, '<');
-    if (pcSplit == NULL)
-    {
+    if (pcSplit == NULL) {
         BS_WARNNING(("Bad cmd element!"));
         RETURN(BS_ERR);
     }
@@ -582,14 +584,12 @@ static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet,
         RETURN(BS_ERR);
     }
 
-    for (i=0; i<pcSplitTmp - pcSplit; i++)
-    {
+    for (i=0; i<pcSplitTmp - pcSplit; i++) {
         szNum[i] = pcSplit[i];
     }
     szNum[i] = '\0';
 
-    if (szNum[0] == '\0')
-    {
+    if (szNum[0] == '\0') {
         BS_WARNNING(("Bad cmd element!"));
         RETURN(BS_ERR);        
     }
@@ -598,20 +598,17 @@ static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet,
 
     pcSplit = pcSplitTmp + 1;
     pcSplitTmp = strchr(pcSplit, '>');
-    if (pcSplitTmp == NULL)
-    {
+    if (pcSplitTmp == NULL) {
         BS_WARNNING(("Bad cmd element!"));
         RETURN(BS_ERR);
     }
 
-    for (i=0; i<pcSplitTmp - pcSplit; i++)
-    {
+    for (i=0; i<pcSplitTmp - pcSplit; i++) {
         szNum[i] = pcSplit[i];
     }
     szNum[i] = '\0';
 
-    if (szNum[0] == '\0')
-    {
+    if (szNum[0] == '\0') {
         BS_WARNNING(("Bad cmd element!"));
         RETURN(BS_ERR);        
     }
@@ -624,88 +621,84 @@ static int cmdexp_GetCmdElementRange(CHAR *pszCmdElemet,
     return BS_OK;    
 }
 
-static _CMD_EXP_MATCH_E cmdexp_ParsePatternString(IN CHAR *pszCmdElement,
-        IN CHAR *pszInputCmd)
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternString(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd)
 {
     INT64 min, max;
     int len = strlen(pszInputCmd);
 
-    if (cmdexp_GetCmdElementRange(pszCmdElement, &min, &max) != BS_OK)
-    {
+    if (cmdexp_GetCmdElementRange(pszCmdElement, &min, &max) != BS_OK) {
         return _CMD_EXP_NOTMACTH;
     }
 
-    if ((len < min) || (len > max))
-    {
+    if ((len < min) || (len > max)) {
         return _CMD_EXP_NOTMACTH;
     }
 
     return _CMD_EXP_PREMACTH;
 }
 
-static _CMD_EXP_MATCH_E cmdexp_ParsePatternInt(IN CHAR *pszCmdElement,
-        IN CHAR *pszInputCmd)
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternInt(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd)
 {
     INT64 var = 0;
     INT64 min, max;
 
-    if (cmdexp_GetCmdElementRange(pszCmdElement, &min, &max) != BS_OK)
-    {
+    if (cmdexp_GetCmdElementRange(pszCmdElement, &min, &max) != BS_OK) {
         return _CMD_EXP_NOTMACTH;
     }
 
-    if (BS_OK != TXT_Atoll(pszInputCmd, &var))
-    {
+    if (BS_OK != TXT_Atoll(pszInputCmd, &var)) {
         return _CMD_EXP_NOTMACTH;
     }
     
-    if ((var < min) || (var > max))
-    {
+    if ((var < min) || (var > max)) {
         return _CMD_EXP_NOTMACTH;
     }
     
     return _CMD_EXP_PREMACTH;
 }
 
-static _CMD_EXP_MATCH_E cmdexp_ParsePatternIP(IN CHAR *pszCmdElement,
-        IN CHAR *pszInputCmd)
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternIP(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd)
 {
     CHAR *pcElement;
     UINT uiTimes = 0;
     UINT uiNum;
 
-    TXT_SCAN_ELEMENT_BEGIN(pszInputCmd, '.', pcElement)
-    {
+    TXT_SCAN_ELEMENT_BEGIN(pszInputCmd, '.', pcElement) {
         uiTimes ++;
-        if (uiTimes > 4)
-        {
+        if (uiTimes > 4) {
             TXT_SCAN_ELEMENT_STOP();
             return _CMD_EXP_NOTMACTH;
         }
 
-        if (BS_OK != TXT_AtouiWithCheck(pcElement, &uiNum))
-        {
+        if (BS_OK != TXT_AtouiWithCheck(pcElement, &uiNum)) {
             TXT_SCAN_ELEMENT_STOP();
             return _CMD_EXP_NOTMACTH;
         }
 
-        if (uiNum > 255)
-        {
+        if (uiNum > 255) {
             TXT_SCAN_ELEMENT_STOP();
             return _CMD_EXP_NOTMACTH;
         }
     }TXT_SCAN_ELEMENT_END();
 
-    if (uiTimes != 4)
-    {
+    if (uiTimes != 4) {
         return _CMD_EXP_NOTMACTH;
     }
 
     return _CMD_EXP_PREMACTH;
 }
 
-static _CMD_EXP_MATCH_E cmdexp_ParsePatternOption(IN CHAR *pszCmdElement,
-        IN CHAR *pszInputCmd)
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternIPPrefix(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd)
+{
+    IP_PREFIX_S ip_prefix;
+    int ret = IPString_ParseIpPrefix(pszInputCmd, &ip_prefix);
+    if (ret < 0) {
+        return _CMD_EXP_NOTMACTH;
+    }
+    return _CMD_EXP_PREMACTH;
+}
+
+static _CMD_EXP_MATCH_E cmdexp_ParsePatternOption(CHAR *pszCmdElement, CHAR *pszInputCmd)
 {
     if (pszInputCmd[0] == '-') {
         return _CMD_EXP_PREMACTH;
@@ -719,17 +712,15 @@ static ULONG cmdexp_GetPatternLen(IN CHAR *pcCmdEle)
 {
     CHAR *pcSplit;
 
-    pcSplit = strchr(pcCmdEle, '<');
-    if (NULL == pcSplit)
-    {
+    pcSplit = TXT_MStrchr(pcCmdEle, "<(");
+    if (NULL == pcSplit) {
         return strlen(pcCmdEle);
     }
 
     return pcSplit - pcCmdEle;
 }
 
-static _CMD_EXP_MATCH_E cmdexp_CmdElementCmp(IN CHAR *pszCmdElement,
-        IN CHAR *pszInputCmd)
+static _CMD_EXP_MATCH_E cmdexp_CmdElementCmp(IN CHAR *pszCmdElement, IN CHAR *pszInputCmd)
 {
     if (pszCmdElement[0] != '%') {
         if (strcmp(pszCmdElement, pszInputCmd) == 0) {
@@ -744,8 +735,7 @@ static _CMD_EXP_MATCH_E cmdexp_CmdElementCmp(IN CHAR *pszCmdElement,
     } else {      
         _CMD_EXP_PATTERN_PARSE_S *node;
         for (node=g_astCmdExpParse; node->pcPattern != NULL; node++) {
-            if (strncmp(node->pcPattern, pszCmdElement,
-                        cmdexp_GetPatternLen(pszCmdElement)) == 0) {
+            if (strncmp(node->pcPattern, pszCmdElement, cmdexp_GetPatternLen(pszCmdElement)) == 0) {
                 return node->pfModeParse(pszCmdElement, pszInputCmd);
             }
         }
@@ -810,22 +800,15 @@ static _CMD_EXP_TREE_S * cmdexp_FindCmdElement(_CMD_EXP_RUNNER_S *pstRunner, _CM
 
     if (uiVisableCmdCount == 1) {
         return pstNodeFoundVisable;
-    }
-    else if (uiHideCmdCount == 1)
-    {
+    } else if (uiHideCmdCount == 1) {
         return pstNodeFoundHide;
     }
 
     return NULL;
 }
 
-static _CMD_EXP_TREE_S * cmdexp_FindCmd
-(
-    _CMD_EXP_RUNNER_S *pstRunner,
-    _CMD_EXP_TREE_S *pstRoot,
-    UINT uiArgc,
-    OUT CHAR **ppArgv
-)
+static _CMD_EXP_TREE_S * cmdexp_FindCmd(_CMD_EXP_RUNNER_S *pstRunner, _CMD_EXP_TREE_S *pstRoot,
+        UINT uiArgc, OUT CHAR **ppArgv)
 {
     _CMD_EXP_TREE_S *pstNode = NULL;
 
@@ -863,27 +846,19 @@ static VOID cmdexp_GetElement(IN CHAR *pcCmd, OUT _CMD_EXP_ELEMENT_S *pstEle)
     memset(pstEle, 0, sizeof(_CMD_EXP_ELEMENT_S));
     pstEle->pcCmd = pcCmd;
 
-    while (*pcTmp != '\0')
-    {
-        if (FALSE == bIsHelp)
-        {
-            if (*pcTmp == '(') 
-            {
+    while (*pcTmp != '\0') {
+        if (FALSE == bIsHelp) {
+            if (*pcTmp == '(') {  
                 bIsHelp = TRUE;
                 *pcTmp = '\0';
                 pstEle->pcHelp = pcTmp + 1;
-            }
-            else if (*pcTmp == ' ') 
-            {
+            } else if (*pcTmp == ' ')  {
                 *pcTmp = '\0';
                 pstEle->pcNext = pcTmp + 1;
                 break;
             }
-        }
-        else  
-        {
-            if (*pcTmp == ')')   
-            {
+        } else { 
+            if (*pcTmp == ')')  { 
                 *pcTmp = '\0';
                 bIsHelp = FALSE;
             }
@@ -1175,6 +1150,19 @@ BOOL_T CmdExp_IsShowing(IN HANDLE hFileHandle)
 
     return FALSE;
 }
+
+
+BOOL_T CmdExp_IsShowAll(IN HANDLE hFileHandle)
+{
+    _CMD_EXP_SHOW_SAVE_NODE_S *pstSSNode = hFileHandle;
+
+    if (pstSSNode->bIsShowAll) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 
 
 BOOL_T CmdExp_IsSaving(IN HANDLE hFileHandle)
@@ -1476,8 +1464,7 @@ static int cmdexp_CmdShow(_CMD_EXP_SHOW_SAVE_NODE_S *pstSSNode, _CMD_EXP_VIEW_S 
     return BS_OK;
 }
 
-static VOID cmdexp_SaveOrShow(_CMD_EXP_VIEW_S *pstViewTbl,
- BOOL_T bIsShow, _CMD_EXP_SHOW_SAVE_NODE_S *pstSSNode)
+static VOID cmdexp_SaveOrShow(_CMD_EXP_VIEW_S *pstViewTbl, BOOL_T bIsShow, _CMD_EXP_SHOW_SAVE_NODE_S *pstSSNode)
 {
     _CMD_EXP_VIEW_S *pstNode;
 
@@ -1602,8 +1589,7 @@ int CmdExp_CmdNoDebugAll(UINT ulArgc, CHAR **pArgv, VOID *pEnv)
     CMD_EXP_S *cmdexp = pstEnv->pstRunner->cmdexp;
     CMD_EXP_NO_DBG_NODE_S *pstNode;
 
-    DLL_SCAN(&cmdexp->stNoDbgFuncList, pstNode)
-    {
+    DLL_SCAN(&cmdexp->stNoDbgFuncList, pstNode) {
         pstNode->pfNoDbgFunc();
     }
 
@@ -2186,11 +2172,11 @@ int CmdExp_DestroyRunner(CMD_EXP_RUNNER hRunner)
         cmdexp_hook_notify(pstRunner, CMD_EXP_HOOK_EVENT_DESTROY, NULL);
     }
 
-    if (NULL != pstRunner->hCmdRArray) {
+    if (pstRunner->hCmdRArray) {
         RArray_Delete(pstRunner->hCmdRArray);
     }
 
-    if (NULL != pstRunner->hExcharHandle) {
+    if (pstRunner->hExcharHandle) {
         EXCHAR_Delete(pstRunner->hExcharHandle);
     }
 
@@ -2266,8 +2252,7 @@ static int cmdexp_CmdHelp(_CMD_EXP_RUNNER_S *pstRunner)
         }
         if ((ulLen == 0 )
                 || (strncmp(pstNodeNext->acCmd, pcHelpCmd, ulLen) == 0)) {
-            if ((pstRunner->alt_mode)
-                    || (pstNodeNext->pfFunc != cmdexp_QuitCmd)) {
+            if ((pstRunner->alt_mode) || (pstNodeNext->pfFunc != cmdexp_QuitCmd)) {
                 EXEC_OutInfo(" %-20s %s\r\n",
                         pstNodeNext->acCmd,
                         pstNodeNext->pcHelp == NULL ? "": pstNodeNext->pcHelp);
@@ -2386,15 +2371,23 @@ static UINT cmdexp_ParseCmd(IN CHAR *pcCmd, OUT CHAR *ppArgv[_DEF_CMD_EXP_MAX_CM
 
 static int cmdexp_Call(IN _CMD_EXP_TREE_S *pstNode, IN UINT uiArgc, IN CHAR **ppArgv, IN _CMD_EXP_ENV_S *pstEnv)
 {
+    
+    ErrCode_Clear();
+
     g_cmd_exp_thread_env = pstEnv;
     int ret = pstNode->pfFunc(uiArgc, ppArgv, pstEnv);
     g_cmd_exp_thread_env = NULL;
 
+#ifdef IN_DEBUG
+    if ((ret < 0) && (ret != BS_QUIT_APP) && (ret != BS_FORCE_QUIT_APP)) {
+        EXEC_OutErrCodeInfo("Failed:");
+    }
+#endif
+
     return ret;
 }
 
-static int cmdexp_RunCmd(_CMD_EXP_RUNNER_S *pstRunner,
-        _CMD_EXP_NEW_MODE_NODE_S *pstMode, CHAR *pcCmd)
+static int cmdexp_RunCmd(_CMD_EXP_RUNNER_S *pstRunner, _CMD_EXP_NEW_MODE_NODE_S *pstMode, CHAR *pcCmd)
 {
     _CMD_EXP_TREE_S *pstNode;
     int enRet;
@@ -2452,14 +2445,13 @@ static void cmdexp_Record2History(_CMD_EXP_RUNNER_S *pstRunner)
         return;
     }
 
-    RArray_ReadReversedIndex(pstRunner->hCmdRArray, 0, (UCHAR**)&pszLastedCmd, NULL);
+    pszLastedCmd = (void*)RArray_ReadReversedIndex(pstRunner->hCmdRArray, 0, NULL);
 
-    if ((pszLastedCmd != NULL) && (strcmp(pstRunner->acInputs, pszLastedCmd) == 0)) {
+    if ((pszLastedCmd) && (strcmp(pstRunner->acInputs, pszLastedCmd) == 0)) {
         return;
     }
 
-    RArray_WriteForce(pstRunner->hCmdRArray, (UCHAR*)pstRunner->acInputs,
-            strlen(pstRunner->acInputs)+1);
+    RArray_WriteForce(pstRunner->hCmdRArray, (UCHAR*)pstRunner->acInputs, strlen(pstRunner->acInputs)+1);
 
     return;
 }
@@ -2496,7 +2488,7 @@ static int cmdexp_RunCR(_CMD_EXP_RUNNER_S *pstRunner)
 
     cmdexp_ClearInputsBuf(pstRunner);
 
-    if (eRet != BS_STOP) {
+    if ((eRet != BS_QUIT_APP) && (eRet != BS_FORCE_QUIT_APP)) {
         cmdexp_OutputPrefix(pstRunner);
     }
 
@@ -2630,7 +2622,7 @@ static int cmdexp_RunOneChar(_CMD_EXP_RUNNER_S *pstRunner, CHAR cCmdChar)
 static int cmdexp_RunHistroy(_CMD_EXP_RUNNER_S *pstRunner, EXCHAR enCmdType)
 {
     UINT ulLen;
-    CHAR *pszLastedCmd = NULL;
+    CHAR *last_cmd = NULL;
 
     if (pstRunner->deny_history) {
         return 0;
@@ -2648,10 +2640,8 @@ static int cmdexp_RunHistroy(_CMD_EXP_RUNNER_S *pstRunner, EXCHAR enCmdType)
     }
 
     if (enCmdType == EXCHAR_EXTEND_UP) {      
-        if (RArray_ReadReversedIndex(pstRunner->hCmdRArray,
-                    pstRunner->ulHistoryIndex,
-                    (UCHAR**)&pszLastedCmd, &ulLen) == BS_OK) {
-            TXT_StrCpy (pstRunner->acInputs, pszLastedCmd);
+        if ((last_cmd = (void*)RArray_ReadReversedIndex(pstRunner->hCmdRArray, pstRunner->ulHistoryIndex, &ulLen))) {
+            TXT_StrCpy (pstRunner->acInputs, last_cmd);
             pstRunner->ulInputsLen = ulLen - 1;
             pstRunner->ulHistoryIndex++;
         }
@@ -2661,12 +2651,10 @@ static int cmdexp_RunHistroy(_CMD_EXP_RUNNER_S *pstRunner, EXCHAR enCmdType)
             if (pstRunner->ulHistoryIndex == 1) {
                 pstRunner->ulHistoryIndex = 0;
             }
-        } else if (RArray_ReadReversedIndex(pstRunner->hCmdRArray,
-                    pstRunner->ulHistoryIndex - 2,
-                    (UCHAR**)&pszLastedCmd, &ulLen) != BS_OK) {
+        } else if (RArray_ReadReversedIndex(pstRunner->hCmdRArray, pstRunner->ulHistoryIndex - 2, &ulLen)) {
             cmdexp_ClearInputsBuf(pstRunner);
         } else {
-            TXT_StrCpy(pstRunner->acInputs, pszLastedCmd);
+            TXT_StrCpy(pstRunner->acInputs, last_cmd);
             pstRunner->ulInputsLen = ulLen - 1;
             pstRunner->ulHistoryIndex--;
         }
@@ -2691,6 +2679,7 @@ int CmdExp_RunEnvCmd(char *cmd, void *env)
     return cmdexp_RunCmd(pstEnv->pstRunner, pstEnv->pstRunner->pstCurrentMode, cmd);
 }
 
+
 int CmdExp_EnterModeManual(int argc, char **argv, char *view_name, void *env)
 {
     _CMD_EXP_ENV_S *pstEnv = env;
@@ -2706,10 +2695,12 @@ void CmdExp_SetCurrentModeValue(void *env, char *mode_value)
 {
     _CMD_EXP_ENV_S *pstEnv = env;
     _CMD_EXP_NEW_MODE_NODE_S *pstModeNode = pstEnv->pstRunner->pstCurrentMode;
+    char *view_name = pstModeNode->pstViewTbl->view_name;
+    char mod_name[128];
 
-    TXT_Strlcpy(pstModeNode->szModeValue, mode_value, sizeof(pstModeNode->szModeValue));
-    BS_Snprintf(pstModeNode->szModeName, sizeof(pstModeNode->szModeName),
-            "%s-%s", pstModeNode->pstViewTbl->view_name, mode_value);
+    strlcpy(pstModeNode->szModeValue, mode_value, sizeof(pstModeNode->szModeValue));
+    snprintf(mod_name, sizeof(mod_name), "%s-%s", view_name, mode_value);
+    strlcpy(pstModeNode->szModeName, mod_name, sizeof(pstModeNode->szModeName));
 }
 
 
@@ -2877,8 +2868,11 @@ static int cmdexp_MoveCursor(_CMD_EXP_RUNNER_S *pstRunner, EXCHAR enCmdType)
 static void cmdexp_RunSubRunner(_CMD_EXP_RUNNER_S *runner, UCHAR ch)
 {
     _CMD_EXP_RUNNER_S *sub_runner = runner->sub_runner;
+    int ret;
 
-    if (BS_STOP == cmdexp_Run(sub_runner, ch)) {
+    ret = cmdexp_Run(sub_runner, ch);
+
+    if ((BS_QUIT_APP == ret) || (BS_FORCE_QUIT_APP == ret)) {
         EXEC_OutInfo("  Quit %s environment \r\n", sub_runner->runner_name);
         CMD_EXP_DestroyRunner(sub_runner);
         runner->sub_runner = NULL;
@@ -2986,13 +2980,12 @@ static int cmdexp_RunString(CMD_EXP_RUNNER hRunner, char *string, int len, int a
     for (i=0; i<len; i++) {
         c = string[i];
 
-        if ((in_qout == 0) && (c == '"')) {
-            in_qout = 1;
-            continue;
-        }
         if ((in_qout == 1) && (c == '"')) {
             in_qout = 0;
-            continue;
+        }
+
+        if ((in_qout == 0) && (c == '"')) {
+            in_qout = 1;
         }
 
         tmp = c;
@@ -3004,8 +2997,8 @@ static int cmdexp_RunString(CMD_EXP_RUNNER hRunner, char *string, int len, int a
 
         ret = cmdexp_Run(hRunner, tmp);
 
-        if (BS_STOP == ret) {
-            return BS_STOP;
+        if ((BS_QUIT_APP == ret) || (BS_FORCE_QUIT_APP == ret)) {
+            return ret;
         } else if (ret < 0) {
             is_have_err = ret;
             if ((in_qout == 0) && (c == '&')) { 
@@ -3017,6 +3010,9 @@ static int cmdexp_RunString(CMD_EXP_RUNNER hRunner, char *string, int len, int a
     if (auto_cr) {
         if (cmdexp_NeedCR(string[len-1])) {
             ret = cmdexp_Run(hRunner, '\n');
+            if (ret < 0) {
+                is_have_err = ret;
+            }
         }
     }
 
@@ -3090,13 +3086,11 @@ BOOL_T CmdExp_IsOptPermitOutput(IN HANDLE hFile, IN CHAR *pcString)
 
     uiFlag = CmdExp_GetOptFlag(pcString);
 
-    if ((uiFlag & DEF_CMD_OPT_FLAG_NOSHOW)
-            && (pstSSNode->bIsShowAll == 0)) {
+    if ((uiFlag & DEF_CMD_OPT_FLAG_NOSHOW) && (pstSSNode->bIsShowAll == 0)) {
         return FALSE;
     }
 
-    if ((uiFlag & DEF_CMD_OPT_FLAG_NOSAVE)
-            && (CmdExp_IsSaving(hFile))) {
+    if ((uiFlag & DEF_CMD_OPT_FLAG_NOSAVE) && (CmdExp_IsSaving(hFile))) {
         return FALSE;
     }
 

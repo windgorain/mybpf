@@ -21,11 +21,12 @@ static CHAR **g_ppcSysInfoArgv = NULL;
 static CHAR g_szSysInfoInitWorkDir[FILE_MAX_PATH_LEN + 1] = ""; 
 static CHAR g_szSysInfoConfDir[128] = "conf_dft"; 
 static char g_szSysInfoSelfName[128];
+static char *g_sysinfo_self_path= ""; 
 
 
 CHAR * SYSINFO_GetExePath()
 {
-    return SYS_GetSelfFilePath();
+    return g_sysinfo_self_path;
 }
 
 
@@ -93,7 +94,7 @@ BS_STATUS SYSINFO_Show(IN UINT ulArgc, IN UCHAR **argv)
         "PID: %d \r\n"
         "-------------------------------------------------------------\r\n",
         v, __DATE__, __TIME__, GIT_HEAD, GIT_FETCH_HEAD,
-        g_szSysInfoInitWorkDir, szWorkDir, SYS_GetSelfFilePath(), g_szSysInfoConfDir,
+        g_szSysInfoInitWorkDir, szWorkDir, g_sysinfo_self_path, g_szSysInfoConfDir,
         g_szSysInfoSelfName, PROCESS_GetPid());
 
     return BS_OK;
@@ -125,6 +126,8 @@ static void sysinfo_init()
     if (FILE_GET_CURRENT_DIRECTORY(g_szSysInfoInitWorkDir, sizeof(g_szSysInfoInitWorkDir) - 1) == NULL) {
         g_szSysInfoInitWorkDir[0] = '\0';
     }
+
+    g_sysinfo_self_path = SYS_GetSelfFilePath();
 }
 
 CONSTRUCTOR(init) {

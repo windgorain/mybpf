@@ -152,7 +152,7 @@ static int map_avl_add_node(MAP_HANDLE map, LDATA_S *key, void *pData, void *nod
 
     BS_DBGASSERT(0 == (flag & MAP_FLAG_PERMIT_DUPLICATE));
 
-    if ((map->uiCapacity != 0) && (map->uiCapacity <= avl_map->count)) {
+    if ((map->capacity != 0) && (map->capacity <= avl_map->count)) {
         RETURN(BS_NO_RESOURCE);
     }
 
@@ -168,7 +168,7 @@ static BS_STATUS map_avl_add(MAP_HANDLE map, VOID *pKey, UINT uiKeyLen, VOID *pD
 
     BS_DBGASSERT(0 == (flag & MAP_FLAG_PERMIT_DUPLICATE));
 
-    if ((map->uiCapacity != 0) && (map->uiCapacity <= avl_map->count)) {
+    if ((map->capacity != 0) && (map->capacity <= avl_map->count)) {
         RETURN(BS_NO_RESOURCE);
     }
 
@@ -325,7 +325,9 @@ MAP_HANDLE MAP_AvlCreate(void *memcap)
         MemCap_Free(memcap, ctrl);
         return NULL;
     }
+
     ctrl->impl_map = avl_map;
+    ctrl->type = MAP_TYPE_AVL;
 
     return ctrl;
 }

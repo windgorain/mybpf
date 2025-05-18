@@ -52,7 +52,7 @@ extern "C"
     printf(_color _fmt SHELL_COLOR_CLOSE, ##__VA_ARGS__); \
     fflush(stdout); } while(0)
 
-#define PRINTLN_COLOR(_color, _fmt, ...)   printf(_color _fmt SHELL_COLOR_CLOSE "\n", ##__VA_ARGS__)   
+#define PRINTLN_COLOR(_color, _fmt, ...)   printf(_color _fmt SHELL_COLOR_CLOSE "\r\n", ##__VA_ARGS__)   
 
 #define PRINT_BLACK(_fmt, ...)      PRINT_COLOR(SHELL_FONT_COLOR_BLACK, _fmt, ##__VA_ARGS__)   
 #define PRINT_RED(_fmt, ...)        PRINT_COLOR(SHELL_FONT_COLOR_RED, _fmt, ##__VA_ARGS__)   

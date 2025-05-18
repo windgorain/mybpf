@@ -28,7 +28,7 @@ static const unsigned char g_bit_order_map[] =
 };
 
 
-uint8_t BIT_ChangeOrder(uint8_t v)
+U8 BIT_ChangeOrder(U8 v)
 {
     return g_bit_order_map[v];
 }
@@ -52,25 +52,25 @@ int BIT_GetHighIndexFrom(UINT num, UINT from )
 }
 
 
-char * BIT_SPrint(uint32_t v, uint32_t off, uint32_t size, OUT char *buf)
+char * BIT_SPrint(U32 v, U32 off, U32 size, OUT char *buf)
 {
-    uint32_t tmp = BIT_GET_OFF(v, off, size);
+    U32 tmp = BIT_GET_OFF(v, off, size);
     return TXT_Num2BitString(tmp, size, buf);
 }
 
 
-void BIT_Print(uint32_t v, uint32_t off, uint32_t size, PF_PRINT_FUNC func)
+void BIT_Print(U32 v, U32 off, U32 size, PF_PRINT_FUNC func)
 {
     char info[65];
     func("%s", BIT_SPrint(v, off, size, info));
 }
 
 
-int BIT_XSPrint(uint32_t v, BIT_DESC_S *desc, int desc_num, OUT char *buf, uint32_t buf_size)
+int BIT_XSPrint(U32 v, BIT_DESC_S *desc, int desc_num, OUT char *buf, U32 buf_size)
 {
     int i;
     char *out = buf;
-    uint32_t size = buf_size;
+    U32 size = buf_size;
     int len;
     char info[65];
 

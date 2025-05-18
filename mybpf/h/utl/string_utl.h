@@ -25,7 +25,7 @@ extern INT STRING_CmpByBuf(IN HSTRING hHandle, IN CHAR *pszData);
 extern INT STRING_CmpByString(IN HSTRING hHandle1, IN HSTRING hHandle2);
 extern CHAR * STRING_GetBuf(IN HSTRING hHandle);
 extern void STRING_Clear(HSTRING hHandle);
-extern void STRING_CutHead(HSTRING hHandle, int len);
+extern void STRING_CutHeadAndMove(HSTRING hHandle, int len);
 
 #ifdef __cplusplus
     }

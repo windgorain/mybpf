@@ -22,7 +22,9 @@ PLUG_API void MEM_FreeMem(IN VOID *pMem, const char *pszFileName, IN UINT ulLine
 BS_STATUS MEM_ShowStat(IN UINT ulArgc, IN CHAR **argv);
 BS_STATUS MEM_ShowSizeOfMemStat(int argc, char **argv);
 
+int MemDebug_CheckMem(void);
 int MemDebug_Check(int argc, char **argv);
+int MemDebug_TaskCheck(void);
 BS_STATUS MemDebug_ShowSizeOfMem(int argc, char **argv);
 BS_STATUS MemDebug_ShowLineConflict(int argc, char **argv);
 

@@ -77,7 +77,7 @@ typedef struct
 typedef struct
 {
     
-    volatile ULONG ulMatchCount;    
+    volatile U64 mactch_count;    
     UINT uiLatestMatchTime;         
 }DOMAINACL_RULE_STATISTICS_S;
 
@@ -126,7 +126,6 @@ DOMAINACL_RULE_S * DOMAINACL_GetRule(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListI
 UINT DOMAINACL_GetLastRuleID(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListID);
 BS_STATUS DOMAINACL_MoveRule(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListID, IN UINT uiOldRuleID, IN UINT uiNewRuleID);
 BS_STATUS DOMAINACL_RebaseID(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListID, IN UINT uiStep);
-BS_STATUS  DOMAINACL_IncreaseID(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListID, IN UINT uiStart, IN UINT uiEnd, IN UINT uiStep);
 UINT DOMAINACL_GetNextRuleID(IN DOMAINACL_HANDLE hIpAcl, IN UINT uiListID, IN UINT uiCurrentRuleID);
 void DOMAINACL_IncPoolReferedNumber(INOUT DOMAINACL_POOL_KEY_S *pstPoolKeys);
 void DOMAINACL_DecPoolReferedNumber(INOUT DOMAINACL_POOL_KEY_S *pstPoolKeys);

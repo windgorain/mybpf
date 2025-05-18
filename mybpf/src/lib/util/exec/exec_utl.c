@@ -15,8 +15,7 @@
 #define EXEC_UD_MAX 4
 
 
-typedef struct
-{
+typedef struct {
     
     PF_EXEC_OUT_STRING_FUNC pfOutFunc;  
     PF_EXEC_GET_CHAR_FUNC pfGetCharFunc;
@@ -66,6 +65,11 @@ static VOID exec_Tm(IN CHAR *pcMsg, IN USER_HANDLE_S *ud)
     EXEC_S *exec = ud->ahUserHandle[0];
     exec_Output(exec, pcMsg, strlen(pcMsg));
     exec_Flush(exec);
+}
+
+static void exec_print_data(const char *str, ...)
+{
+    EXEC_OutString((void*)str);
 }
 
 HANDLE EXEC_Create(PF_EXEC_OUT_STRING_FUNC pfOutStringFunc,
@@ -164,7 +168,7 @@ BS_STATUS EXEC_OutInfo(const char *fmt, ...)
     return BS_OK;
 }
 
-VOID EXEC_Flush()
+VOID EXEC_Flush(void)
 {
     EXEC_S *exec = EXEC_GetExec();
 
@@ -173,7 +177,7 @@ VOID EXEC_Flush()
     }
 }
 
-UCHAR EXEC_GetChar()
+UCHAR EXEC_GetChar(void)
 {
     EXEC_S *exec = EXEC_GetExec();
     
@@ -198,7 +202,7 @@ BS_STATUS EXEC_TM(IN UINT uiArgc, IN CHAR **pcArgv)
     ud.ahUserHandle[0] = exec;
     exec->hIcHandle = IC_Reg(exec_Tm, &ud, 0xffffffff);
     if (! exec->hIcHandle) {
-        RETURN(BS_NO_MEMORY);
+        RETURN(BS_NO_RESOURCE);
     }
 
     return BS_OK;
@@ -222,20 +226,20 @@ BS_STATUS EXEC_NoTM(IN UINT uiArgc, IN CHAR **pcArgv)
     return BS_OK;
 }
 
-static void exec_print_data(const char *str, ...)
-{
-    EXEC_OutString((void*)str);
-}
-
 void EXEC_OutDataHex(UCHAR *pucMem, int len)
 {
     MEM_Print(pucMem, len, exec_print_data);
 }
 
 
-void EXEC_OutErrCodeInfo()
+void EXEC_OutErrCodeInfo(char *prefix)
 {
     char info[1024];
-    EXEC_OutInfo("%s \r\n", ErrCode_Build(info, sizeof(info)));
+    if (! prefix) {
+        EXEC_OutInfo("%s \r\n", ErrCode_Build(info, sizeof(info)));
+    } else {
+        EXEC_OutInfo("%s %s \r\n", prefix, ErrCode_Build(info, sizeof(info)));
+    }
 }
+
 

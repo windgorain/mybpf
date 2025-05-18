@@ -102,14 +102,9 @@ BS_STATUS _Mypoll_Proto_Set
     return BS_OK;
 }
 
-VOID _Mypoll_Proto_Del
-(
-    IN _MYPOLL_CTRL_S *pstMyPoll,
-    IN INT iSocketId
-)
+VOID _Mypoll_Proto_Del(_MYPOLL_CTRL_S *pstMyPoll, INT iSocketId)
 {
     MYPOLL_PROTO_S *pstProto = pstMyPoll->pProto;
-
     pstProto->pfDel(pstMyPoll, iSocketId);
 }
 

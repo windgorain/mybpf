@@ -60,6 +60,12 @@ static inline UCHAR MASK_2_PREFIX(IN UINT uiMask)
     return 32;
 }
 
+static inline UCHAR MASK_NETORDER_2_PREFIX(IN UINT uiMask)
+{
+    uiMask = ntohl(uiMask);
+    return MASK_2_PREFIX(uiMask);
+}
+
 
 static inline BOOL_T MASK_IS_VALID(IN UINT uiMask)
 {
@@ -169,20 +175,16 @@ static inline UINT IP_GetCommonPrefix(IN UINT uiIP1, IN UINT uiIP2)
 
 #define IP_SPLIT_SUBNET_BY_MASK_END() } _uiBeginTmp = _uiNetEndTmp + 1; }} while(0)
 
-
-typedef struct
-{
+typedef struct {
     UCHAR aucMac[6];
 }MAC_ADDR_S;
 
-typedef union
-{
+typedef union {
     MAC_ADDR_S stMacAddr;
     USHORT ausMacAddr[3];
 }MAC_ADDR_U;
 
-typedef union
-{
+typedef union {
     UCHAR aucIp[4];
     UINT uiIp;
 }IP_ADDR_U;

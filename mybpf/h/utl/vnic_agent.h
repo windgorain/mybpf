@@ -12,6 +12,7 @@
     extern "C" {
 #endif 
 
+#include "utl/tun_utl.h"
 #include "utl/vnic_lib.h"
 #include "utl/mbuf_utl.h"
 
@@ -28,21 +29,14 @@ extern BS_STATUS VNIC_Agent_Start
     IN HANDLE hUserHandle
 );
 
-VOID VNIC_Agent_Stop(IN VNIC_AGENT_HANDLE hVnicAgent);
-
-BS_STATUS VNIC_Agent_Write(IN VNIC_AGENT_HANDLE hVnicAgent, IN MBUF_S *pstMbuf);
-
-BS_STATUS VNIC_Agent_WriteData(IN VNIC_AGENT_HANDLE hVnicAgent, IN UCHAR *pucData, IN UINT uiDataLen);
-
-extern HANDLE VNIC_Agent_GetUserData (IN VNIC_AGENT_HANDLE hVnicAgent);
-
-extern BS_STATUS VNIC_Agent_SetUserData (IN VNIC_AGENT_HANDLE hVnicAgent, IN HANDLE hUserHandle);
-
-extern BS_STATUS VNIC_Agent_Close (IN VNIC_AGENT_HANDLE hVnicAgent);
-
-extern VOID VNIC_Agent_SetVnic(IN VNIC_AGENT_HANDLE hVnicAgent, IN VNIC_HANDLE hVnic);
-
-extern VNIC_HANDLE VNIC_Agent_GetVnic(IN VNIC_AGENT_HANDLE hVnicAgent);
+void VNIC_Agent_Stop(VNIC_AGENT_HANDLE hVnicAgent);
+BS_STATUS VNIC_Agent_Write(VNIC_AGENT_HANDLE hVnicAgent, MBUF_S *pstMbuf);
+BS_STATUS VNIC_Agent_WriteData(VNIC_AGENT_HANDLE hVnicAgent, UCHAR *pucData, UINT uiDataLen);
+HANDLE VNIC_Agent_GetUserData(VNIC_AGENT_HANDLE hVnicAgent);
+BS_STATUS VNIC_Agent_SetUserData (VNIC_AGENT_HANDLE hVnicAgent, HANDLE hUserHandle);
+BS_STATUS VNIC_Agent_Close(VNIC_AGENT_HANDLE hVnicAgent);
+void VNIC_Agent_SetVnic(VNIC_AGENT_HANDLE hVnicAgent, TUN_FD hVnic);
+TUN_FD VNIC_Agent_GetVnic(VNIC_AGENT_HANDLE hVnicAgent);
 
 #ifdef __cplusplus
     }

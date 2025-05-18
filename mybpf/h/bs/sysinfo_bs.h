@@ -17,13 +17,13 @@ PLUG_API CHAR * SYSINFO_GetExePath();
 PLUG_API BS_STATUS SYSINFO_Show(IN UINT ulArgc, IN UCHAR **argv);
 
 BS_STATUS SYSINFO_Init1();
-BS_STATUS SYSINFO_SetArgv(IN UINT uiArgc, IN CHAR **ppcArgv);
-void SYSINFO_SetConfDir(char *conf_dir);
-void SYSINFO_SetInitWorkDir(char* dir);
-char* SYSINFO_ExpandWorkDir(OUT char* buf, int buf_size, char* file_path);
-char * SYSINFO_GetConfDir();
-char *SYSINFO_ExpandConfPath(OUT char *buf, int buf_size, char *file_path);
-char * SYSINFO_GetSlefName();
+PLUG_API BS_STATUS SYSINFO_SetArgv(IN UINT uiArgc, IN CHAR **ppcArgv);
+PLUG_API void SYSINFO_SetConfDir(char *conf_dir);
+PLUG_API void SYSINFO_SetInitWorkDir(char* dir);
+PLUG_API char* SYSINFO_ExpandWorkDir(OUT char* buf, int buf_size, char* file_path);
+PLUG_API char * SYSINFO_GetConfDir();
+PLUG_API char *SYSINFO_ExpandConfPath(OUT char *buf, int buf_size, char *file_path);
+PLUG_API char * SYSINFO_GetSlefName();
 
 #ifdef __cplusplus
     }

@@ -18,6 +18,10 @@
 
 #define DAYS_2_SECONDS(days) ((days) * 24 * 60 * 60)
 
+#ifdef IN_WINDOWS
+int gettimeofday(struct timeval *tv, void *tz);
+#endif
+
 
 static inline time_t TM_NowInSec(void)
 {
@@ -32,6 +36,7 @@ UINT64 TM_MsFromInit(void);
 UINT64 TM_UsFromInit(void);
 
 UINT64 TM_NsFromInit(void);
+
 U64 TM_SecondsFromUTC(void);
 
 
@@ -48,7 +53,7 @@ BS_STATUS TM_String2Utc(IN CHAR *pszStringTime, OUT time_t *pulUtcTime);
 BS_STATUS TM_String2Tm(IN CHAR *pszStringTime, OUT struct tm *pstTm);
 
 
-char * TM_Utc2Acstime(time_t seconds, OUT char *string);
+char * TM_Utc2Acstime(time_t seconds, OUT char *string, int size);
 
 
 char * TM_Utc2SimpleString(time_t ulUtcTime, OUT CHAR *szTimeString);
@@ -60,12 +65,7 @@ time_t TM_Gmt2Utc(IN CHAR *pucValue, IN ULONG ulLen);
 
 char * TM_GetTimeString(UINT input_time, OUT char *string, int size);
 
-
-extern unsigned long TM_HZ; 
-extern unsigned long TM_MS_HZ; 
-
-unsigned long TM_GetTickPerSec(void);
-
+#ifndef IN_WINDOWS
 static inline unsigned long TM_GetTick(void)
 {
     unsigned long now_tick;
@@ -73,6 +73,7 @@ static inline unsigned long TM_GetTick(void)
     now_tick = times(&buf);
     return now_tick * 10;
 }
+#endif
 
 #if 1 
 static inline long TM_GetClock(void) {

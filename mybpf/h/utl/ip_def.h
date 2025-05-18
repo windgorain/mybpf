@@ -15,6 +15,8 @@ extern "C"
 #define TCP_HEADER_SIZE 20
 #define UDP_HEADER_SIZE 8
 
+#define IP_BITMAP_SIZE (512*1024*1024)  
+
 #ifdef __cplusplus
 }
 #endif

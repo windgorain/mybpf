@@ -30,13 +30,45 @@ typedef enum tagHTTP_TimeStandard
 static const char *g_aucTimeWeekDay[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 static const char *g_aucTimeMonth[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 static UCHAR g_aucDaysOfMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-unsigned long TM_HZ = 0;   
-unsigned long TM_MS_HZ = 0; 
 
 #ifdef IN_WINDOWS
+
 static inline UINT64 _tm_os_GetNsFromInit(void)
 {
     return (UINT64)GetTickCount();
+}
+
+static char * _tm_os_asctime(char *buf, int bufsz, const struct tm *tm)
+{
+    asctime_s(buf, bufsz, tm);
+    return buf;
+}
+
+static struct tm * localtime_r(const time_t *timer, struct tm *result)
+{
+    if (0 != localtime_s(result, timer)) {
+        return NULL;
+    }
+    return result;
+}
+
+int gettimeofday(struct timeval *tv, void *tz)
+{
+    FILETIME ft;
+    GetSystemTimeAsFileTime(&ft); 
+
+    
+    const ULONGLONG EPOCH_OFFSET = 116444736000000000ULL; 
+    ULARGE_INTEGER uli;
+    uli.LowPart = ft.dwLowDateTime;
+    uli.HighPart = ft.dwHighDateTime;
+    uli.QuadPart -= EPOCH_OFFSET;
+
+    
+    tv->tv_sec = (long)(uli.QuadPart / 10000000ULL);
+    tv->tv_usec = (long)((uli.QuadPart % 10000000ULL) / 10ULL);
+
+    return 0;
 }
 #endif
 
@@ -48,7 +80,15 @@ static inline UINT64 _tm_os_GetNsFromInit(void)
     clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     return ((UINT64)ts.tv_sec * 1000000000 + (UINT64)ts.tv_nsec);
 }
+
+static char * _tm_os_asctime(char *buf, int bufsz, const struct tm *tm)
+{
+    return asctime_r(tm, buf);
+}
+
 #endif
+
+
 
 
 VOID TM_Utc2String(IN time_t ulUtcTime, OUT CHAR *szStringTime)
@@ -80,15 +120,7 @@ BS_STATUS TM_String2Utc(IN CHAR *pszStringTime, OUT time_t *pulUtcTime)
 
 VOID TM_Utc2Tm(IN time_t ulUtcTime, OUT struct tm *pstTm)
 {
-#ifdef IN_WINDOWS
-    {
-         localtime_s(pstTm, &ulUtcTime);
-    }
-#else
-    {
-        localtime_r(&ulUtcTime, pstTm);
-    }
-#endif
+    localtime_r(&ulUtcTime, pstTm);
 }
 
 
@@ -269,11 +301,11 @@ char * TM_Tm2String(IN struct tm *pstTm, OUT CHAR *szStringTime)
 }
 
 
-char * TM_Utc2Acstime(time_t seconds, OUT char *string)
+char * TM_Utc2Acstime(time_t seconds, OUT char *string, int size)
 {
     struct tm stTm;
     TM_Utc2Tm(seconds, &stTm);
-    asctime_r(&stTm, string);
+    _tm_os_asctime(string, size, &stTm);
     string[strlen(string)-1] = '\0'; 
     return string;
 }
@@ -752,7 +784,7 @@ time_t TM_Gmt2Utc(IN CHAR *pcValue, IN ULONG ulLen)
 
 char * TM_GetTimeString(UINT input_time, OUT char *string, int size)
 {
-    struct tm *tm;
+    struct tm tm;
     static char tmp[64];
 
     if (! string) {
@@ -763,13 +795,13 @@ char * TM_GetTimeString(UINT input_time, OUT char *string, int size)
     if(input_time == 0){
         struct timeval tv;
         gettimeofday(&tv, NULL);
-        tm = localtime(&tv.tv_sec);
+        localtime_r((const time_t *)&tv.tv_sec, &tm);
     } else {
         time_t now=(time_t)input_time;
-        tm = localtime(&now);
+        localtime_r(&now, &tm);
     }
 
-    strftime(string, size, "%Y-%m-%d %H:%M:%S", tm);
+    strftime(string, size, "%Y-%m-%d %H:%M:%S", &tm);
 
 
     return string;
@@ -805,21 +837,3 @@ U64 TM_SecondsFromUTC(void)
     return time(NULL);
 }
 
-unsigned long TM_GetTickPerSec(void)
-{
-    unsigned long clocks;
-
-    clocks = sysconf(_SC_CLK_TCK);
-
-    return clocks * 10;
-}
-
-static void tm_HZInit(void)
-{
-    TM_HZ = TM_GetTickPerSec();
-    TM_MS_HZ = TM_HZ/1000;
-}
-
-CONSTRUCTOR(init) {
-    tm_HZInit();
-}

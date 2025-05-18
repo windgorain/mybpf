@@ -21,12 +21,10 @@ static int databox_Cmp(void *hash, void *data1, void *data2)
     LDATA_S *pstData1 = data1;
     LDATA_S *pstData2 = data2;
 
-    return MEM_Cmp(pstData1->data, pstData1->len,
-            pstData2->data, pstData2->len);
+    return MEM_Cmp(pstData1->data, pstData1->len, pstData2->data, pstData2->len);
 }
 
-int DataBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth)
+int DataBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth)
 {
     int ret;
     ret = CuckooHash_Init(&box->hash, table, bucket_num, bucket_depth);

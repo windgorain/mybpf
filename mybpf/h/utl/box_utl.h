@@ -122,8 +122,7 @@ typedef struct {
     UINT tun_id;
 }IP_TUP_KEY_S;
 
-int IPTupBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth);
+int IPTupBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth);
 
 
 typedef struct {
@@ -133,12 +132,10 @@ typedef struct {
     UINT ip;
 }IP_TUP3_KEY_S;
 
-int IPTup3Box_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth);
+int IPTup3Box_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth);
 
 
-int DataBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth);
+int DataBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth);
 
 
 int RawBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,

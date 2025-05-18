@@ -13,14 +13,14 @@ extern "C" {
 static inline VOID * _mem_MallocAndCopy
 (
     IN VOID *pSrc,
-    IN UINT uiSrcLen,
-    IN UINT uiMallocLen,
+    IN U64 uiSrcLen,
+    IN U64 uiMallocLen,
     const CHAR *pcFileName,
     IN UINT uiLine
 )
 {
     VOID *pMem;
-    UINT uiCopyLen;
+    U64 uiCopyLen;
 
     (VOID)pcFileName;
     (VOID)uiLine;

@@ -8,7 +8,7 @@ add_definitions(-Wno-builtin-macro-redefined)
 
 IF (UNIX AND NOT APPLE)
     set(CMAKE_EXE_LINKER_FLAGS "-Wl,-Map=output.map")
-    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-Map=output.map")
+    set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-Map=output.map,--no-undefined")
 ENDIF()
 
 IF (NOT CMAKE_BUILD_TYPE)

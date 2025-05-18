@@ -11,9 +11,9 @@ extern "C"
 {
 #endif
 
-void EXEC_Attach(HANDLE hExec);
-void EXEC_Detach(HANDLE hExec);
-HANDLE EXEC_GetExec();
+PLUG_API void EXEC_Attach(HANDLE hExec);
+PLUG_API void EXEC_Detach(HANDLE hExec);
+PLUG_API HANDLE EXEC_GetExec();
 
 #ifdef __cplusplus
 }

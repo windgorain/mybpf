@@ -8,6 +8,8 @@
 #ifndef __VNIC_LIB_H_
 #define __VNIC_LIB_H_
 
+#include "utl/net.h"
+
 #ifdef __cplusplus
     extern "C" {
 #endif 
@@ -44,6 +46,10 @@ extern BS_STATUS VNIC_Ioctl
     IN UINT ulOutBufLen,
     OUT UINT *puiOutBufLen
 );
+BS_STATUS VNIC_GetMac(VNIC_HANDLE hVnic, OUT MAC_ADDR_S *mac);
+BS_STATUS VNIC_SetMediaStatus(VNIC_HANDLE hVnic, INOUT U32 *status);
+BS_STATUS VNIC_SetP2P(VNIC_HANDLE hVnic, U32 local_ip, U32 mask);
+
 
 extern BS_STATUS VNIC_AddIP (IN VNIC_HANDLE hVnic, IN UINT ulIp, IN UINT ulMask);
 
@@ -51,7 +57,7 @@ BS_STATUS VNIC_GetIP(IN VNIC_HANDLE hVnic, OUT UINT *puiIp, OUT UINT *puiMask);
 BS_STATUS VNIC_AddDns(IN VNIC_HANDLE hVnic, IN UINT uiDns, IN UINT uiIndex);
 BS_STATUS VNIC_SetDns(IN VNIC_HANDLE hVnic, IN UINT uiDns);
 BS_STATUS VNIC_DelDns(IN VNIC_HANDLE hVnic, IN UINT uiDns);
-BS_STATUS VNIC_GetAdapterIndex(IN VNIC_HANDLE hVnic, OUT UINT *puiIndex);
+BS_STATUS VNIC_GetAdapterIndex(VNIC_HANDLE hVnic, OUT ULONG *index);
 
 
 #ifdef __cplusplus

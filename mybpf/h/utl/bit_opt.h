@@ -43,6 +43,18 @@
 #define BIT_RESET(flag, bits) BIT_CLR(flag, bits)
 
 
+#define BIT_INDEX_SET(flag, index)  BIT_SET(flag, (1ULL << (index)))
+
+
+#define BIT_INDEX_CLR(flag, index)  BIT_CLR(flag, (1ULL << (index)))
+
+
+#define BIT_INDEX_TEST(flag, index)  BIT_TEST(flag, (1ULL << (index)))
+
+
+#define BIT_INDEX_GET(flag, index)  (!!BIT_INDEX_TEST(flag, index))
+
+
 #define BIT_BUILD_RANGE(begin, end)  ((0xffffffff >> (31 - ((end) - (begin)))) << (begin))
 
 

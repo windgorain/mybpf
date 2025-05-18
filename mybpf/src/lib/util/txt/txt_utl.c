@@ -12,49 +12,15 @@
 #include "utl/stack_utl.h"
 #include "utl/ctype_utl.h"
 
-BS_STATUS TXT_Lower(INOUT CHAR *pucTxtBuf)
+static inline char _txt_random(void)
 {
-    CHAR *pucTmp = pucTxtBuf;
-
-    if (pucTxtBuf == NULL)
-    {
-        RETURN(BS_NULL_PARA);
-    }
-
-    while (*pucTmp != '\0')
-    {
-        if (NUM_IN_RANGE(*pucTmp, 'A', 'Z'))
-        {
-            *pucTmp += ('a' - 'A');
-        }
-        pucTmp++;
-    }
-
-    return BS_OK;
+#define RANDOM_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789~!@#$%^*()<>[]{}_+=-|\\/,.:`"
+    static char *chars = RANDOM_CHARS;
+    int i = RAND_Get() % STR_LEN(RANDOM_CHARS);
+    return chars[i];
 }
 
-BS_STATUS TXT_Upper(INOUT CHAR *pucTxtBuf)
-{
-    CHAR *pucTmp = pucTxtBuf;
-
-    if (pucTxtBuf == NULL)
-    {
-        RETURN(BS_NULL_PARA);
-    }
-
-    while (*pucTmp != '\0')
-    {
-        if (NUM_IN_RANGE(*pucTmp, 'a', 'z'))
-        {
-            *pucTmp -= ('a' - 'A');
-        }
-        pucTmp++;
-    }
-
-    return BS_OK;
-}
-
-static BS_STATUS txt_DelSubStr(IN CHAR *pucTxtBuf, IN CHAR *pucSubStr, OUT CHAR *pucTxtOutBuf, IN ULONG ulSize)
+static BS_STATUS _txt_del_sub_str(IN CHAR *pucTxtBuf, IN CHAR *pucSubStr, OUT CHAR *pucTxtOutBuf, IN ULONG ulSize)
 {
     CHAR *pcFind;
     CHAR *pcTxtBufTmp;
@@ -107,7 +73,49 @@ static BS_STATUS txt_DelSubStr(IN CHAR *pucTxtBuf, IN CHAR *pucSubStr, OUT CHAR 
         }
     }
 
-    return txt_DelSubStr(pucTxtOutBuf, pucSubStr, pucTxtOutBuf, ulSize);
+    return _txt_del_sub_str(pucTxtOutBuf, pucSubStr, pucTxtOutBuf, ulSize);
+}
+
+BS_STATUS TXT_Lower(INOUT CHAR *pucTxtBuf)
+{
+    CHAR *pucTmp = pucTxtBuf;
+
+    if (pucTxtBuf == NULL)
+    {
+        RETURN(BS_NULL_PARA);
+    }
+
+    while (*pucTmp != '\0')
+    {
+        if (NUM_IN_RANGE(*pucTmp, 'A', 'Z'))
+        {
+            *pucTmp += ('a' - 'A');
+        }
+        pucTmp++;
+    }
+
+    return BS_OK;
+}
+
+BS_STATUS TXT_Upper(INOUT CHAR *pucTxtBuf)
+{
+    CHAR *pucTmp = pucTxtBuf;
+
+    if (pucTxtBuf == NULL)
+    {
+        RETURN(BS_NULL_PARA);
+    }
+
+    while (*pucTmp != '\0')
+    {
+        if (NUM_IN_RANGE(*pucTmp, 'a', 'z'))
+        {
+            *pucTmp -= ('a' - 'A');
+        }
+        pucTmp++;
+    }
+
+    return BS_OK;
 }
 
 VOID TXT_DelSubStr(IN CHAR *pucTxtBuf, IN CHAR *pucSubStr, OUT CHAR *pucTxtOutBuf, IN ULONG ulSize)
@@ -116,12 +124,11 @@ VOID TXT_DelSubStr(IN CHAR *pucTxtBuf, IN CHAR *pucSubStr, OUT CHAR *pucTxtOutBu
     BS_DBGASSERT(NULL != pucSubStr);
     BS_DBGASSERT(NULL != pucTxtOutBuf);
 
-    if (ulSize == 0)
-    {
+    if (ulSize == 0) {
         return;
     }
 
-    txt_DelSubStr(pucTxtBuf, pucSubStr, pucTxtOutBuf, ulSize);
+    _txt_del_sub_str(pucTxtBuf, pucSubStr, pucTxtOutBuf, ulSize);
 }
 
 static BS_STATUS txt_DelLineComment
@@ -538,13 +545,11 @@ BS_STATUS TXT_GetLine(IN CHAR *pucTxtBuf, OUT UINT *puiLineLen, OUT BOOL_T *pbIs
     BS_DBGASSERT(NULL != ppucLineNext);
 
     spucLineEnd = strchr(pucTxtBuf, '\n');
-    if (spucLineEnd == NULL)
-    {
+    if (spucLineEnd == NULL) {
         spucLineEnd = strchr(pucTxtBuf, '\r');
     }
 
-    if (spucLineEnd == NULL)    
-    {
+    if (spucLineEnd == NULL) {   
         *pbIsFoundLineEndFlag = FALSE;
         *puiLineLen = strlen(pucTxtBuf);
         *ppucLineNext = NULL;
@@ -554,28 +559,19 @@ BS_STATUS TXT_GetLine(IN CHAR *pucTxtBuf, OUT UINT *puiLineLen, OUT BOOL_T *pbIs
     *pbIsFoundLineEndFlag = TRUE;
 
     
-    if (spucLineEnd > pucTxtBuf)    
-    {
-        if ((spucLineEnd[-1] == '\r') || (spucLineEnd[-1] == '\n'))
-        {
+    if (spucLineEnd > pucTxtBuf) {   
+        if ((spucLineEnd[-1] == '\r') || (spucLineEnd[-1] == '\n')) {
             *puiLineLen = spucLineEnd - pucTxtBuf - 1;
-        }
-        else
-        {
+        } else {
             *puiLineLen = spucLineEnd - pucTxtBuf;
         }
-    }
-    else
-    {
+    } else {
         *puiLineLen = 0;
     }
 
-    if (spucLineEnd[1] == '\0')
-    {
+    if (spucLineEnd[1] == '\0') {
         *ppucLineNext = NULL;
-    }
-    else
-    {
+    } else {
         *ppucLineNext = spucLineEnd + 1;
     }
 
@@ -629,42 +625,6 @@ BS_STATUS TXT_N_GetLine(IN CHAR *pucTxtBuf, IN UINT ulLen, OUT UINT *pulLineLen,
 }
 
 
-CHAR * TXT_MStrnchr
-(
-    IN CHAR *pcString,
-    IN UINT uiStringLen,
-    IN CHAR *pcToFind
-)
-{
-    CHAR *pcStringEnd;
-    CHAR *pcChar;
-    CHAR *pcFound = NULL;
-    UINT uiPatternLen;
-
-    pcStringEnd = pcString + uiStringLen;
-    pcChar = pcString;
-    uiPatternLen = (UINT)strlen(pcToFind);
-
-    while (pcChar < pcStringEnd)
-    {
-        if (TXT_Strnchr(pcToFind, *pcChar, uiPatternLen) != NULL)
-        {
-            pcFound = pcChar;
-            break;
-        }
-
-        pcChar ++;
-    }
-
-    return pcFound;
-}
-
-char * TXT_MStrchr(char *string, char *to_finds)
-{
-    return TXT_MStrnchr(string, strlen(string), to_finds);
-}
-
-
 char * TXT_Invert(char *in, char *out)
 {
     int len = strlen(in);
@@ -691,6 +651,23 @@ CHAR * TXT_ReverseStrchr(IN CHAR *pcBuf, IN CHAR ch2Find)
     lstr.pcData = pcBuf;
     lstr.uiLen = strlen(pcBuf);
     return LSTR_ReverseStrchr(&lstr, ch2Find);
+}
+
+
+char * TXT_GetSuffix(char *string, char *suffix, int suffix_len)
+{
+    int len = strlen(string);
+    if (len < suffix_len) {
+        return NULL;
+    }
+
+    char *ptr = &string[len - suffix_len];
+
+    if (strncmp(suffix, ptr, suffix_len) == 0) {
+        return ptr;
+    }
+
+    return NULL;
 }
 
 CHAR *TXT_Strnstr(IN CHAR *s1, IN CHAR *s2, IN ULONG ulLen) 
@@ -793,22 +770,15 @@ long TXT_Strtol(char *str, int base)
 
 CHAR TXT_Random(void)
 {
-    
-    UINT uiRandom;
+    return _txt_random();
+}
 
-    uiRandom = RAND_Get() % 62;
-
-    if (uiRandom < 26)
-    {
-        return uiRandom + 'A';
+void TXT_StringRandom(OUT char *string, int len)
+{
+    int i;
+    for (i=0; i<len; i++) {
+        string[i] = _txt_random();
     }
-
-    if (uiRandom < 52)
-    {
-        return uiRandom - 26 + 'a';
-    }
-
-    return uiRandom - 52 + '0';
 }
 
 
@@ -937,17 +907,13 @@ UINT TXT_Strlcpy(IN CHAR *pcDest, IN CHAR *pcSrc, IN UINT uiSize)
     ULONG n;
     CHAR *p;
 
-    for (p = pcDest, n = 0; n + 1 < uiSize && *pcSrc != '\0';  ++p, ++pcSrc, ++n)
-    {
+    for (p = pcDest, n = 0; n + 1 < uiSize && *pcSrc != '\0';  ++p, ++pcSrc, ++n) {
         *p = *pcSrc;
     }
     *p = '\0';
-    if(*pcSrc == '\0')
-    {
+    if(*pcSrc == '\0') {
         return n;
-    }
-    else
-    {
+    } else {
         return n + strlen (pcSrc);
     }
 }
@@ -1098,7 +1064,7 @@ char * TXT_Str2Translate(char *str, char *trans_char_sets, char *out, int out_si
 }
 
 
-char * TXT_Num2BitString(uint64_t v, int min_len, OUT char *str)
+char * TXT_Num2BitString(U64 v, int min_len, OUT char *str)
 {
     int i, j = 0;
     int flag = 0;

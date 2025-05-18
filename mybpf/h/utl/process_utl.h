@@ -30,8 +30,8 @@ HANDLE PROCESS_GetProcess(IN LONG lProcessID);
 BOOL_T PROCESS_IsPidExist(IN UINT pid);
 BOOL_T PROCESS_IsProcessNameExist(IN char *process);
 int PROCESS_RenameSelf(IN char *new_name);
-UINT PROCESS_GetPid();
-UINT64 PROCESS_GetTid();
+UINT PROCESS_GetPid(void);
+UINT64 PROCESS_GetTid(void);
 
 #ifdef __cplusplus
     }

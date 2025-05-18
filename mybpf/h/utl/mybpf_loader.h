@@ -20,9 +20,10 @@ extern "C"
 
 typedef struct {
     DLL_NODE_S link_node;
-    MYBPF_LOADER_PARAM_S param;
-    RCU_NODE_S rcu;
     void *runtime;
+    char instance[MYBPF_NAME_SIZE]; 
+    char filename[MYBPF_FILENAME_SIZE]; 
+    UINT load_flag;
     UINT jitted: 1;
     UINT reserved: 7;
     UINT main_prog_count: 8;
@@ -49,6 +50,7 @@ MYBPF_LOADER_NODE_S * MYBPF_LoaderGet(MYBPF_RUNTIME_S *runtime, char *instance);
 MYBPF_LOADER_NODE_S * MYBPF_LoaderGetNext(MYBPF_RUNTIME_S *runtime, MYBPF_LOADER_NODE_S *cur);
 void MYBPF_LoaderShowMaps(MYBPF_RUNTIME_S *r, PF_PRINT_FUNC print_func);
 int MYBPF_ModuleIoctl(MYBPF_RUNTIME_S *r, char *instance, int cmd, MYBPF_IOCTL_S *d);
+char * MYBPF_GetNodeName(void *n);
 
 #ifdef __cplusplus
 }

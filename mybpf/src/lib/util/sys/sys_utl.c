@@ -302,3 +302,18 @@ void ShowCmdWin(int show)
 }
 
 #endif
+
+#ifdef IN_MAC
+void ShowCmdWin(int show)
+{
+    BS_WARNNING(("Not Support"));
+}
+#endif
+
+#ifdef IN_LINUX
+void ShowCmdWin(int show)
+{
+    BS_WARNNING(("Not Support"));
+}
+#endif
+

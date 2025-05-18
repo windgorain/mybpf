@@ -15,24 +15,18 @@
 #define NAP_INVALID_ID    0 
 #define NAP_INVALID_INDEX ((UINT)(INT)-1)
 
-typedef VOID* NAP_HANDLE;
-
-typedef enum
-{
-    NAP_TYPE_ARRAY = 0,   
-    NAP_TYPE_PTR_ARRAY,   
-    NAP_TYPE_HASH,        
-    NAP_TYPE_AVL,         
-}NAP_TYPE_E;
+typedef void* NAP_HANDLE;
 
 typedef struct {
     void *memcap;    
-    NAP_TYPE_E enType;
     UINT uiMaxNum;   
     UINT uiNodeSize;
 }NAP_PARAM_S;
 
-NAP_HANDLE NAP_Create(NAP_PARAM_S *p);
+NAP_HANDLE NAP_ArrayCreate(NAP_PARAM_S *p);
+NAP_HANDLE NAP_PtrArrayCreate(NAP_PARAM_S *p);
+NAP_HANDLE NAP_HashCreate(NAP_PARAM_S *p);
+NAP_HANDLE NAP_AvlCreate(NAP_PARAM_S *p);
 
 
 BS_STATUS NAP_EnableSeq(HANDLE hNAPHandle, UINT ulSeqMask, UINT uiSeqCount);

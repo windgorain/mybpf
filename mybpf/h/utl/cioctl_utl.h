@@ -25,6 +25,9 @@ typedef struct {
     
 }CIOCTL_REPLY_S;
 
+int CIOCTL_Connect(char *path);
+void CIOCTL_Close(int fd);
+
 #ifdef __cplusplus
 }
 #endif

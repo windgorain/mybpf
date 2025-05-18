@@ -62,13 +62,13 @@ int PROCESS_RenameSelf(IN char *new_name)
 }
 
 
-UINT PROCESS_GetPid()
+UINT PROCESS_GetPid(void)
 {
     return _OS_PROCESS_GetPid();
 }
 
 
-UINT64 PROCESS_GetTid()
+UINT64 PROCESS_GetTid(void)
 {
     return _OS_PROCESS_GetTid();
 }

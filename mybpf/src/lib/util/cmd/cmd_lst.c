@@ -122,29 +122,33 @@ static BS_STATUS cmdlst_ParseCmdLine(char *line, OUT CMDLST_ELE_S *ele)
     return BS_OK;
 }
 
-static BS_STATUS cmdlst_Line(CMDLST_S *ctrl, char *line)
+static BS_STATUS cmdlst_Line(CMDLST_S *ctrl, char *line, char *info)
 {
     CMDLST_ELE_S ele = {0};
     int ret;
     char line_buf[1024];
 
+    if (! info) {
+        info = "";
+    }
+
     strlcpy(line_buf, line, sizeof(line_buf));
 
     if (BS_OK != (ret = cmdlst_ParseCmdLine(line_buf, &ele))) {
-        BS_WARNNING(("Failed to parse cmd line: %s", line));
+        BS_WARNNING(("Failed to parse cmd line: %s, info: %s", line, info));
         return ret;
     }
 
     ret = ctrl->line_func(ctrl, &ele);
     if (0 != ret) {
-        BS_WARNNING(("Failed to reg cmd line: %s", line));
+        BS_WARNNING(("Failed to reg cmd line: %s, info: %s", line, info));
         return ret;
     }
 
     return 0;
 }
 
-BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf)
+BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf, char *info )
 {
     char *line= NULL;
     UINT line_len;
@@ -156,7 +160,7 @@ BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf)
         
         if ((line_len > 5) && (line[0] != '#')) { 
             line[line_len] = '\0';
-            cmdlst_Line(ctrl, line);
+            cmdlst_Line(ctrl, line, info);
         }
     }TXT_SCAN_LINE_END();
 
@@ -167,11 +171,11 @@ BS_STATUS CMDLST_ScanByFile(CMDLST_S *ctrl, char *filename)
 {
     FILE_MEM_S m;
 
-    if (0 != FILE_Mem(filename, &m)) {
+    if (0 != FILE_MemExt(filename, &m, 1)) {
         RETURN(BS_CAN_NOT_OPEN);
     }
 
-    CMDLST_Scan(ctrl, (char*)m.data);
+    CMDLST_Scan(ctrl, (char*)m.data, filename);
 
     FILE_FreeMem(&m);
 

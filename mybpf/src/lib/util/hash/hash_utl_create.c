@@ -8,30 +8,30 @@
 #include "utl/num_utl.h"
 #include "utl/mem_cap.h"
 
-HASH_S * HASH_CreateInstance(void *memcap, IN UINT ulHashBucketNum, IN PF_HASH_INDEX_FUNC pfFunc)
+HASH_S * HASH_CreateInstance(void *memcap, UINT bucket_num, PF_HASH_BY_NODE hash_by_node)
 {
     HASH_S *pstHashHead;
     UINT i;
 
-    BS_DBGASSERT(NUM_IS2N(ulHashBucketNum));
+    BS_DBGASSERT(NUM_IS2N(bucket_num));
 
     pstHashHead = MemCap_ZMalloc(memcap, sizeof(HASH_S));
     if (NULL == pstHashHead) {
         return NULL;
     }
 
-    pstHashHead->pstBuckets = MemCap_Malloc(memcap, sizeof(DLL_HEAD_S) * ulHashBucketNum);
+    pstHashHead->pstBuckets = MemCap_Malloc(memcap, sizeof(DL_HEAD_S) * bucket_num);
     if (! pstHashHead->pstBuckets) {
         MemCap_Free(memcap, pstHashHead);
         return NULL;
     }
 
-    pstHashHead->mask = ulHashBucketNum - 1;
-    pstHashHead->pfHashIndexFunc = pfFunc;
+    pstHashHead->mask = bucket_num - 1;
+    pstHashHead->hash_by_node = hash_by_node;
     pstHashHead->memcap = memcap;
 
-    for (i=0; i<ulHashBucketNum; i++) {
-        DLL_INIT(&pstHashHead->pstBuckets[i]);
+    for (i=0; i<bucket_num; i++) {
+        DL_Init(&pstHashHead->pstBuckets[i]);
     }
 
     return pstHashHead;

@@ -177,58 +177,52 @@ BS_STATUS RArray_Read(IN HANDLE hHandle, OUT UCHAR **ppucData, OUT UINT *pulData
 }
 
 
-BS_STATUS RArray_ReadIndex(IN HANDLE hHandle, IN UINT ulIndex, OUT UCHAR **ppucData, OUT UINT *pulDataLen)
+U8 * RArray_ReadIndex(HANDLE hHandle, U32 ulIndex, OUT U32 *pulDataLen)
 {
     _RARRAY_CTRL_S *pstRArryCtrl = (_RARRAY_CTRL_S*)hHandle;
     UINT ulWillReadIndex;
 
-    if ((hHandle == 0) || (ppucData == NULL))
-    {
+    if (! hHandle) {
         BS_WARNNING(("Null ptr!"));
-        RETURN(BS_NULL_PARA);
+        return NULL;
     }
 
-    if (ulIndex >= pstRArryCtrl->ulCount)
-    {
-        RETURN(BS_EMPTY);
+    if (ulIndex >= pstRArryCtrl->ulCount) {
+        return NULL;
     }
 
     ulWillReadIndex = (pstRArryCtrl->ulReadIndex + ulIndex) % (pstRArryCtrl->ulRowsCount);
 
-    *ppucData = pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount + sizeof(UINT);
-    if (pulDataLen)
-    {
+    U8 *p = pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount + sizeof(UINT);
+    if (pulDataLen) {
         *pulDataLen = *((UINT*)(pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount));
     }
 
-    return BS_OK;
+    return p;
 }
 
 
-BS_STATUS RArray_ReadReversedIndex(IN HANDLE hHandle, IN UINT ulIndex, OUT UCHAR **ppucData, OUT UINT *pulDataLen)
+U8 * RArray_ReadReversedIndex(HANDLE hHandle, U32 ulIndex, OUT U32 *pulDataLen)
 {
     _RARRAY_CTRL_S *pstRArryCtrl = (_RARRAY_CTRL_S*)hHandle;
     UINT ulWillReadIndex;
 
-    if ((hHandle == 0) || (ppucData == NULL))
-    {
+    if (! hHandle) {
         BS_WARNNING(("Null ptr!"));
-        RETURN(BS_NULL_PARA);
+        return NULL;
     }
 
-    if (ulIndex >= pstRArryCtrl->ulCount)
-    {
-        RETURN(BS_EMPTY);
+    if (ulIndex >= pstRArryCtrl->ulCount) {
+        return NULL;
     }
 
     ulWillReadIndex = (pstRArryCtrl->ulWriteIndex + pstRArryCtrl->ulRowsCount - 1 - ulIndex) % (pstRArryCtrl->ulRowsCount);
 
-    *ppucData = pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount + sizeof(UINT);
-    if (pulDataLen)
-    {
+    U8 *p = pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount + sizeof(UINT);
+    if (pulDataLen) {
         *pulDataLen = *((UINT*)(pstRArryCtrl->pucData + ulWillReadIndex * pstRArryCtrl->ulColCount));
     }
 
-    return BS_OK;
+    return p;
 }
 

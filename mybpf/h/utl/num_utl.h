@@ -65,6 +65,12 @@
         }   \
     } while(0)
 
+#define NUM_EXCHANGE(a,b) \
+    do { \
+        (a) ^= (b); \
+        (b) ^= (a); \
+        (a) ^= (b); \
+    }while(0)
 
 
 static inline UINT NUM_To2N(UINT x)
@@ -122,11 +128,10 @@ static inline INT NUM_Cmp(IN UINT uiNum1, IN UINT uiNum2)
 
 
 
-static inline unsigned int NUM_Rol32(unsigned int word, unsigned int shift)
+static inline unsigned int NUM_Rol32(unsigned int word, int shift)
 {
 	return (word << (shift & 31)) | (word >> ((-shift) & 31));
 }
-
 
 #ifdef __cplusplus
     }

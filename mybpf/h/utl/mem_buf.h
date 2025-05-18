@@ -7,7 +7,7 @@
 typedef struct _membuf_t {
 	
 	char *buf;
-	int32_t sz;
+	int sz;
 	uint32_t ctrl;
 	
 	struct _membuf_t *next;
@@ -19,28 +19,28 @@ typedef struct _membuf_t {
 
 #define MEMBUF_INT (membuf_t){buf = NULL, sz = 0, ctrl = 0, next = NULL}
 
-membuf_t *_membuf_new(void *buf, int32_t sz, membuf_t *next, bool malloc_buffer);
+membuf_t *_membuf_new(void *buf, int sz, membuf_t *next, bool malloc_buffer);
 
 #define membuf_new(__buf, __sz, __next)   \
-	_membuf_new((void *)(__buf), (int32_t)(__sz), __next, true)
+	_membuf_new((void *)(__buf), (int)(__sz), __next, true)
 
 #define MEMBUF_NEW(__buf, __sz)     membuf_new(__buf, __sz, NULL, NULL)
 
-membuf_t *membuf_new_alloc(int32_t sz, membuf_t *next);
+membuf_t *membuf_new_alloc(int sz, membuf_t *next);
 #define MEMBUF_NEW_ALLOC(__sz)  membuf_new_alloc(__sz, NULL, NULL)
 
 #define membuf_new_copy(__buf, __sz, __next)   \
-	_membuf_new((void *)(__buf), (int32_t)(__sz), __next, true)
+	_membuf_new((void *)(__buf), (int)(__sz), __next, true)
     
-membuf_t *_membuf_new_copy_merge(membuf_t *buf_list, char *append_str, int32_t append_len, bool free_origin_list);
+membuf_t *_membuf_new_copy_merge(membuf_t *buf_list, char *append_str, int append_len, bool free_origin_list);
 #define membuf_new_merge(__buf_list,__buf, __sz) _membuf_new_copy_merge(__buf_list, __buf, __sz, true)
 
 
 
 #define MEMBUF_ONESZ(__lb)  ((__lb)->buf ? (__lb)->sz : 0)
-static inline int32_t membuf_size(membuf_t *lb)
+static inline int membuf_size(membuf_t *lb)
 {
-	int32_t sz = 0;
+	int sz = 0;
 	while (lb) {
 		sz += MEMBUF_ONESZ(lb);
 		lb = lb->next;

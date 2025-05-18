@@ -1,3 +1,9 @@
+/*================================================================
+*   Created by LiXingang
+*   Version: 1.0  Date: 2007-5-13
+*   Description: 
+*
+================================================================*/
 
 #ifndef __ETH_UTL_H_
 #define __ETH_UTL_H_
@@ -126,8 +132,7 @@
 #pragma pack(1)
 
 
-typedef struct tagETH_HEAD_S
-{
+typedef struct tagETH_HEAD_S {
     MAC_ADDR_S stDMac;
     MAC_ADDR_S stSMac;
     USHORT usProto;
@@ -143,10 +148,10 @@ typedef struct vlanETH_HEAD_S
 {
     MAC_ADDR_S stDMac;
     MAC_ADDR_S stSMac;
-    uint16_t   tpid;
-    uint16_t   priority:3;
-    uint16_t   cfi:1;
-    uint16_t   vlan_id:12;    
+    U16 tpid;
+    U16 priority:3;
+    U16 cfi:1;
+    U16 vlan_id:12;    
     USHORT     usProto;
 }VLAN_ETH_HEADER_S;
 
@@ -189,7 +194,7 @@ BS_STATUS ETH_GetEthHeadInfo(IN UCHAR *pucData, IN UINT uiDataLen, OUT ETH_PKT_I
 VOID ETH_Mac2String(IN UCHAR *pucMac, IN CHAR cSplit, OUT CHAR szMacString[ETH_MAC_ADDR_STRING_LEN + 1]);
 BS_STATUS ETH_String2Mac(IN CHAR *pcMacString, OUT UCHAR *pucMac);
 
-static inline BS_STATUS ETH_Get_Eth_SrcMacString(IN UCHAR *pucData, IN UINT uiDataLen, char* buf) 
+static inline int ETH_GetEthSrcMacString(IN UCHAR *pucData, IN UINT uiDataLen, char* buf) 
 {
     if (uiDataLen < sizeof(ETH_HEADER_S)) return BS_ERR;
 
@@ -198,6 +203,26 @@ static inline BS_STATUS ETH_Get_Eth_SrcMacString(IN UCHAR *pucData, IN UINT uiDa
     ETH_Mac2String((UCHAR*)(pstHeader->stSMac.aucMac), ':', buf);
 
     return BS_OK;
+}
+
+static inline void ETH_SetMacAddr(OUT U8 *mac, U8 m0, U8 m1, U8 m2, U8 m3, U8 m4, U8 m5)
+{
+    mac[0] = m0;
+    mac[1] = m1;
+    mac[2] = m2;
+    mac[3] = m3;
+    mac[4] = m4;
+    mac[5] = m5;
+}
+
+static inline void ETH_ClearMacAddr(OUT U8 *mac)
+{
+    mac[0] = 0;
+    mac[1] = 0;
+    mac[2] = 0;
+    mac[3] = 0;
+    mac[4] = 0;
+    mac[5] = 0;
 }
 
 #ifdef __cplusplus

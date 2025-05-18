@@ -8,38 +8,27 @@
 #ifndef __LVM_UTL_H_
 #define __LVM_UTL_H_
 
+#include "lvm_ext.h"
+
 #ifdef __cplusplus
     extern "C" {
 #endif 
 
-#define LVM_LOCAL_VAR_SIZE 256
-
-typedef struct
+static inline U8 * LVM_Malloc(LVM_S *pstLvm, U32 size)
 {
-    UCHAR *pucData;
-    UCHAR aucLocalVar[LVM_LOCAL_VAR_SIZE];
-}LVM_S;
-
-static inline UCHAR * LVM_Malloc(IN LVM_S *pstLvm, IN UINT uiSize)
-{
-    if (uiSize > LVM_LOCAL_VAR_SIZE)
-    {
-        pstLvm->pucData = MEM_Malloc(uiSize);
+    if (size > LVM_LOCAL_VAR_SIZE) {
+        pstLvm->data = MEM_Malloc(size);
+    } else {
+        pstLvm->data = pstLvm->local_var;
     }
-    else
-    {
-        pstLvm->pucData = pstLvm->aucLocalVar;
-    }
-
-    return pstLvm->pucData;
+    return pstLvm->data;
 }
 
-static inline VOID LVM_Free(IN LVM_S *pstLvm)
+static inline void LVM_Free(LVM_S *pstLvm)
 {
-    if ((pstLvm->pucData != NULL) && (pstLvm->pucData != pstLvm->aucLocalVar))
-    {
-        MEM_Free(pstLvm->pucData);
-        pstLvm->pucData = NULL;
+    if ((pstLvm->data) && (pstLvm->data != pstLvm->local_var)) {
+        MEM_Free(pstLvm->data);
+        pstLvm->data = NULL;
     }
 }
 

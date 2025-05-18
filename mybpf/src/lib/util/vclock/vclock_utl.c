@@ -27,8 +27,7 @@ static void _VCLOCK_UnLock(VCLOCK_INSTANCE_S *pstVClockInstance)
 }
 
 
-static VOID _vclock_timer_add(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_S *pstNode,
-        UINT uiTick  )
+static void _vclock_timer_add(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_S *pstNode, UINT uiTick)
 {
     UINT ulLevel = 0;
     UINT ulTickTmp = uiTick;
@@ -38,8 +37,7 @@ static VOID _vclock_timer_add(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_
 
     pstNode->uiTriggerTick = pstVClockInstance->uiCurrentTick + uiTick;
 
-    while ((ulTickTmp / _VCLOCK_TIMER_SCALE_PER_LEVEL) != 0)
-    {
+    while ((ulTickTmp / _VCLOCK_TIMER_SCALE_PER_LEVEL) != 0) {
         ulLevel++;
         ulTickTmp = ulTickTmp / _VCLOCK_TIMER_SCALE_PER_LEVEL;
     }
@@ -47,8 +45,7 @@ static VOID _vclock_timer_add(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_
     BS_DBGASSERT(ulLevel < _VCLOCK_TIMER_TOTLE_LEVEL);
 
     ulTickTmp += pstVClockInstance->ulCurrentLevelTick[ulLevel];
-    if (ulTickTmp >= _VCLOCK_TIMER_SCALE_PER_LEVEL)
-    {
+    if (ulTickTmp >= _VCLOCK_TIMER_SCALE_PER_LEVEL) {
         ulTickTmp -= _VCLOCK_TIMER_SCALE_PER_LEVEL;
     }
 
@@ -76,14 +73,17 @@ static inline int _vclock_add_timer
 
     pstVClockInstance->ulNodeCount ++;
 
+    if (flag & TIMER_FLAG_PAUSE) {
+        return 0;
+    }
+
     
     _vclock_timer_add(pstVClockInstance, pstNode, first_tick + 1); 
 
     return 0;
 }
 
-static inline BS_STATUS _VCLOCK_DelTimer ( VCLOCK_INSTANCE_S *pstVClockInstance,
-        HANDLE hTimer)
+static inline BS_STATUS _VCLOCK_DelTimer ( VCLOCK_INSTANCE_S *pstVClockInstance, HANDLE hTimer)
 {
     VCLOCK_NODE_S *pstNode = (VCLOCK_NODE_S *)hTimer;
 
@@ -149,7 +149,7 @@ static inline BS_STATUS _VCLOCK_GetInfo(VCLOCK_INSTANCE_S *pstVClockInstance, HA
 
     pstNode = (VCLOCK_NODE_S*)hTimer;
 
-    pstTimerInfo->ulTime = pstNode->ulTick;
+    pstTimerInfo->time_value = pstNode->ulTick;
     pstTimerInfo->flag = pstNode->flag;
     pstTimerInfo->pfFunc = pstNode->pfFunc;
 
@@ -340,13 +340,7 @@ BS_STATUS VCLOCK_GetInfo(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_S *hT
     return eRet;
 }
 
-BS_STATUS VCLOCK_RestartWithTick
-(
-    VCLOCK_INSTANCE_S *pstVClockInstance,
-    VCLOCK_NODE_S *hTimer,
-    UINT first_tick,
-    UINT tick
-)
+BS_STATUS VCLOCK_RestartWithTick(VCLOCK_INSTANCE_S *pstVClockInstance, VCLOCK_NODE_S *hTimer, U32 first_tick, U32 tick)
 {
     BS_STATUS eRet;
 

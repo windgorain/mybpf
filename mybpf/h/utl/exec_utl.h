@@ -22,9 +22,9 @@ HANDLE EXEC_GetUD(HANDLE hExec, int index);
 BS_STATUS EXEC_OutInfo(const char *fmt, ...);
 BS_STATUS EXEC_OutString(IN CHAR *pszInfo);
 void EXEC_OutDataHex(UCHAR *pucMem, int len);
-void EXEC_OutErrCodeInfo();
-VOID EXEC_Flush();
-UCHAR EXEC_GetChar();
+void EXEC_OutErrCodeInfo(char *prefix);
+VOID EXEC_Flush(void);
+UCHAR EXEC_GetChar(void);
 
 BS_STATUS EXEC_TM(IN UINT uiArgc, IN CHAR **pcArgv);
 BS_STATUS EXEC_NoTM(IN UINT uiArgc, IN CHAR **pcArgv);

@@ -24,17 +24,18 @@ typedef struct {
     U32 print: 1; 
 }ERR_CODE_S;
 
-void ErrCode_EnablePrint(int enable);
-void ErrCode_Set(int err_code, char *info, const char *file_name, const char *func_name, int line);
-void ErrCode_Clear(void);
-const char * ErrCode_GetFileName(void);
-int ErrCode_GetLine(void);
-int ErrCode_GetErrCode(void);
-char * ErrCode_GetInfo(void);
-char * ErrCode_Build(OUT char *buf, int buf_size);
-void ErrCode_Print(void);
-void ErrCode_PrintErrInfo(void);
-void ErrCode_Output(PF_PRINT_FUNC output);
+PLUG_API void ErrCode_EnablePrint(int enable);
+PLUG_API void ErrCode_Set(int err_code, char *info, const char *file_name, const char *func_name, int line);
+PLUG_API void ErrCode_Clear(void);
+PLUG_API const char * ErrCode_GetFileName(void);
+PLUG_API int ErrCode_GetLine(void);
+PLUG_API int ErrCode_GetErrCode(void);
+PLUG_API char * ErrCode_GetInfo(void);
+PLUG_API char * ErrCode_Build(OUT char *buf, int buf_size);
+PLUG_API void ErrCode_Print(void);
+PLUG_API void ErrCode_PrintErrInfo(void);
+PLUG_API void ErrCode_Output(PF_PRINT_FUNC output);
+
 void ErrCode_FatalError(char *format, ...);
 
 #define ERROR_SET_INFO(errcode, info)  ErrCode_Set((errcode), info, __FILE__, __FUNCTION__, __LINE__)
@@ -42,7 +43,7 @@ void ErrCode_FatalError(char *format, ...);
 
 #define RETURN(ulErrCode) \
     do  {   \
-        if (ulErrCode != BS_OK) { \
+        if ((ulErrCode) != BS_OK) { \
             ERROR_SET(ulErrCode); \
         } \
         return (ulErrCode); \

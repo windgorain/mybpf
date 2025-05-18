@@ -22,7 +22,7 @@ typedef struct {
     PF_MemCap_Call cap_call;
 }MEM_CAP_S;
 
-static inline void * memcap_defaule_alloc(int size, const char *file, int line)
+static inline void * memcap_defaule_alloc(unsigned long size, const char *file, int line)
 {
     return _mem_Malloc(size, file, line);
 }
@@ -32,16 +32,15 @@ static inline void memcap_defaule_free(void *buf, const char *file, int line)
     _mem_Free(buf, file, line);
 }
 
-static inline int MemCap_Init(MEM_CAP_S *mem_cap, PF_MemCap_Malloc cap_malloc,
+static inline void MemCap_Init(MEM_CAP_S *mem_cap, PF_MemCap_Malloc cap_malloc,
         PF_MemCap_Free cap_free, PF_MemCap_Call cap_call)
 {
     mem_cap->cap_malloc = cap_malloc;
     mem_cap->cap_free = cap_free;
     mem_cap->cap_call = cap_call;
-    return 0;
 }
 
-static inline void * _MemCap_Malloc(MEM_CAP_S *mem_cap, int size, const char *file, int line)
+static inline void * _MemCap_Malloc(MEM_CAP_S *mem_cap, ULONG size, const char *file, int line)
 {
     if ((! mem_cap) || (! mem_cap->cap_malloc)) {
         return memcap_defaule_alloc(size, file, line);
@@ -61,7 +60,7 @@ static inline void _MemCap_Free(MEM_CAP_S *mem_cap, void *buf, const char *file,
 }
 #define MemCap_Free(memcap, buf) _MemCap_Free(memcap, buf, __FILE__, __LINE__)
 
-static inline void * _MemCap_ZMalloc(MEM_CAP_S *mem_cap, int size, const char *file, int line)
+static inline void * _MemCap_ZMalloc(MEM_CAP_S *mem_cap, ULONG size, const char *file, int line)
 {
     void *buf = _MemCap_Malloc(mem_cap, size, file, line);
 

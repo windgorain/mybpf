@@ -32,8 +32,7 @@ PLUG_HIDE VOID LOCAL_INFO_SetConfPath(char *conf_path)
             BS_DBGASSERT(0);
             return;
         }
-        sprintf(g_szLocalConfPath, "%s/%s", pszSysPath, conf_path);
-
+        BS_Snprintf(g_szLocalConfPath, sizeof(g_szLocalConfPath), "%s/%s", pszSysPath, conf_path);
     }
 }
 
@@ -50,8 +49,7 @@ PLUG_HIDE VOID LOCAL_INFO_SetSavePath(char *save_path)
             BS_DBGASSERT(0);
             return;
         }
-        sprintf(g_szLocalSavePath, "%s/%s", pszSysPath, save_path);
-
+        BS_Snprintf(g_szLocalSavePath, sizeof(g_szLocalSavePath), "%s/%s", pszSysPath, save_path);
     }
 }
 
@@ -78,7 +76,7 @@ PLUG_HIDE VOID LOCAL_INFO_SetHost(char *file)
             BS_DBGASSERT(0);
             return;
         }
-        sprintf(g_szLocalFilePath, "%s/%s", pszSysPath, file);
+        BS_Snprintf(g_szLocalFilePath, sizeof(g_szLocalFilePath), "%s/%s", pszSysPath, file);
     }
 
     pszFileName = FILE_GetFileNameFromPath(g_szLocalFilePath);

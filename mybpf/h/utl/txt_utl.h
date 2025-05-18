@@ -14,9 +14,12 @@
     extern "C" {
 #endif 
 
+#define TXT_STRING_ARRAY(_x, _v) _x[] = _v; _x[sizeof(_v) - 1] = '\0'
+
 
 #define TXT_CONST_STRCMP(name, str)  ({ \
         char _str[] = (str); \
+        _str[sizeof(str) - 1] = '\0'; \
         strcmp((name), _str); \
         })
 
@@ -57,6 +60,19 @@
 
 #define TXT_STRNCMP(_str1, _str2) strncmp((_str1), (_str2), TXT_SL(_str2))
 
+ 
+#ifdef IN_WINDOWS
+#define TXT_LINE_FEED "\r\n"
+#endif
+
+#ifdef IN_MAC
+#define TXT_LINE_FEED "\n"
+#endif
+
+#ifdef IN_LINUX
+#define TXT_LINE_FEED "\n"
+#endif
+
 extern BS_STATUS TXT_Lower(INOUT CHAR *pucTxtBuf);
 
 extern BS_STATUS TXT_Upper(INOUT CHAR *pucTxtBuf);
@@ -80,12 +96,7 @@ extern BS_STATUS TXT_N_GetLine(IN CHAR *pucTxtBuf, IN UINT ulLen, OUT UINT *pulL
 extern CHAR *TXT_Strnchr(IN CHAR *pcBuf, IN CHAR ch2Find, IN UINT ulLen);
 
 
-extern CHAR * TXT_MStrnchr
-(
-    IN CHAR *pcString,
-    IN UINT uiStringLen,
-    IN CHAR *pcToFind
-);
+extern CHAR * TXT_MStrnchr(CHAR *pcString, U64 uiStringLen, CHAR *pcToFind);
 
 char * TXT_MStrchr(char *string, char *to_finds);
 
@@ -94,6 +105,8 @@ extern char * TXT_Invert(char *in, char *out);
 
 
 extern CHAR * TXT_ReverseStrchr(IN CHAR *pcBuf, IN CHAR ch2Find);
+
+extern char * TXT_GetSuffix(char *string, char *suffix, int suffix_len);
 
 
 extern CHAR * TXT_ReverseStrnchr(CHAR *pcBuf, CHAR cToFind, UINT len);
@@ -115,6 +128,7 @@ extern BS_STATUS TXT_XAtoui(IN CHAR *pszBuf, OUT UINT *pulNum);
 extern long TXT_Strtol(char *str, int base);
 
 extern CHAR TXT_Random(void);
+extern void TXT_StringRandom(OUT char *string, int len);
 extern void TXT_ReplaceChar(INOUT char *pcTxtBuf, char from, char to);
 extern VOID TXT_ReplaceSubStr(IN CHAR *pcTxtBuf, IN CHAR *pcSubStrFrom, IN CHAR *pcSubStrTo, OUT CHAR *pcTxtOutBuf, IN ULONG ulSize);
 
@@ -208,7 +222,8 @@ extern BS_STATUS TXT_FindBracket
 extern char * TXT_Str2Translate(char *str, char *trans_char_sets, char *out, int out_size);
 
 
-char * TXT_Num2BitString(uint64_t v, int min_len, OUT char *str);
+char * TXT_Num2BitString(U64 v, int min_len, OUT char *str);
+
 
 #define TXT_SCAN_N_LINE_BEGIN(pszTxtBuf, uiBufLen, pszLine, uiLineLen) \
     do { \
@@ -220,12 +235,12 @@ char * TXT_Num2BitString(uint64_t v, int min_len, OUT char *str);
             _uiReservedLen = _uiBufLenTmp - (pszLine - pszTxtBuf); \
             TXT_N_GetLine(pszLine, _uiReservedLen, &uiLineLen, &_bIsFoundLineEnd, &_pucLineNext);
 
+
 #define TXT_SCAN_LINE_BEGIN(pszTxtBuf, pszLine, uiLineLen)  \
     do{   \
         BOOL_T _bIsFoundLineEnd; \
         CHAR *_pucLineNext = NULL;           \
-        for (pszLine=pszTxtBuf; pszLine!=NULL; pszLine=_pucLineNext)  \
-        {   \
+        for (pszLine=pszTxtBuf; pszLine!=NULL; pszLine=_pucLineNext)  {   \
             TXT_GetLine(pszLine, &uiLineLen, &_bIsFoundLineEnd, &_pucLineNext);
 
 #define TXT_SCAN_LINE_END()     }}while(0)

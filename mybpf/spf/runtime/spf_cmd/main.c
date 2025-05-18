@@ -10,6 +10,7 @@
 #include "utl/file_func.h"
 #include "utl/subcmd_utl.h"
 #include "utl/getopt2_utl.h"
+#include "utl/sys_utl.h"
 #include "utl/mybpf_bare.h"
 #include "utl/mybpf_loader_def.h"
 #include "utl/mybpf_hookpoint_def.h"
@@ -90,9 +91,9 @@ static int _load_spf_loader_file()
     char *spf_loader;
 
     if (ARCH_LocalArch() == ARCH_TYPE_ARM64) {
-        spf_loader = "spf_loader.arm64.bare";
+        spf_loader = "bare/spf_loader.arm64.bare";
     } else if (ARCH_LocalArch() == ARCH_TYPE_X86_64) {
-        spf_loader = "spf_loader.x64.bare";
+        spf_loader = "bare/spf_loader.x64.bare";
     } else {
         fprintf(stderr, "Can't support this arch \n");
         return -1;
@@ -119,6 +120,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    int ret = chdir(SYS_GetSelfFilePath());
+    (void)ret;
     ErrCode_EnablePrint(1);
 
     if (_load_spf_loader_file() < 0) {

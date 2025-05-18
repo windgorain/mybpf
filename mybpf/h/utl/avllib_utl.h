@@ -66,7 +66,7 @@ BS_STATUS avlTreePrintErase(AVL_TREE * pRoot, PF_AVL_PRINT_FUNC print_func);
 
 VOID * avlSearchUnsigned (AVL_TREE root, UINT key);
 
-BS_STATUS avlInsertUnsigned (AVL_TREE * root, VOID * newNode);
+int avlInsertUnsigned (AVL_TREE * root, VOID * newNode);
 
 VOID * avlDeleteUnsigned (AVL_TREE * root, UINT key);
 

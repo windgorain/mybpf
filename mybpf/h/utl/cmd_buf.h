@@ -17,6 +17,7 @@ void CmdBuf_Destroy(CMD_BUF_HDL hdl);
 int CmdBuf_RunCmd(CMD_BUF_HDL hdl, char *cmd);
 int CmdBuf_Ret(CMD_BUF_HDL hdl);
 char * CmdBuf_Buf(CMD_BUF_HDL hdl);
+int CmdBuf_RunCmdString(char *cmds);
 
 #ifdef __cplusplus
 }

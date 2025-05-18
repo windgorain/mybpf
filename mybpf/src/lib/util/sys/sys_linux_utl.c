@@ -15,6 +15,30 @@
 
 #ifdef IN_LINUX
 
+static char * _sys_os_get_self_file_path(OUT char *path, int size)
+{
+    int n;
+    char *pcSplit;
+
+    path[0] = '\0';
+
+    n = readlink("/proc/self/exe", path, size);
+    if (n < 0) {
+        return NULL;
+    }
+
+    path[n] = '\0';
+
+    pcSplit = strrchr(path, '/');
+    if (NULL == pcSplit) {
+        return NULL;
+    }
+
+    *pcSplit = '\0';
+    
+    return path;
+}
+
 
 char * _SYS_OS_GetSelfFileName(void)
 {
@@ -44,30 +68,12 @@ CHAR * _SYS_OS_GetSelfFilePath(void)
 {
     static CHAR szFilePath[FILE_MAX_PATH_LEN + 1] = "";
     static BOOL_T bExist = FALSE;
-    INT n;
-    CHAR *pcSplit;
 
-    if (bExist == TRUE)
-    {
+    if (bExist == TRUE) {
         return szFilePath;
     }
 
-    n = readlink("/proc/self/exe", szFilePath, FILE_MAX_PATH_LEN);
-    if (n < 0)
-    {
-        return (char*)"";
-    }
-
-    szFilePath[n] = '\0';
-
-    pcSplit = TXT_ReverseStrchr(szFilePath, '/');
-    if (NULL == pcSplit)
-    {
-        szFilePath[0] = '\0';
-        return (char*)"";
-    }
-
-    *pcSplit = '\0';
+    _sys_os_get_self_file_path(szFilePath, sizeof(szFilePath));
     bExist = TRUE;
     
     return szFilePath;
@@ -108,7 +114,7 @@ CHAR * _SYS_OS_GetSelfFilePath(void)
 
     _NSGetExecutablePath(szFilePath, &n);
 
-    pcSplit = TXT_ReverseStrchr(szFilePath, '/');
+    pcSplit = strrchr(szFilePath, '/');
     if (NULL == pcSplit)
     {
         szFilePath[0] = '\0';

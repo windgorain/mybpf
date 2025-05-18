@@ -18,8 +18,7 @@ static int iptup_Cmp(void *hash, void *data1, void *data2)
     return memcmp(data1, data2, sizeof(IP_TUP_KEY_S));
 }
 
-int IPTupBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table,
-        UINT bucket_num, UINT bucket_depth)
+int IPTupBox_Init(BOX_S *box, CUCKOO_HASH_NODE_S *table, UINT bucket_num, UINT bucket_depth)
 {
     int ret;
 

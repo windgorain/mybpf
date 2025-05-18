@@ -4,13 +4,11 @@
 *
 ================================================================*/
 #include "bs.h"
+#include "utl/npipe_utl.h"
 #include "utl/cioctl_utl.h"
 
 int CIOCTL_Connect(char *path)
 {
-    int fd;
-    struct sockaddr_un dst;
-
     if (! path) {
         path = CIOCTL_PIPE_FILE_PATH;
     }
@@ -18,7 +16,7 @@ int CIOCTL_Connect(char *path)
     return NPIPE_ConnectStream(path);
 }
 
-int CIOCTL_Close(int fd)
+void CIOCTL_Close(int fd)
 {
     close(fd);
 }

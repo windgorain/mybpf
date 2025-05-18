@@ -37,8 +37,8 @@ enum {
 #define RING_ENQUEUE_PTRS(r, ring_start, prod_head, obj_table, n, obj_type) \
     do { \
         unsigned int i; \
-        const uint32_t size = (r)->size; \
-        uint32_t idx = prod_head & (r)->mask; \
+        const U32 size = (r)->size; \
+        U32 idx = prod_head & (r)->mask; \
         obj_type *ring = (obj_type *)ring_start; \
         if (likely(idx + n < size)) { \
             for (i = 0; i < (n & ((~(unsigned)0x3))); i+=4, idx+=4) { \
@@ -67,8 +67,8 @@ enum {
 #define RING_DEQUEUE_PTRS(r, ring_start, cons_head, obj_table, n, obj_type) \
     do { \
         unsigned int i; \
-        uint32_t idx = cons_head & (r)->mask; \
-        const uint32_t size = (r)->size; \
+        U32 idx = cons_head & (r)->mask; \
+        const U32 size = (r)->size; \
         obj_type *ring = (obj_type *)ring_start; \
         if (likely(idx + n < size)) { \
             for (i = 0; i < (n & (~(unsigned)0x3)); i+=4, idx+=4) {\
@@ -122,8 +122,8 @@ RING_S * RING_Create(UINT capacity, int is_single_prod, int is_single_cons);
 static inline UINT RING_MoveProdHead(RING_S *r, UINT is_sp, UINT n,
         int behavior, UINT *old_head, UINT *new_head, UINT *free_entries)
 {
-	const uint32_t capacity = r->capacity;
-	uint32_t cons_tail;
+	const U32 capacity = r->capacity;
+	U32 cons_tail;
 	unsigned int max = n;
 	int success;
 
@@ -147,7 +147,7 @@ static inline UINT RING_MoveProdHead(RING_S *r, UINT is_sp, UINT n,
 		if (is_sp)
 			r->prod.head = *new_head, success = 1;
 		else
-			success = ATOM_BOOL_COMP_SWAP(&r->prod.head, old_head, *new_head);
+			success = ATOM_BOOL_COMP_SWAP(&r->prod.head, *old_head, *new_head);
 	} while (unlikely(success == 0));
 
 	return n;
@@ -187,8 +187,7 @@ static inline UINT RING_MoveConsHead(RING_S *r, int is_sc, UINT n,
 }
 
 
-static inline void RING_UpdateTail(RING_HEADTAIL_S *ht, uint32_t old_val,
-        uint32_t new_val, uint32_t single)
+static inline void RING_UpdateTail(RING_HEADTAIL_S *ht, U32 old_val, U32 new_val, U32 single)
 {
 	
 	if (!single)
@@ -204,8 +203,8 @@ static inline void RING_UpdateTail(RING_HEADTAIL_S *ht, uint32_t old_val,
 static inline UINT RING_DoEnqueue(RING_S *r, void **obj_table,
 		 UINT n, int behavior, UINT is_sp, UINT *free_space)
 {
-	uint32_t prod_head, prod_next;
-	uint32_t free_entries;
+	U32 prod_head, prod_next;
+	U32 free_entries;
 
 	n = RING_MoveProdHead(r, is_sp, n, behavior,
 			&prod_head, &prod_next, &free_entries);
@@ -224,8 +223,8 @@ end:
 static inline UINT RING_DoDequeue(RING_S *r, void **obj_table,
 		 UINT n, int behavior, UINT is_sc, UINT *available)
 {
-	uint32_t cons_head, cons_next;
-	uint32_t entries;
+	U32 cons_head, cons_next;
+	U32 entries;
 
 	n = RING_MoveConsHead(r, (int)is_sc, n, behavior,
 			&cons_head, &cons_next, &entries);
@@ -316,9 +315,9 @@ static inline int RING_Dequeue(RING_S *r, void **obj_p)
 
 static inline UINT RING_Count(RING_S *r)
 {
-	uint32_t prod_tail = r->prod.tail;
-	uint32_t cons_tail = r->cons.tail;
-	uint32_t count = (prod_tail - cons_tail) & r->mask;
+	U32 prod_tail = r->prod.tail;
+	U32 cons_tail = r->cons.tail;
+	U32 count = (prod_tail - cons_tail) & r->mask;
 	return (count > r->capacity) ? r->capacity : count;
 }
 

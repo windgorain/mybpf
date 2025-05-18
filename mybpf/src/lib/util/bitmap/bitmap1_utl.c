@@ -17,7 +17,7 @@ static INT64 bitmap_index_to_index1(INT64 index)
     return index + 1;
 }
 
-INT64 bitmap_index1_to_index(INT64 index_from1)
+static INT64 bitmap_index1_to_index(INT64 index_from1)
 {
     return index_from1 - 1;
 }

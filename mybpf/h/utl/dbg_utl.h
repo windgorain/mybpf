@@ -13,12 +13,12 @@
 #endif 
 
 
-#define DBG_UTL_FLAG_PROCESS (1UL << 31)
+#define DBG_UTL_FLAG_PROCESS (0x1 << 31)
+#define DBG_UTL_FLAG_ERR (0x1 << 30)
 
 #define DBG_UTL_HEADER_FMT "[%s:%s:%s] "
 
-typedef struct
-{
+typedef struct {
     const char *pcModuleName;
     const char *pcDbgFlagName;
     UINT uiDbgID;
@@ -45,7 +45,6 @@ typedef struct {
     }while(0)
 
 
-void DBG_UTL_Init(DBG_UTL_CTRL_S *ctrl, const char *name, UINT *dbg_flags, DBG_UTL_DEF_S *dbg_defs, int max_module_id);
 extern void DBG_UTL_SetDebugFlag(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiModuleID, IN UINT uiFlag);
 extern void DBG_UTL_ClrDebugFlag(IN DBG_UTL_CTRL_S *pstCtrl, IN UINT uiModuleID, IN UINT uiFlag);
 void DBG_UTL_SetAllDebugFlags(DBG_UTL_CTRL_S *ctrl);

@@ -10,12 +10,12 @@
 
 #ifdef IN_WINDOWS
 
-int _ThreadOs_Create(PF_THREAD_UTL_FUNC func, UINT pri, UINT stack_size, void *arg)
+THREAD_ID _ThreadOs_Create(PF_THREAD_UTL_FUNC func, UINT pri, UINT stack_size, void *arg)
 {
     HANDLE hHandle;
     UINT os_id;
 
-    hHandle = (HANDLE)_beginthreadex(NULL, stack_size, (LPTHREAD_START_ROUTINE)func, arg, 0, &os_id);
+    hHandle = (HANDLE)_beginthreadex(NULL, stack_size, (void *)func, arg, 0, &os_id);
     if (hHandle == 0) {
         RETURN(BS_ERR);
     }
@@ -25,7 +25,7 @@ int _ThreadOs_Create(PF_THREAD_UTL_FUNC func, UINT pri, UINT stack_size, void *a
     return os_id;
 }
 
-BS_STATUS _ThreadOs_Suspend(int thread_id)
+BS_STATUS _ThreadOs_Suspend(THREAD_ID thread_id)
 {
     int ret;
     HANDLE hHandle;
@@ -46,7 +46,7 @@ BS_STATUS _ThreadOs_Suspend(int thread_id)
     return BS_OK;
 }
 
-BS_STATUS _ThreadOs_Resume(int thread_id)
+BS_STATUS _ThreadOs_Resume(THREAD_ID thread_id)
 {
     HANDLE hHandle;
     int ret;

@@ -42,7 +42,7 @@ void RcuEngine_Call(RCU_NODE_S *rcu_node, PF_RCU_FREE_FUNC rcu_func)
 }
 
 
-int RcuEngine_Lock()
+int RcuEngine_Lock(void)
 {
     return RcuDelay_Lock(&g_rcu_engine);
 }
@@ -52,17 +52,22 @@ void RcuEngine_UnLock(int state)
     RcuDelay_Unlock(&g_rcu_engine, state);
 }
 
-void RcuEngine_Wait()
-{
-    RcuDelay_Wait(&g_rcu_engine);
-}
-
-void RcuEngine_Sync()
+void RcuEngine_Sync(void)
 {
     RcuDelay_Sync(&g_rcu_engine);
 }
 
-static void rcu_engine_constructor()
+void RcuEngine_FastSync(void)
+{
+    RcuDelay_FastSync(&g_rcu_engine);
+}
+
+void RcuEngine_Barrier(void)
+{
+    RcuDelay_Barrier(&g_rcu_engine);
+}
+
+static void rcu_engine_constructor(void)
 {
     MUTEX_Init(&g_rcu_engine_lock);
 

@@ -152,7 +152,7 @@ static int map_rbtree_add_node(MAP_HANDLE map, LDATA_S *key, void *pData, void *
 
     BS_DBGASSERT(0 == (flag & MAP_FLAG_PERMIT_DUPLICATE));
 
-    if ((map->uiCapacity != 0) && (map->uiCapacity <= rbtree_map->count)) {
+    if ((map->capacity != 0) && (map->capacity <= rbtree_map->count)) {
         RETURN(BS_NO_RESOURCE);
     }
 
@@ -168,7 +168,7 @@ static BS_STATUS map_rbtree_add(MAP_HANDLE map, VOID *pKey, UINT uiKeyLen, VOID 
 
     BS_DBGASSERT(0 == (flag & MAP_FLAG_PERMIT_DUPLICATE));
 
-    if ((map->uiCapacity != 0) && (map->uiCapacity <= rbtree_map->count)) {
+    if ((map->capacity != 0) && (map->capacity <= rbtree_map->count)) {
         RETURN(BS_NO_RESOURCE);
     }
 
@@ -327,7 +327,9 @@ MAP_HANDLE MAP_RBTreeCreate(void *memcap)
         MemCap_Free(memcap, ctrl);
         return NULL;
     }
+
     ctrl->impl_map = rbtree_map;
+    ctrl->type = MAP_TYPE_RBTREE;
 
     return ctrl;
 }

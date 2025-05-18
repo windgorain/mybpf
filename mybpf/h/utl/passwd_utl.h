@@ -29,9 +29,11 @@ BS_STATUS PW_HexDecrypt(IN CHAR *szCipher, OUT CHAR *szClearText, IN ULONG ulCle
 #endif
 
 #if 1
-#define PW_MD5_ENCRYPT_LEN (64)
+#define PW_MD5_ENCRYPT_LEN  (32)
+#define PW_MD5_ENCRYPT_SIZE (33) 
 
-BS_STATUS PW_Md5Encrypt(IN CHAR *szClearText, OUT CHAR *szCipherText, int cipher_text_size);
+BS_STATUS PW_Md5EncryptExt(U8 *in, int in_len, OUT U8 *md5_out, OUT char *cipher_text);
+BS_STATUS PW_Md5Encrypt(char *clear_text, OUT char *cipher_text);
 
 BOOL_T PW_Md5Check(IN CHAR *szClearText, IN CHAR *pcCipherText);
 #endif

@@ -16,7 +16,7 @@ int CPU_GetCompany(char *company, int size);
 int CPU_GetBrand(char *cBrand, int size);
 int CPU_GetBaseParam(char *baseparam, int size);
 unsigned int CPU_GetModel();
-
+unsigned int CPU_GetModelByA(U32 fam_mod_step);
 
 #ifdef __cplusplus
 }

@@ -30,6 +30,8 @@
 
 #ifdef IN_WINDOWS
 
+#define ftruncate chsize
+
 static inline FILE * FOPEN(IN CHAR *pcFileName, IN CHAR *pcMode)
 {
     FILE *fp;
@@ -127,10 +129,8 @@ static inline FILE * FOPEN(IN CHAR *pcFileName, IN CHAR *pcMode)
     do {  \
         CHAR *_chc;	\
         _chc = pszFilePath;	\
-    	while(*_chc != '\0')	\
-    	{	\
-    		if (*_chc == '\\')	\
-    		{	\
+    	while(*_chc != '\0') {	\
+    		if (*_chc == '\\') {	\
     			*_chc = '/';	\
     		}	\
     		_chc++;	\

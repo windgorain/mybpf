@@ -28,7 +28,7 @@ typedef struct {
 }CMDLST_S;
 
 
-BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf);
+BS_STATUS CMDLST_Scan(CMDLST_S *ctrl, char *buf, char *info );
 BS_STATUS CMDLST_ScanByFile(CMDLST_S *ctrl, char *filename);
 
 

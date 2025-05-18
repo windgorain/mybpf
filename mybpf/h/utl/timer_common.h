@@ -27,12 +27,11 @@ extern "C"
 #define TIMER_SET_PAUSE(flag) ((flag) |= TIMER_FLAG_PAUSE)
 #define TIMER_CLR_PAUSE(flag) ((flag) &= (~TIMER_FLAG_PAUSE))
 
-typedef VOID (*PF_TIME_OUT_FUNC)(IN HANDLE timer, IN USER_HANDLE_S *pstUserHandle);
+typedef void (*PF_TIME_OUT_FUNC)(HANDLE timer, USER_HANDLE_S *ud);
 
-typedef struct
-{
-    UINT ulTime;
-    PF_TIME_OUT_FUNC pfFunc;
+typedef struct {
+    UINT time_value;
+    void *pfFunc;
     UINT flag;
 }TIMER_INFO_S;
 

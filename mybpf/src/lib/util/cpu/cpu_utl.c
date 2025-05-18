@@ -1,5 +1,6 @@
 /*================================================================
 *   Created by LiXingang
+*   Version: 1.0  Date: 2007-2-8
 *   Description: 
 *
 ================================================================*/
@@ -8,19 +9,16 @@
 #include "utl/txt_utl.h"
 #include "utl/cpu_utl.h"
 
-#ifdef __X86__
-#ifdef IN_UNIXLIKE
 
-#define cpuid(func,eax,ebx,ecx,edx)\
-    __asm__ __volatile__ ("cpuid":\
-    "=a" (eax),"=b" (ebx),"=c" (ecx),"=d" (edx):\
-    "a" (func));
+#ifdef __X86__
+
+#include <cpuid.h>
 
 int CPU_HighestFunction()
 {
     unsigned int a,b,c,d;
 
-    cpuid(0,a,b,c,d);
+    __cpuid(0,a,b,c,d);
 
     a &= 0xffff;
 
@@ -32,7 +30,7 @@ int CPU_GetID(char *id, int size)
 {
     unsigned int a,b,c,d;
 
-    cpuid(3,a,b,c,d);
+    __cpuid(3,a,b,c,d);
     snprintf(id, size, "%08x%08x%08x%08x", a, b, c, d);
 
     return 0;
@@ -45,7 +43,7 @@ int CPU_GetCompany(char *company, int size)
     int i,k;
 
     memset((void*)ComName,0,sizeof(ComName));
-    cpuid(0,a,b,c,d);
+    __cpuid(0,a,b,c,d);
 
     for(i = 0; b > 0; i++)
     {
@@ -90,7 +88,7 @@ int CPU_GetBrand(char *cBrand, int size)
     memset((void*)cpu_brand_buf,0,sizeof(cpu_brand_buf));
 
     
-    cpuid(0x80000000,a,b,c,d);
+    __cpuid(0x80000000,a,b,c,d);
     if(a < 0x80000004)
     {
         return -1;
@@ -98,7 +96,7 @@ int CPU_GetBrand(char *cBrand, int size)
 
     for(i=0x80000002;i<=0x80000004;i++)
     {
-        cpuid(i,a,b,c,d);
+        __cpuid(i,a,b,c,d);
         cpu_brand_buf[k++]=a;
         cpu_brand_buf[k++]=b;
         cpu_brand_buf[k++]=c;
@@ -115,7 +113,7 @@ int CPU_GetBaseParam(char *baseparam, int size)
     unsigned int CPUBaseInfo;
     unsigned int a,b,c,d;
 
-    cpuid(1,a,b,c,d);
+    __cpuid(1,a,b,c,d);
 
     CPUBaseInfo = a;
     snprintf(baseparam, size, "Family:%d Model:%d Stepping ID:%d",
@@ -124,25 +122,28 @@ int CPU_GetBaseParam(char *baseparam, int size)
     return 0;
 }
 
-unsigned int CPU_GetModel()
+unsigned int CPU_GetModelByA(U32 fam_mod_step)
 {
-	uint32_t a,b,c,d, family, model, ext_model, fam_mod_step;
+    U32 family, model, ext_model;
 
-	cpuid(0x1, a, b, c, d);
-    fam_mod_step = a;
+    family = (fam_mod_step >> 8) & 0xf;
+    model = (fam_mod_step >> 4) & 0xf;
 
-	family = (fam_mod_step >> 8) & 0xf;
-	model = (fam_mod_step >> 4) & 0xf;
+    if (family == 6 || family == 15) {
+        ext_model = (fam_mod_step >> 16) & 0xf;
+        model += (ext_model << 4);
+    }
 
-	if (family == 6 || family == 15) {
-		ext_model = (fam_mod_step >> 16) & 0xf;
-		model += (ext_model << 4);
-	}
-
-	return model;
+    return model;
 }
 
-#endif
+unsigned int CPU_GetModel()
+{
+	U32 a,b,c,d;
+	__cpuid(0x1, a, b, c, d);
+    return CPU_GetModelByA(a);
+}
+
 #else
 int CPU_GetCompany(char *company, int size)
 {

@@ -27,24 +27,24 @@ IF_PHY_PARAM_S * SIF_GetPhyType(IN CHAR *pcPhyType);
 UINT SIF_AddIfType(IN CHAR *pcIfType, IN IF_TYPE_PARAM_S *pstParam);
 CHAR * SIF_GetTypeNameByType(IN UINT uiType);
 UINT SIF_GetIfTypeFlag(IN CHAR *pcIfType);
-IF_INDEX SIF_CreateIf(IN CHAR *pcIfType);
-IF_INDEX SIF_CreateIfByName(IN CHAR *pcIfType, IN CHAR *pcIfName);
-VOID SIF_DeleteIf(IN IF_INDEX ifIndex);
-CHAR * SIF_GetIfName(IN IF_INDEX ifIndex, OUT CHAR szIfName[IF_MAX_NAME_LEN + 1]);
-BS_STATUS SIF_Ioctl(IN IF_INDEX ifIndex, IN IF_IOCTL_CMD_E enCmd, IN HANDLE hData);
-BS_STATUS SIF_PhyIoctl(IN IF_INDEX ifIndex, IN IF_PHY_IOCTL_CMD_E enCmd, IN HANDLE hData);
-IF_INDEX SIF_GetIfIndex(IN CHAR *pcIfName);
-BS_STATUS SIF_PhyOutput(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
-BS_STATUS SIF_LinkInput(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf);
-BS_STATUS SIF_LinkOutput (IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
-BS_STATUS SIF_ProtoInput(IN IF_INDEX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
+IF_IDX SIF_CreateIf(IN CHAR *pcIfType);
+IF_IDX SIF_CreateIfByName(IN CHAR *pcIfType, IN CHAR *pcIfName);
+VOID SIF_DeleteIf(IN IF_IDX ifIndex);
+CHAR * SIF_GetIfName(IN IF_IDX ifIndex, OUT CHAR szIfName[IF_MAX_NAME_LEN + 1]);
+BS_STATUS SIF_Ioctl(IN IF_IDX ifIndex, IN IF_IOCTL_CMD_E enCmd, IN HANDLE hData);
+BS_STATUS SIF_PhyIoctl(IN IF_IDX ifIndex, IN IF_PHY_IOCTL_CMD_E enCmd, IN HANDLE hData);
+IF_IDX SIF_GetIfIndex(IN CHAR *pcIfName);
+BS_STATUS SIF_PhyOutput(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
+BS_STATUS SIF_LinkInput(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf);
+BS_STATUS SIF_LinkOutput (IN IF_IDX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
+BS_STATUS SIF_ProtoInput(IN IF_IDX ifIndex, IN MBUF_S *pstMbuf, IN USHORT usProtoType);
 UINT SIF_AllocUserDataIndex();
-BS_STATUS SIF_SetUserData(IN IF_INDEX ifIndex, IN UINT uiIndex, IN HANDLE hData);
-BS_STATUS SIF_GetUserData(IN IF_INDEX ifIndex, IN UINT uiIndex, IN HANDLE *phData);
-IF_INDEX SIF_GetNext(IN IF_INDEX ifIndexCurrent);
+BS_STATUS SIF_SetUserData(IN IF_IDX ifIndex, IN UINT uiIndex, IN HANDLE hData);
+BS_STATUS SIF_GetUserData(IN IF_IDX ifIndex, IN UINT uiIndex, IN HANDLE *phData);
+IF_IDX SIF_GetNext(IN IF_IDX ifIndexCurrent);
 BS_STATUS SIF_RegPktProcesser
 (
-    IN IF_INDEX ifIndex,
+    IN IF_IDX ifIndex,
     IN IF_PKT_PROCESSER_TYPE_E enType,
     IN UINT uiPri,  
     IN PF_IF_PKT_PORCESSER_FUNC pfFunc

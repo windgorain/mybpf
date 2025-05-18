@@ -467,14 +467,14 @@ static int getopt2_build_param_help(GETOPT2_NODE_S *nodes, OUT char *buf, int bu
 
         if (node->opt_long_name != NULL) {
             if (getopt2_is_must(node)) { 
-                len += snprintf(buf+len, buf_size-len, " %s", node->opt_long_name);
+                len += MY_Snprintf(buf+len, buf_size-len, " %s", node->opt_long_name);
             } else { 
-                len += snprintf(buf+len, buf_size-len, " [%s]", node->opt_long_name);
+                len += MY_Snprintf(buf+len, buf_size-len, " [%s]", node->opt_long_name);
             }
         }
     }
 
-    len += snprintf(buf+len, buf_size-len, "\r\n");
+    len += MY_Snprintf(buf+len, buf_size-len, "\r\n");
 
     for (node=nodes; node->opt_type!=0; node++) {
         if (! getopt2_is_param_type(node->opt_type)) {
@@ -482,7 +482,7 @@ static int getopt2_build_param_help(GETOPT2_NODE_S *nodes, OUT char *buf, int bu
         }
 
         if (node->opt_long_name != NULL) {
-            len += snprintf(buf+len, buf_size-len, " %s: %s\r\n", 
+            len += MY_Snprintf(buf+len, buf_size-len, " %s: %s\r\n", 
                     node->opt_long_name,
                     node->help_info == NULL ? "": node->help_info);
         }
@@ -496,17 +496,17 @@ static void getopt2_build_opt_one(GETOPT2_NODE_S *node, OUT char *buf, int buf_s
     int len = 0;
 
     if (node->opt_short_name) {
-        len += snprintf(buf+len, buf_size-len, "-%c ", node->opt_short_name);
+        len += MY_Snprintf(buf+len, buf_size-len, "-%c ", node->opt_short_name);
     } else {
-        len += snprintf(buf+len, buf_size-len, "   ");
+        len += MY_Snprintf(buf+len, buf_size-len, "   ");
     }
 
     if (node->opt_long_name) {
-        len += snprintf(buf+len, buf_size-len, "--%s ", node->opt_long_name);
+        len += MY_Snprintf(buf+len, buf_size-len, "--%s ", node->opt_long_name);
     }
 
     if (node->value_type) {
-        len += snprintf(buf+len, buf_size-len, "%s ", getopt2_opt_type_2_string(node->value_type));
+        len += MY_Snprintf(buf+len, buf_size-len, "%s ", getopt2_opt_type_2_string(node->value_type));
     }
 }
 
@@ -518,7 +518,7 @@ static int getopt2_build_opt_help(GETOPT2_NODE_S *nodes, OUT char *buf, int buf_
     char optbuf[128];
 
     if (getopt2_is_have_opt(nodes)) {
-        len += snprintf(buf+len, buf_size-len, "Options:\r\n");
+        len += MY_Snprintf(buf+len, buf_size-len, "Options:\r\n");
     }
 
     for (node=nodes; node->opt_type!=0; node++) {
@@ -530,19 +530,19 @@ static int getopt2_build_opt_help(GETOPT2_NODE_S *nodes, OUT char *buf, int buf_
             continue;
         }
 
-        len += snprintf(buf+len, buf_size-len, " ");
+        len += MY_Snprintf(buf+len, buf_size-len, " ");
 
         must = getopt2_is_must(node);
 
         if (must) {
-            len += snprintf(buf+len, buf_size-len, "* ");
+            len += MY_Snprintf(buf+len, buf_size-len, "* ");
         } else {
-            len += snprintf(buf+len, buf_size-len, "  ");
+            len += MY_Snprintf(buf+len, buf_size-len, "  ");
         }
 
         getopt2_build_opt_one(node, optbuf, sizeof(optbuf));
 
-        len += snprintf(buf+len, buf_size-len, "%-32s %s\r\n", optbuf, node->help_info == NULL ? "": node->help_info);
+        len += MY_Snprintf(buf+len, buf_size-len, "%-32s %s\r\n", optbuf, node->help_info == NULL ? "": node->help_info);
     }
 
     return len;
@@ -555,9 +555,9 @@ char * GETOPT2_BuildHelpinfo(GETOPT2_NODE_S *nodes, OUT char *buf, int buf_size)
     buf[0] = '\0';
 
     if (getopt2_is_have_opt(nodes)) {
-        len += snprintf(buf+len, buf_size-len, "Command: [Options]");
+        len += MY_Snprintf(buf+len, buf_size-len, "Command: [Options]");
     } else {
-        len += snprintf(buf+len, buf_size-len, "Command: ");
+        len += MY_Snprintf(buf+len, buf_size-len, "Command: ");
     }
 
     len += getopt2_build_param_help(nodes, buf+len, buf_size-len);

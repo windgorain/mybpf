@@ -12,9 +12,9 @@
     extern "C" {
 #endif 
 
-#ifdef IN_UNIXLIKE
-
 VOID * SIGNAL_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc);
+
+#ifdef IN_UNIXLIKE
 
 typedef void (*SHC_HANDLE_FUNC)(int sig, void *user_data);
 

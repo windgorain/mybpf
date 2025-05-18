@@ -27,6 +27,14 @@ extern "C" {
 #define noinline __attribute__((noinline))
 #endif
 
+#if __GNUC__
+#define NORETURN __attribute__((__noreturn__))
+#elif _MSC_VER
+#define NORETURN __declspec(noreturn)
+#else
+#define NORETURN
+#endif
+
 #ifndef ALWAYS_INLINE 
     #ifdef IN_LINUX
         #define ALWAYS_INLINE __always_inline
@@ -69,6 +77,32 @@ extern "C" {
 #define VRF_ANY (VRF_INDEX)0
 
 #ifdef IN_WINDOWS
+
+    #define PLUG_HIDE
+    #define PLUG_API  __declspec(dllexport)
+    #define PLUG_HDL    HINSTANCE 
+    #define PLUG_LOAD(pcPlugFilePath)                  (PLUG_HDL)LoadLibraryA(pcPlugFilePath)
+    #define PLUG_FREE(ulPlugId)                        FreeLibrary(ulPlugId)
+    #define PLUG_RAW_LOAD(pcPlugFilePath)              (PLUG_HDL)LoadLibraryA(pcPlugFilePath)
+    #define PLUG_RAW_FREE(ulPlugId)                    FreeLibrary(ulPlugId)
+    #define PLUG_GET_FUNC_BY_NAME(ulPlugId,pcFuncName) (void*)GetProcAddress(ulPlugId, pcFuncName)
+    #define PLUG_ERROR()   GetLastError()
+
+#else 
+
+#define PLUG_API  __attribute__ ((visibility("default")))
+#define PLUG_HIDE __attribute__ ((visibility("hidden"))) 
+#define PLUG_HDL void*
+#define PLUG_LOAD(pcPlugFilePath)   PLUG_LoadLib(pcPlugFilePath)
+#define PLUG_FREE(ulPlugId)         PLUG_UnloadLib(ulPlugId)
+#define PLUG_RAW_LOAD(pcPlugFilePath)  dlopen(pcPlugFilePath, RTLD_NOW)
+#define PLUG_RAW_FREE(ulPlugId)     dlclose(ulPlugId)
+#define PLUG_GET_FUNC_BY_NAME(ulPlugId,pcFuncName)    dlsym((PLUG_HDL)ulPlugId,pcFuncName)
+#define PLUG_ERROR()   dlerror()
+
+#endif
+
+#ifdef _MSC_VER
     #define CONSTRUCTOR(f)  \
         static void f(void);  \
         static int __f1(void){f();return 0;}  \
@@ -85,31 +119,24 @@ extern "C" {
         __pragma(data_seg())  \
         static void fin(void)
 
-    #define PLUG_HIDE
-    #define PLUG_API  __declspec(dllexport)
-    #define PLUG_HDL    HINSTANCE 
-    #define PLUG_LOAD(pcPlugFilePath)                  (PLUG_HDL)LoadLibraryA(pcPlugFilePath)
-    #define PLUG_FREE(ulPlugId)                        FreeLibrary(ulPlugId)
-    #define PLUG_GET_FUNC_BY_NAME(ulPlugId,pcFuncName) GetProcAddress(ulPlugId, pcFuncName)
     #define THREAD_LOCAL __declspec(thread) 
+
+    #define UINT_HANDLE(uiValue)     ((HANDLE)((unsigned long long)((UINT)(uiValue))))
+    #define HANDLE_UINT(hValue)     ((UINT)((unsigned long long)(hValue)))
+    #define ULONG_HANDLE(uiValue)     ((HANDLE)((unsigned long long)(uiValue)))
+    #define HANDLE_ULONG(hValue)     (((unsigned long long)(hValue)))
 #endif
 
-#ifdef IN_UNIXLIKE
-#define CONSTRUCTOR(_init)  __attribute__((constructor)) static void _init(void)
-#define DESTRUCTOR(_final) __attribute__((destructor)) static void _final(void)
-#define PLUG_API  __attribute__ ((visibility("default")))
-#define PLUG_HIDE __attribute__ ((visibility("hidden"))) 
-#define PLUG_HDL void*
-#define PLUG_LOAD(pcPlugFilePath)   PLUG_LoadLib(pcPlugFilePath)
-#define PLUG_FREE(ulPlugId)         PLUG_UnloadLib(ulPlugId)
-#define PLUG_GET_FUNC_BY_NAME(ulPlugId,pcFuncName)    dlsym((PLUG_HDL)ulPlugId,pcFuncName)
-#define THREAD_LOCAL __thread
-#endif
+#ifdef __GNUC__ 
+    #define THREAD_LOCAL __thread
+    #define CONSTRUCTOR(_init)  __attribute__((constructor)) static void _init(void)
+    #define DESTRUCTOR(_final) __attribute__((destructor)) static void _final(void)
 
-#define UINT_HANDLE(uiValue)     ((HANDLE)((ULONG)((UINT)(uiValue))))
-#define HANDLE_UINT(hValue)     ((UINT)((ULONG)(hValue)))
-#define ULONG_HANDLE(uiValue)     ((HANDLE)((ULONG)(uiValue)))
-#define HANDLE_ULONG(hValue)     (((ULONG)(hValue)))
+    #define UINT_HANDLE(uiValue)     ((HANDLE)((ULONG)((UINT)(uiValue))))
+    #define HANDLE_UINT(hValue)     ((UINT)((ULONG)(hValue)))
+    #define ULONG_HANDLE(uiValue)     ((HANDLE)((ULONG)(uiValue)))
+    #define HANDLE_ULONG(hValue)     (((ULONG)(hValue)))
+#endif
 
 #define STR(x)  #x
 
@@ -132,6 +159,11 @@ typedef struct {
 
 typedef LLDATA_S FILE_MEM_S;
 
+typedef struct {
+    U32 min;
+    U32 max;
+}U32_RANGE_S;
+
 #define BS_DATA_ZERO(_pstData) do {(_pstData)->pucData = NULL; (_pstData)->uiLen = 0;} while(0)
 
 
@@ -146,10 +178,13 @@ typedef UINT 		(*UINT_FUNC_5)(VOID *pArg1, VOID *pArg2, VOID *pArg3, VOID *pArg4
 typedef UINT 		(*UINT_FUNC_6)(VOID *pArg1, VOID *pArg2, VOID *pArg3, VOID *pArg4, VOID *pArg5, VOID *pArg6);
 typedef HANDLE 		(*HANDLE_FUNC)(void);
 typedef BOOL_T		(*BOOL_FUNC)(void);
+
 typedef int         (*PF_CMP_FUNC)(const void *k, const void *n);
-typedef int         (*PF_CMP_EXT_FUNC)(const void *k, const void *n, void *ud);
+typedef int         (*PF_CMP_EXT_FUNC)(const void *k, const void *n, const void *ud);
+typedef int         (*PF_LCMP_FUNC)(const void *k, int k_len, const void *n);
+typedef int         (*PF_LCMP_EXT_FUNC)(const void *k, int k_len, const void *n, void *ud);
 typedef void        (*PF_DEL_FUNC)(void *n, void *ud);
-typedef void        (*PF_WALK_FUNC)(void *n, void *ud);
+typedef int         (*PF_WALK_FUNC)(void *n, void *ud);
 typedef int         (*PF_PRINT_FUNC)(const char *fmt, ...);
 
 typedef enum{
@@ -194,6 +229,9 @@ typedef enum{
     BS_PARSE_FAILED = -37,
 	BS_REACH_MAX = -38,
     BS_STOLEN = -39,
+
+	BS_QUIT_APP = -40, 
+	BS_FORCE_QUIT_APP = -41, 
 
     
     BS_PRIVATE_BASE = -100
@@ -248,9 +286,13 @@ typedef enum
 #endif
 
 #ifndef container_of
+#ifdef IN_WINDOWS
+#define container_of(ptr, type, member) ((type*)(((char*)ptr) - (char*)(&(((type*)0)->member))))
+#else
 #define container_of(ptr, type, member) ({			\
 	const typeof(((type *)0)->member) * __mptr = (ptr);	\
 	(type *)((char *)__mptr - offsetof(type, member)); })
+#endif
 #endif
 
 #define BS_PRINT_ERR(_fmt, ...) fprintf(stderr, _fmt, ##__VA_ARGS__)
@@ -276,7 +318,7 @@ typedef enum
     do {    \
         PRINTLN_HYELLOW("Warnning:%s(%d): ", __FILE__, __LINE__); \
         printf X;   \
-        printf ("\n");    \
+        printf (" \r\n");    \
     }while(0)
 #endif
 

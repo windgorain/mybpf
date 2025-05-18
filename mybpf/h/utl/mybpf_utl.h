@@ -11,6 +11,7 @@ extern "C"
 #endif
 
 #define MYBPF_NAME_SIZE 32
+#define MYBPF_FILENAME_SIZE 36  
 
 typedef struct {
     U64 p[5];    

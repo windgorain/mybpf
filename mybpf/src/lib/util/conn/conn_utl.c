@@ -10,8 +10,7 @@
 #include "utl/socket_utl.h"
 #include "utl/conn_utl.h"
 
-typedef struct
-{
+typedef struct {
     INT iSocketID;
     VOID *pstSsl;
     MYPOLL_HANDLE hPollHandle;
@@ -37,23 +36,19 @@ VOID CONN_Free(IN CONN_HANDLE hConn)
 {
     CONN_S *pstConn = hConn;
 
-    if (pstConn == NULL)
-    {
+    if (pstConn == NULL) {
         return;
     }
 
-    if (NULL != pstConn->hPollHandle)
-    {
+    if (NULL != pstConn->hPollHandle) {
         MyPoll_Del(pstConn->hPollHandle, pstConn->iSocketID);
     }
 
-    if (pstConn->pstSsl != NULL)
-    {
+    if (pstConn->pstSsl != NULL) {
         SSL_UTL_Free(pstConn->pstSsl);
     }
 
-    if (pstConn->iSocketID >= 0)
-    {
+    if (pstConn->iSocketID >= 0) {
         Socket_Close(pstConn->iSocketID);
     }
 
@@ -224,13 +219,11 @@ INT CONN_Read(IN CONN_HANDLE hConn, OUT UCHAR *pucBuf, IN UINT uiBufLen)
 {
     CONN_S *pstConn = hConn;
 
-    if (NULL == pstConn)
-    {
+    if (NULL == pstConn) {
         return SOCKET_E_ERR;
     }
 
-    if (pstConn->pstSsl == NULL)
-    {
+    if (pstConn->pstSsl == NULL) {
         return Socket_Read(pstConn->iSocketID, pucBuf, uiBufLen, 0);
     }
 
@@ -261,11 +254,9 @@ INT CONN_WriteAll(IN CONN_HANDLE hConn, IN UCHAR *pucBuf, IN UINT uiLen)
     UINT uiRemainLen = uiLen;
     UCHAR *pucData = pucBuf;
 
-    while (uiRemainLen > 0)
-    {
+    while (uiRemainLen > 0) {
         iLen = CONN_Write(hConn, pucData, uiRemainLen);
-        if (iLen <= 0)
-        {
+        if (iLen <= 0) {
             return iLen;
         }
 

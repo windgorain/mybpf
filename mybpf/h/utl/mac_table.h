@@ -36,11 +36,7 @@ typedef enum
     MAC_MODE_MAX
 }MAC_NODE_MODE_E;
 
-typedef VOID (*PF_MACTBL_WALK_FUNC)
-   (IN MACTBL_HANDLE hMacTbl,
-    IN MAC_NODE_S *pstNode,
-    IN VOID *pUserData,
-    IN VOID * pUserHandle);
+typedef void (*PF_MACTBL_WALK_FUNC)(MACTBL_HANDLE hMacTbl, MAC_NODE_S *pstNode, void *ud, void *uh);
 
 
 #define MAC_TBL_EVENT_ADD 0x1

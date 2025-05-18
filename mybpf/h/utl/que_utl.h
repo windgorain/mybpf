@@ -67,30 +67,6 @@ int SQUE_Count(SQUE_S * s);
 #endif
 
 
-#if 1 
-
-typedef void (*PF_BLOCK_QUE_FREE)(void *node, void *ud);
-
-typedef struct BLOCK_QUE_STRUCT *BLOCKQUE_HANDLE;
-
-BLOCKQUE_HANDLE BlockQue_Create();
-void BlockQue_Destroy(BLOCKQUE_HANDLE q, PF_BLOCK_QUE_FREE free_func, void *ud);
-void BlockQue_DelAll(BLOCKQUE_HANDLE q, PF_BLOCK_QUE_FREE free_func, void *ud);
-BOOL_T BlockQue_IsEmpty(BLOCKQUE_HANDLE q);
-BOOL_T BlockQue_IsNeedWake(BLOCKQUE_HANDLE q);
-void BlockQue_SetNeedWait(BLOCKQUE_HANDLE q, BOOL_T need);
-void BlockQue_Put(BLOCKQUE_HANDLE q, STQ_NODE_S *node);
-
-void * BlockQue_Poll(BLOCKQUE_HANDLE q);
-
-void * BlockQue_Take(BLOCKQUE_HANDLE q);
-
-void * BlockQue_CondTake(BLOCKQUE_HANDLE q);
-void * BlockQue_Peek(BLOCKQUE_HANDLE q);
-int BlockQue_Count(BLOCKQUE_HANDLE q);
-
-#endif
-
 #ifdef __cplusplus
     }
 #endif 

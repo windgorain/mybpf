@@ -28,7 +28,7 @@
 
 #define ARRAYBIT_SCAN_BUSY_BEGIN(_data, _bit_size, _index)  do { \
     INT64 _i, _j; \
-    INT64 _uint_num = NUM_UP_ALIGN(bit_size, 32)/32; \
+    INT64 _uint_num = NUM_UP_ALIGN(_bit_size, 32)/32; \
     for (_i=0; _i<_uint_num; _i++) { \
         if (_data[_i] == 0) \
             continue; \

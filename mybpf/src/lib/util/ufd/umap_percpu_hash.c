@@ -27,7 +27,7 @@ typedef struct {
     PERCPU_VALUE_S pcpu_value;
 }MAP_PERCPU_HASH_NODE_S;
 
-static int _map_percpu_hash_cmp(const void *key, const void *node, void *ud)
+static int _map_percpu_hash_cmp(const void *key, const void *node, const void *ud)
 {
     const MAP_PERCPU_HASH_S *ctrl = ud;
     const MAP_PERCPU_HASH_NODE_S *n = node;

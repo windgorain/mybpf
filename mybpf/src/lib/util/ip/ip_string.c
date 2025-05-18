@@ -43,8 +43,7 @@ BS_STATUS IPString_ParseIpMask(CHAR *pcIpMaskString, OUT IP_MASK_S *pstIpMask)
     LSTR_Strim(&stIP, TXT_BLANK_CHARS, &stIP);
     LSTR_Strim(&stMask, TXT_BLANK_CHARS, &stMask);
 
-    if ((stIP.uiLen > 15) || (stMask.uiLen > 15))
-    {
+    if ((stIP.uiLen > 15) || (stMask.uiLen > 15)) {
         return BS_BAD_PARA;
     }
 

@@ -38,8 +38,8 @@ extern BS_STATUS RArray_WriteForce(IN HANDLE hHandle, IN UCHAR *pucData, IN UINT
 extern BS_STATUS RArray_Write(IN HANDLE hHandle, IN UCHAR *pucData, IN UINT ulDataLen);
 extern BS_STATUS RArray_ReadNoDel(IN HANDLE hHandle, OUT UCHAR **ppucData, OUT UINT *pulDataLen);
 extern BS_STATUS RArray_Read(IN HANDLE hHandle, OUT UCHAR **ppucData, OUT UINT *pulDataLen);
-extern BS_STATUS RArray_ReadIndex(IN HANDLE hHandle, IN UINT ulIndex, OUT UCHAR **ppucData, OUT UINT *pulDataLen);
-extern BS_STATUS RArray_ReadReversedIndex(IN HANDLE hHandle, IN UINT ulIndex, OUT UCHAR **ppucData, OUT UINT *pulDataLen);
+extern U8 * RArray_ReadIndex(HANDLE hHandle, U32 ulIndex, OUT U32 *pulDataLen);
+extern U8 * RArray_ReadReversedIndex(HANDLE hHandle, U32 ulIndex, OUT U32 *pulDataLen);
 
 #ifdef __cplusplus
     }

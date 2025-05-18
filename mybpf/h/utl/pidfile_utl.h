@@ -11,7 +11,6 @@ extern "C"
 #endif
 
 int PIDFILE_Create(char *filename);
-int PIDFILE_Lock(char *filename);
 int PIDFile_ReadPID(char *filename);
 
 #ifdef __cplusplus

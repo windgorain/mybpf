@@ -38,19 +38,6 @@ static VOID * signal_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc)
 
     return oact.sa_handler;
 }
-#endif
-
-#ifdef IN_WINDOWS
-static VOID * signal_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc)
-{
-    return signal(iSigno, pfFunc);
-}
-#endif
-
-VOID * SIGNAL_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc)
-{
-    return signal_Set(iSigno, bRestart, pfFunc);
-}
 
 void (*setsignal(int signum, void (*sighandler)(int, siginfo_t *, void *)))(int)
 {
@@ -139,3 +126,17 @@ void pthread_clear_sig(void)
 
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
 }
+#endif
+
+#ifdef IN_WINDOWS
+static VOID * signal_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc)
+{
+    return signal(iSigno, pfFunc);
+}
+#endif
+
+VOID * SIGNAL_Set(IN int iSigno, IN BOOL_T bRestart, IN VOID * pfFunc)
+{
+    return signal_Set(iSigno, bRestart, pfFunc);
+}
+

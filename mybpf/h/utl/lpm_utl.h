@@ -1,5 +1,6 @@
 /*================================================================
 *   Created：LiXingang All rights reserved.
+*   Author: lixingang  Version: 1.0  Date: 2015-5-2
 *   Description：
 *
 ================================================================*/
@@ -45,7 +46,7 @@ typedef int (*PF_LPM_WALK_CB)(UINT ip, int depth, UINT64 nexthop, void *ud);
 
 typedef void (*PF_LPM_Reset)(void *lpm);
 typedef void (*PF_LPM_Final)(void *lpm);
-typedef int (*PF_LPM_SetLevel)(void *lpm, int level, int first_bit_num);
+typedef int (*PF_LPM_SetLevel)(void *lpm);
 typedef int (*PF_LPM_Add)(void *lpm, UINT ip, UCHAR depth, UINT64 nexthop);
 typedef int (*PF_LPM_Del)(void *lpm, UINT ip, UCHAR depth, UCHAR new_depth, UINT64 new_nexthop);
 typedef int (*PF_LPM_Lookup)(void *lpm, UINT ip, UINT64 *next_hop);
@@ -81,6 +82,9 @@ int LPM_Init(IN LPM_S *lpm, IN UINT array_size, IN LPM_ENTRY_S *array );
 int LPM32B_Init(IN LPM_S *lpm, IN UINT array_size, IN LPM32B_ENTRY_S *array );
 
 
+int DLPM32B_Init(IN LPM_S *lpm, void *memcap);
+
+
 int LPM64B_Init(IN LPM_S *lpm, IN UINT array_size, IN LPM64B_ENTRY_S *array );
 
 
@@ -90,13 +94,10 @@ int LPM_EnableRecording(IN LPM_S *lpm);
 int LPM_Add(IN LPM_S *lpm, UINT ip, UCHAR depth, UINT64 nexthop);
 void LPM_Reset(LPM_S *lpm);
 void LPM_Final(LPM_S *lpm);
+int LPM_SetLevel(LPM_S *lpm, int level, int first_bit_num);
 int LPM_Del(IN LPM_S *lpm, UINT ip, UCHAR depth, UCHAR new_depth, UINT64 new_nexthop);
 int LPM_FindRecording(LPM_S *lpm, UINT ip, UCHAR depth, OUT UINT64 *nexthop);
 int LPM_WalkRecording(LPM_S *lpm, PF_LPM_WALK_CB walk_func, void *ud);
-
-static inline int LPM_SetLevel(LPM_S *lpm, int level, int first_bit_num) {
-    return lpm->funcs->set_level_func(lpm, level, first_bit_num);
-}
 
 
 static inline int LPM_Lookup(LPM_S *lpm, UINT ip, UINT64 *next_hop)

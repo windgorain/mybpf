@@ -20,13 +20,13 @@ extern "C"
 typedef VOID (*PF_IC_PRINT_FUNC)(CHAR *pcMsg, USER_HANDLE_S *pstUserHandle);
 typedef HANDLE IC_HANDLE;
 
-int IC_GetLogEvent(char *event);
-int IC_GetLogEventStr(UINT events, OUT char **strs);
-void IC_OutString(UINT uiLevel, char *msg);
-IC_HANDLE IC_Reg(PF_IC_PRINT_FUNC pfFunc, USER_HANDLE_S *pstUserHandle, UINT events);
-VOID IC_UnReg(IN IC_HANDLE hIcHandle);
-void IC_SetEvents(IC_HANDLE hIcHandle, UINT events);
-void IC_Print(UINT uiLevel, char *fmt, ...);
+PLUG_API int IC_GetLogEvent(char *event);
+PLUG_API int IC_GetLogEventStr(UINT events, OUT char **strs);
+PLUG_API void IC_OutString(UINT uiLevel, char *msg);
+PLUG_API IC_HANDLE IC_Reg(PF_IC_PRINT_FUNC pfFunc, USER_HANDLE_S *pstUserHandle, UINT events);
+PLUG_API VOID IC_UnReg(IN IC_HANDLE hIcHandle);
+PLUG_API void IC_SetEvents(IC_HANDLE hIcHandle, UINT events);
+PLUG_API void IC_Print(UINT uiLevel, char *fmt, ...);
 
 #define IC_FatalInfo(fmt, ...) IC_Print(IC_LEVEL_FATAL, fmt, ##__VA_ARGS__)
 #define IC_ErrInfo(fmt, ...) IC_Print(IC_LEVEL_ERR, fmt, ##__VA_ARGS__)

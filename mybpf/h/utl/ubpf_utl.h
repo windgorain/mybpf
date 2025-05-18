@@ -12,7 +12,7 @@ extern "C"
 #endif
 
 typedef void * UBPF_VM_HANDLE;
-typedef uint64_t (*ubpf_jit_fn)(void* mem, size_t mem_len);
+typedef U64 (*ubpf_jit_fn)(void* mem, size_t mem_len);
 
 typedef struct {
     UBPF_VM_HANDLE vm;

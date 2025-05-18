@@ -32,7 +32,9 @@ int BUFFER_AllocBuf(BUFFER_S *pstBuffer, UINT buf_size);
 void BUFFER_SetOutputFunc(BUFFER_S *pstBuffer, PF_BUFFER_OUT_FUNC func, USER_HANDLE_S *ud);
 
 int BUFFER_Write(BUFFER_S *pstBuffer, void *data, UINT data_len);
+void BUFFER_WriteLn(BUFFER_S *pstBuffer, char *data, int len);
 int BUFFER_WriteString(BUFFER_S *pstBuffer, char *data);
+void BUFFER_WriteStringLn(BUFFER_S *pstBuffer, char *str);
 void BUFFER_WriteByHex(BUFFER_S *pstBuffer, void *data, int len);
 int BUFFER_Print(BUFFER_S *pstBuffer, char *fmt, ...);
 int BUFFER_Flush(BUFFER_S *pstBuffer);

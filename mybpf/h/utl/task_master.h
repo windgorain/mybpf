@@ -16,9 +16,9 @@
 
 typedef HANDLE TASK_MASTER_HANDLE;
 
-typedef VOID (*PF_TASK_MASTER_FUNC)(void *ud);
+typedef void (*PF_TASK_MASTER_FUNC)(void *ud);
 
-TASK_MASTER_HANDLE TASK_Master_Create(IN UINT uiTime);
+TASK_MASTER_HANDLE TASK_Master_Create(char *name, IN UINT uiTime);
 
 BS_STATUS TASK_Master_SetEvent
 (

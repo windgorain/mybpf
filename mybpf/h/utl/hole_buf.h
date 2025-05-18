@@ -23,6 +23,7 @@ typedef struct {
 
 int HoleBuf_Init(HOLE_BUF_S *hole_buf);
 int HoleBuf_Add(HOLE_BUF_S *hole_buf, HOLE_BUF_NODE_S *node);
+void HoleBuf_Del(HOLE_BUF_S *hole_buf, HOLE_BUF_NODE_S *node);
 
 
 

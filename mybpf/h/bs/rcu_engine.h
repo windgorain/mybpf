@@ -13,8 +13,9 @@ extern "C"
 
 PLUG_API void * RcuEngine_GetMemcap();
 PLUG_API void RcuEngine_Call(RCU_NODE_S *rcu_node, PF_RCU_FREE_FUNC rcu_func);
-PLUG_API void RcuEngine_Wait();
 PLUG_API void RcuEngine_Sync();
+PLUG_API void RcuEngine_FastSync();
+PLUG_API void RcuEngine_Barrier(void);
 PLUG_API int RcuEngine_Lock();
 PLUG_API void RcuEngine_UnLock(int state);
 

@@ -17,7 +17,7 @@
 #define MEM_Set(pBuf, ucTo, uiLen) memset(pBuf, ucTo, uiLen)
 #define Mem_Zero(pMem,ulSize)  memset(pMem, 0, ulSize)
 
-#if defined(USE_BS)
+#if (defined(USE_BS) && defined(USE_MEM_MANGED))
 #define SUPPORT_MEM_MANAGED
 #endif
 
@@ -31,9 +31,24 @@
 
 #define MEM_Kalloc(uiSize) MEM_Malloc(uiSize)
 #define MEM_ZKalloc(uiSize) MEM_ZMalloc(uiSize)
-#define MEM_KallocAndCopy(uiSize) MEM_MallocAndCopy(uiSize)
+#define MEM_KallocAndCopy(d,l) MEM_MallocAndCopy(d,l,l)
 #define MEM_KFree(pMem)  MEM_Free(pMem)
-#define MEM_SafeKFree(pMem) MEM_SafeFree(pMem)
+#define MEM_SafeKFree(pMem) do {if (pMem) {MEM_KFree(pMem);}}while(0) 
+
+
+#define MEM_VMalloc(uiSize) MEM_Malloc(uiSize)
+#define MEM_ZVMalloc(uiSize) MEM_ZMalloc(uiSize)
+#define MEM_VallocAndCopy(d,l) MEM_MallocAndCopy(d,l,l)
+#define MEM_VFree(pMem)  MEM_Free(pMem)
+#define MEM_SafeVFree(pMem) do {if (pMem) {MEM_VFree(pMem);}}while(0) 
+
+
+#define MEM_ModuleAlloc(uiSize) MEM_Malloc(uiSize)
+#define MEM_ModuleFree(x) MEM_Free(x)
+
+
+#define MEM_CopyFromUser(to,from,len) memcpy(to,from,len)
+#define MEM_CopyToUser(to,from,len) memcpy(to,from,len)
 
 #define MEM_ZMallocAndCopy(pSrc,uiSrcLen,uiMallocLen) ({ \
         char *_mem = MEM_MallocAndCopy(pSrc,uiSrcLen, uiMallocLen); \
@@ -50,10 +65,12 @@
         (void*)_mem; })
 
 #define MEM_Dup(data, len) MEM_MallocAndCopy(data, len, len)
+#define MEM_KDup(data, len) MEM_KallocAndCopy(data, len)
+#define MEM_VDup(data, len) MEM_VallocAndCopy(data, len)
 
-void * _mem_Malloc(IN UINT uiSize, const char *pcFileName, IN UINT uiLine);
+VOID * _mem_Malloc(U64 uiSize, const char *pcFileName, UINT uiLine);
 void _mem_Free(IN VOID *pMem, const char *pcFileName, IN UINT uiLine);
-void * _mem_Realloc(void *old_mem, UINT old_size, UINT new_size, char *filename, UINT line);
+void * _mem_Realloc(void *old_mem, U64 old_size, U64 new_size, char *filename, UINT line);
 
 static inline VOID * _mem_MallocWithZero(IN UINT uiSize, const char *pszFileName, IN UINT ulLine)
 {
@@ -77,7 +94,7 @@ static inline VOID * _mem_MallocWithZero(IN UINT uiSize, const char *pszFileName
 #endif
 
 
-static inline int MEM_Cmp(IN UCHAR *pucMem1, IN UINT uiMem1Len, IN UCHAR *pucMem2, IN UINT uiMem2Len)
+static inline int MEM_Cmp(const UCHAR *pucMem1, UINT uiMem1Len, const UCHAR *pucMem2, IN UINT uiMem2Len)
 {
     UINT uiCmpLen = MIN(uiMem1Len, uiMem2Len);
 

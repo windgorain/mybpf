@@ -22,8 +22,7 @@ typedef HANDLE EVENT_HANDLE;
 extern EVENT_HANDLE Event_Create(void);
 extern VOID Event_Delete (IN EVENT_HANDLE hEventID);
 extern BS_STATUS Event_Write(EVENT_HANDLE hEventID, UINT64 events);
-extern BS_STATUS Event_Read(EVENT_HANDLE hEventID, UINT64 events,
-        OUT UINT64 *events_out, UINT ulFlag, UINT ulTimeToWait);
+extern BS_STATUS Event_Read(EVENT_HANDLE hEventID, UINT64 events, OUT UINT64 *events_out, UINT ulFlag, UINT ulTimeToWait);
 
 #ifdef __cplusplus
     }

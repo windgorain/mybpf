@@ -144,15 +144,13 @@ MYPOLL_HANDLE MyPoll_Create(void)
     USER_HANDLE_S stUserHandle;
 
     pstCtrl = MEM_ZMalloc(sizeof(_MYPOLL_CTRL_S));
-    if (NULL == pstCtrl)
-    {
+    if (NULL == pstCtrl) {
         return NULL;
     }
     pstCtrl->iSocketDst = -1;
     pstCtrl->iSocketSrc = -1;
 
-    if (BS_OK != Socket_Pair(SOCK_STREAM, aiFd))
-    {
+    if (BS_OK != Socket_Pair(SOCK_STREAM, aiFd)) {
         MyPoll_Destory(pstCtrl);
         return NULL;
     }
@@ -165,22 +163,18 @@ MYPOLL_HANDLE MyPoll_Create(void)
     Socket_SetNoDelay(aiFd[1], 1);
 
     pstCtrl->hFdInfoTbl = DARRAY_Create(1024, 128);
-    if (NULL == pstCtrl->hFdInfoTbl)
-    {
+    if (NULL == pstCtrl->hFdInfoTbl) {
         MyPoll_Destory(pstCtrl);
         return NULL;
     }
 
-    if (BS_OK != _Mypoll_Proto_Init(pstCtrl))
-    {
+    if (BS_OK != _Mypoll_Proto_Init(pstCtrl)) {
         MyPoll_Destory(pstCtrl);
         return NULL;
     }
 
     stUserHandle.ahUserHandle[0] = pstCtrl;
-    if (BS_OK != MyPoll_SetEvent(pstCtrl, aiFd[1], MYPOLL_EVENT_IN,
-                    _mypoll_notify_trigger, &stUserHandle))
-    {
+    if (BS_OK != MyPoll_SetEvent(pstCtrl, aiFd[1], MYPOLL_EVENT_IN, _mypoll_notify_trigger, &stUserHandle)) {
         MyPoll_Destory(pstCtrl);
         return NULL;
     }
@@ -277,13 +271,11 @@ BS_STATUS MyPoll_AddEvent(MYPOLL_HANDLE hMypoll, int fd, UINT uiEvent)
     MYPOLL_FDINFO_S *pstFdInfo;
 
     pstFdInfo = _mypoll_get_fd_info(pstCtrl, fd);
-    if (NULL == pstFdInfo)
-    {
+    if (NULL == pstFdInfo) {
         return BS_ERR;
     }
 
-    if ((pstFdInfo->uiEvent & uiEvent) == uiEvent)
-    {
+    if ((pstFdInfo->uiEvent & uiEvent) == uiEvent) {
         return BS_OK;
     }
 
@@ -346,9 +338,7 @@ BS_STATUS MyPoll_ModifyEvent(MYPOLL_HANDLE hMypoll, int fd, UINT uiEvent)
 void MyPoll_Del(MYPOLL_HANDLE hMypoll, int fd)
 {
     _MYPOLL_CTRL_S *pstCtrl = (_MYPOLL_CTRL_S*)hMypoll;
-
     _Mypoll_Proto_Del(pstCtrl, fd);
-
     _mypoll_free_fd_info(pstCtrl, fd);
 }
 
@@ -386,9 +376,7 @@ BS_STATUS MyPoll_SetSignalProcessor(MYPOLL_HANDLE hMypoll, INT signo, PF_MYPOLL_
 }
 
 
-BS_STATUS MyPoll_SetUserEventProcessor(MYPOLL_HANDLE hMypoll,
-        PF_MYPOLL_USER_EVENT_FUNC pfFunc,
-        USER_HANDLE_S *uh )
+BS_STATUS MyPoll_SetUserEventProcessor(MYPOLL_HANDLE hMypoll, PF_MYPOLL_USER_EVENT_FUNC pfFunc, USER_HANDLE_S *uh )
 {
     _MYPOLL_CTRL_S *pstCtrl = (_MYPOLL_CTRL_S*)hMypoll;
 

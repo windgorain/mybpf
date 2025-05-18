@@ -22,8 +22,8 @@
 typedef struct tagMAP_CTRL_S * MAP_HANDLE;
 
 typedef struct {
-    VOID *pKey;
-    VOID *pData;
+    void *pKey;
+    void *pData; 
     UINT uiKeyLen;
 
     UINT dup_key: 1; 
@@ -57,12 +57,7 @@ typedef union {
     MAP_RBTREE_NODE_S rbtree_node;
 }MAP_LINK_NODE_S;
 
-typedef struct {
-    void *memcap;
-    UINT bucket_num; 
-}MAP_PARAM_S;
-
-typedef int (*PF_MAP_WALK_FUNC)(IN MAP_ELE_S *pstEle, IN VOID *pUserHandle);
+typedef int (*PF_MAP_WALK_FUNC)(MAP_ELE_S *ele, void *ud);
 typedef void (*PF_MAP_FREE_FUNC)(void *data, void *ud);
 
 typedef void (*PF_MAP_Destroy)(MAP_HANDLE map, PF_MAP_FREE_FUNC free_func, void *ud);
@@ -72,11 +67,11 @@ typedef void * (*PF_MAP_Del_Node)(MAP_HANDLE map, void *node);
 typedef int (*PF_MAP_Add)(MAP_HANDLE map, VOID *pKey, UINT uiKeyLen, VOID *pData, UINT flag);
 typedef MAP_ELE_S* (*PF_MAP_GetEle)(MAP_HANDLE map, void *key, UINT key_len);
 typedef void* (*PF_MAP_Get)(MAP_HANDLE map, void *pKey, UINT uiKeyLen);
-typedef void* (*PF_MAP_Del)(IN MAP_HANDLE map, IN VOID *pKey, IN UINT uiKeyLen);
-typedef void* (*PF_MAP_Del_By_Ele)(IN MAP_HANDLE map, IN MAP_ELE_S *ele);
+typedef void* (*PF_MAP_Del)(MAP_HANDLE map, void *pKey, UINT uiKeyLen);
+typedef void* (*PF_MAP_Del_By_Ele)(MAP_HANDLE map, MAP_ELE_S *ele);
 typedef void (*PF_MAP_DelAll)(MAP_HANDLE map, PF_MAP_FREE_FUNC func, void * pUserData);
 typedef UINT (*PF_MAP_Count)(MAP_HANDLE map);
-typedef void (*PF_MAP_Walk)(IN MAP_HANDLE map, IN PF_MAP_WALK_FUNC pfWalkFunc, IN VOID *pUserData);
+typedef void (*PF_MAP_Walk)(MAP_HANDLE map, PF_MAP_WALK_FUNC pfWalkFunc, void *ud);
 typedef MAP_ELE_S* (*PF_MAP_GetNext)(MAP_HANDLE map, MAP_ELE_S *pstCurrent);
 
 typedef struct {
@@ -95,21 +90,34 @@ typedef struct {
     PF_MAP_GetNext getnext_func;
 }MAP_FUNC_S;
 
+enum {
+    MAP_TYPE_HASH = 0,
+    MAP_TYPE_ARRAY,
+    MAP_TYPE_AVL,
+    MAP_TYPE_RBTREE,
+    MAP_TYPE_LIST,
+};
+
 typedef struct tagMAP_CTRL_S{
     MAP_FUNC_S *funcs;
     void *memcap;
     void *impl_map;
-    UINT uiCapacity;
+    U16 type;
+    U16 reserved;
+    U32 capacity;    
+    U32 node_size;   
 }MAP_CTRL_S;
 
 
-MAP_HANDLE MAP_HashCreate(MAP_PARAM_S *p);
+MAP_HANDLE MAP_HashCreate(void *memcap, U32 bucket_num);
 
 MAP_HANDLE MAP_AvlCreate(void *memcap );
 
 MAP_HANDLE MAP_RBTreeCreate(void *memcap );
 
 MAP_HANDLE MAP_ListCreate(void *memcap );
+
+MAP_HANDLE MAP_ArrayCreate(void *memcap, U32 node_size, U32 capacity);
 
 static inline void * MAP_GetMemcap(MAP_HANDLE map)
 {
@@ -128,12 +136,15 @@ static inline void MAP_Reset(MAP_HANDLE map, PF_MAP_FREE_FUNC free_func, void *u
 
 static inline void MAP_SetCapacity(MAP_HANDLE map, UINT capacity)
 {
-    map->uiCapacity = capacity;
+    
+    if (map->type != MAP_TYPE_ARRAY) {
+        map->capacity = capacity;
+    }
 }
 
 static inline UINT MAP_GetCapacity(MAP_HANDLE map)
 {
-    return map->uiCapacity;
+    return map->capacity;
 }
 
 
@@ -177,7 +188,7 @@ static inline void * MAP_Get(MAP_HANDLE map, void *pKey, UINT uiKeyLen)
 }
 
 
-static inline void * MAP_Del(IN MAP_HANDLE map, IN VOID *pKey, IN UINT uiKeyLen)
+static inline void * MAP_Del(MAP_HANDLE map, void *pKey, UINT uiKeyLen)
 {
     return map->funcs->del_func(map, pKey, uiKeyLen);
 }
@@ -209,12 +220,12 @@ static inline MAP_ELE_S * MAP_GetNextEle(MAP_HANDLE map, MAP_ELE_S *pstCurrent)
 
 static inline int MAP_AddStringKey(MAP_HANDLE map, char *key, void *pData, UINT flag)
 {
-    return MAP_Add(map, key, strlen(key), pData, flag);
+    return MAP_Add(map, key, (U32)strlen(key), pData, flag);
 }
 
 static inline void * MAP_GetStringKey(MAP_HANDLE map, char *key)
 {
-    return MAP_Get(map, key, strlen(key));
+    return MAP_Get(map, key, (U32)strlen(key));
 }
 
 
