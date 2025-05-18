@@ -36,31 +36,6 @@ SPF/BARE格式文件的好处:
 | mini | runtime/mini | 非常小的bare runtime |
 | uboot | runtime/uboot | 支持在uboot上运行 |
 
-编译成SPF格式执行:  
-./spfbuilder convert fibonacci.o -j -o fibonacci.spf  
-time ./spfbuilder run fibonacci.spf -p 10000000000  
-执行两次结果:  
-2.89s user 0.00s system 99% cpu 2.911 total  
-2.89s user 0.00s system 99% cpu 2.908 total  
-
-编译成BARE格式执行:  
-./barebuilder con bare fibonacci.o -o fibonacci.bare  
-time ./barebuilder run fibonacci.bare -p 10000000000  
-执行两次结果:  
-2.89s user 0.00s system 99% cpu 2.910 total  
-2.89s user 0.00s system 99% cpu 2.907 total  
-
-# 已测试环境
-已经尝试在多种不同环境移植并运行，包括：  
-Linux用户态(Centos/Ubuntu)  
-Linux内核态  
-Macos用户态 (Intel CPU 笔记本、M1笔记本、M2笔记本)  
-Windows用户态  
-嵌入式(uboot + qemu)  
-Openwrt (Newifi2+解释器)  
-树莓派 (2B+)  
-华为手机 (P20+Termux)  
-
 # 编译spf
 cd mybpf  
 这里有两个build_xxx.sh文件，分别是不同环境下的编译脚本  
@@ -107,18 +82,13 @@ cd mybpf
 ./build_mac.sh 或者 ./build_linux.sh
 
 cd build/out/spf_runtime
-cp ../../../loader/*.bare ./
-cp ../../../example/ulc/test/*.o ./
+cp -r ../../../loader/* ./
+cp ../../../example/*.o ./
 
-../tool/runbpf con bare test_sub_prog.o -o test_sub_prog.bare
-./bare_cmd test_sub_prog.bare
+./spfcmd hello_world.o
 
-../tool/runbpf con simple test_func_ptr_global.o -o test_func_ptr_global.spf -j
-./bare_spf
-> load test test_func_ptr_global.spf
-> testcmd
-> quit
-
+./barebuilder convert hello_world.o -o hello_world.bare
+./bare_cmd hello_world.bare
 ```
 
 # 编写APP 示例
@@ -130,7 +100,7 @@ cd example/ulc/test
 SEC("tcmd/hello_test")
 int main()
 {
-    printf("Hello world!! \n");
+    BPF_Print("Hello world!! \n");
     return 0;
 }
 ```
