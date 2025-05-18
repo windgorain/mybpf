@@ -32,26 +32,6 @@ cd mybpf
 
 编译结果在: build/out/spf/  
 
-# 用法
-## 转换为SPF格式  
-  spfbuilder convert ebpf文件名 -o 输出文件名 -j
-
-## 执行 
-  运行ebpf文件:  
-    spfcmd 文件名  
-
-## runtime
-### bare-cmd
-  bare-cmd是以命令行方式执行BARE文件的runtime  
-  用法:  bare-cmd file.bare  
-  file.bare: 文件名  
-
-### bare_interactive
-  bare-interactive是交互模式的 bare runtime  
-
-### spfcmd
-  spfcmd是SPF runtime
-
 # 使用示例
 ```
 cd mybpf
