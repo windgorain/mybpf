@@ -31,56 +31,6 @@ extern "C" {
 #define fwrite(a,b,c,d) ulc_sys_fwrite(a,b,c,d)
 #define getc(a) ulc_sys_getc(a)
 #define stat(a,b) ulc_sys_stat(a,b)
-#undef stdin
-#define  stdin ((void*)0)
-#undef stdout
-#define  stdout ((void*)1)
-#undef stderr 
-#define stderr ((void*)2)
-
-#define fprintf(fp,fmt, ...) ({ \
-    char _fmt[] = fmt; \
-    int _count = BS_ARG_COUNT(__VA_ARGS__); \
-    U64 _d[10]; \
-    long _ret = -1; \
-    switch (_count) { \
-        case 10: _d[9]=(unsigned long long)BS_ARG_GET(10, ##__VA_ARGS__); \
-        case 9: _d[8]=(unsigned long long)BS_ARG_GET(9, ##__VA_ARGS__); \
-        case 8: _d[7]=(unsigned long long)BS_ARG_GET(8, ##__VA_ARGS__); \
-        case 7: _d[6]=(unsigned long long)BS_ARG_GET(7, ##__VA_ARGS__); \
-        case 6: _d[5]=(unsigned long long)BS_ARG_GET(6, ##__VA_ARGS__); \
-        case 5: _d[4]=(unsigned long long)BS_ARG_GET(5, ##__VA_ARGS__); \
-        case 4: _d[3]=(unsigned long long)BS_ARG_GET(4, ##__VA_ARGS__); \
-        case 3: _d[2]=(unsigned long long)BS_ARG_GET(3, ##__VA_ARGS__); \
-        case 2: _d[1]=(unsigned long long)BS_ARG_GET(2, ##__VA_ARGS__); \
-        case 1: _d[0]=(unsigned long long)BS_ARG_GET(1, ##__VA_ARGS__); \
-        case 0: break; \
-    } \
-    if (_count <= 10) { _ret = ulc_sys_fprintf(fp,fmt,_d,_count);} \
-    _ret; \
-})
-
-#define fscanf(fp,fmt, ...) ({ \
-    char _fmt[] = fmt; \
-    int _count = BS_ARG_COUNT(__VA_ARGS__); \
-    U64 _d[10]; \
-    long _ret = -1; \
-    switch (_count) { \
-        case 10: _d[9]=(unsigned long long)BS_ARG_GET(10, ##__VA_ARGS__); \
-        case 9: _d[8]=(unsigned long long)BS_ARG_GET(9, ##__VA_ARGS__); \
-        case 8: _d[7]=(unsigned long long)BS_ARG_GET(8, ##__VA_ARGS__); \
-        case 7: _d[6]=(unsigned long long)BS_ARG_GET(7, ##__VA_ARGS__); \
-        case 6: _d[5]=(unsigned long long)BS_ARG_GET(6, ##__VA_ARGS__); \
-        case 5: _d[4]=(unsigned long long)BS_ARG_GET(5, ##__VA_ARGS__); \
-        case 4: _d[3]=(unsigned long long)BS_ARG_GET(4, ##__VA_ARGS__); \
-        case 3: _d[2]=(unsigned long long)BS_ARG_GET(3, ##__VA_ARGS__); \
-        case 2: _d[1]=(unsigned long long)BS_ARG_GET(2, ##__VA_ARGS__); \
-        case 1: _d[0]=(unsigned long long)BS_ARG_GET(1, ##__VA_ARGS__); \
-        case 0: break; \
-    } \
-    if (_count <= 10) { _ret = ulc_sys_fscanf(fp,fmt,_d,_count);} \
-    _ret; \
-})
 
 #define time(a) ulc_sys_time(a)
 

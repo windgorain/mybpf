@@ -21,27 +21,6 @@ extern "C" {
     BPF_Print("%d\n", __LINE__); \
 } while(0)
 
-#define ulc_sys_snprintf(buf,size,_fmt, ...) ({ \
-    int _count = BS_ARG_COUNT(__VA_ARGS__); \
-    U64 _d[10]; \
-    long _ret = -1; \
-    switch (_count) { \
-        case 10: _d[9]=(unsigned long long)BS_ARG_GET(10, ##__VA_ARGS__); \
-        case 9: _d[8]=(unsigned long long)BS_ARG_GET(9, ##__VA_ARGS__); \
-        case 8: _d[7]=(unsigned long long)BS_ARG_GET(8, ##__VA_ARGS__); \
-        case 7: _d[6]=(unsigned long long)BS_ARG_GET(7, ##__VA_ARGS__); \
-        case 6: _d[5]=(unsigned long long)BS_ARG_GET(6, ##__VA_ARGS__); \
-        case 5: _d[4]=(unsigned long long)BS_ARG_GET(5, ##__VA_ARGS__); \
-        case 4: _d[3]=(unsigned long long)BS_ARG_GET(4, ##__VA_ARGS__); \
-        case 3: _d[2]=(unsigned long long)BS_ARG_GET(3, ##__VA_ARGS__); \
-        case 2: _d[1]=(unsigned long long)BS_ARG_GET(2, ##__VA_ARGS__); \
-        case 1: _d[0]=(unsigned long long)BS_ARG_GET(1, ##__VA_ARGS__); \
-        case 0: break; \
-    } \
-    if (_count <= 10) { _ret = bpf_snprintf(buf,size,_fmt,_d,_count*8);} \
-    _ret; \
-})
-
 #define ulc_bpf_snprintf(buf,size,fmt, ...) ({ \
     char _fmt[] = fmt; \
     long _ret = _ulc_sys_snprintf(buf,size,_fmt,##__VA_ARGS__); \

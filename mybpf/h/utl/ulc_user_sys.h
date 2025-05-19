@@ -137,53 +137,6 @@ static int (*_ulc_idfunc_run)(U32 id, MYBPF_PARAM_S *p) = (void*)ULC_ID_IDFUNC_R
 static int (*_ulc_namefunc_run)(char *name, MYBPF_PARAM_S *p) = (void*)ULC_ID_NAMEFUNC_RUN;
 static int (*_ulc_evob_notify)(U32 event, MYBPF_PARAM_S *p) = (void*)ULC_ID_EVOB_NOTIFY;
 
-#define ulc_idfunc_run(_id, ...) ({ \
-    MYBPF_PARAM_S _p; \
-    _p.p[0] = (long)BS_ARG_GET(1, ##__VA_ARGS__); \
-    _p.p[1] = (long)BS_ARG_GET(2, ##__VA_ARGS__); \
-    _p.p[2] = (long)BS_ARG_GET(3, ##__VA_ARGS__); \
-    _p.p[3] = (long)BS_ARG_GET(4, ##__VA_ARGS__); \
-    _p.p[4] = (long)BS_ARG_GET(5, ##__VA_ARGS__); \
-    _ulc_idfunc_run((_id), &_p); \
-    _p.bpf_ret; \
-    })
-
-#define ulc_namefunc_run(_name, ...) ({ \
-    MYBPF_PARAM_S _p; \
-    _p.p[0] = (long)BS_ARG_GET(1, ##__VA_ARGS__); \
-    _p.p[1] = (long)BS_ARG_GET(2, ##__VA_ARGS__); \
-    _p.p[2] = (long)BS_ARG_GET(3, ##__VA_ARGS__); \
-    _p.p[3] = (long)BS_ARG_GET(4, ##__VA_ARGS__); \
-    _p.p[4] = (long)BS_ARG_GET(5, ##__VA_ARGS__); \
-    _ulc_namefunc_run((_name), &_p); \
-    _p.bpf_ret; \
-    })
-
-#define ulc_evob_notify(_event, ...) ({ \
-    MYBPF_PARAM_S _p; \
-    _p.p[0] = (long)BS_ARG_GET(1, ##__VA_ARGS__); \
-    _p.p[1] = (long)BS_ARG_GET(2, ##__VA_ARGS__); \
-    _p.p[2] = (long)BS_ARG_GET(3, ##__VA_ARGS__); \
-    _p.p[3] = (long)BS_ARG_GET(4, ##__VA_ARGS__); \
-    _p.p[4] = (long)BS_ARG_GET(5, ##__VA_ARGS__); \
-    _ulc_evob_notify((_event), &_p); \
-    _p.bpf_ret; \
-    })
-
-#define ulc_call_sym_name(_err_ret, _name, ...) ({ \
-        U64 _ret = (_err_ret); \
-        U64 (*_func)(U64,U64,U64,U64,U64) = ulc_sys_get_sym(_name); \
-        if (_func) { \
-                _ret = _func((long)BS_ARG_GET(1, ##__VA_ARGS__),\
-                        (long)BS_ARG_GET(2, ##__VA_ARGS__), \
-                        (long)BS_ARG_GET(3, ##__VA_ARGS__), \
-                        (long)BS_ARG_GET(4, ##__VA_ARGS__), \
-                        (long)BS_ARG_GET(5, ##__VA_ARGS__)); \
-        } \
-        _ret; })
-
-#define ulc_call_sym(_err_ret, _name, ...) ulc_call_sym_name(_err_ret, #_name, ##__VA_ARGS__)
-
 #endif
 
 #ifdef __cplusplus
